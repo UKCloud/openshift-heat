@@ -1,0 +1,64 @@
+heat_template_version: 2016-04-08
+
+parameters:
+  flavor:
+    type: string
+    description: Flavor for the server to be created
+    constraints:
+      - custom_constraint: nova.flavor
+  image:
+    type: string
+    description: Image ID or image name to use for the server
+    constraints:
+      - custom_constraint: glance.image
+  key_name:
+    type: string
+    description: SSH Key Pair
+    constraints:
+      - custom_constraint: nova.keypair
+  server_name:
+    type: string
+    description: Name of the server
+  networks:
+    type: json
+  rhn_user:
+    type: string
+    label: rhn username
+    description: Name of the rhn user.
+  rhn_password:
+    type: string
+    label: RHN user password
+    description: rhn user password
+    hidden: true
+
+resources:
+  server:
+    type: OS::Nova::Server
+    properties:
+      name: { get_param: server_name }
+      flavor: { get_param: flavor}
+      image: { get_param: image }
+      key_name: { get_param: key_name }
+      networks: { get_param: networks }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          params:
+           __rhn_username__: { get_param: rhn_user }
+           __rhn_password__: { get_param: rhn_password }
+          template: |
+            #!/bin/bash -ex
+             subscription-manager register --username __rhn_username__ --password __rhn_password__ --auto-attach
+             subscription-manager repos --disable=*
+             subscription-manager repos --enable=rhel-7-server-rpms
+
+outputs:
+  server_ip:
+    value: { get_attr: [  server, first_address ] }
+  host_entry:
+    value:
+      str_replace:
+        template: servername ipaddress
+        params:
+          servername: { get_attr: [ server, first_address ] }
+          ipaddress: { get_attr: [  server, name ] }

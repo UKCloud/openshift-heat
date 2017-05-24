@@ -1,0 +1,41 @@
+heat_template_version: 2016-04-08
+
+parameters:
+  net_name:
+    type: string
+    description: name of the network
+  allocation_pools:
+    type: json
+    description: name of the network
+  cidr:
+    type: string
+    description: name of the network
+  dns:
+    type: json
+    description: name of the network
+  gateway:
+    type: string
+    description: name of the network
+
+resources:
+  network:
+    type: OS::Neutron::Net
+    properties:
+      admin_state_up: true
+      name: { get_param: net_name}
+
+  subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network: { get_resource: network }
+      allocation_pools: { get_param: allocation_pools }
+      cidr: { get_param: cidr }
+      dns_nameservers: { get_param: dns }
+      gateway_ip: { get_param: gateway }
+      ip_version: 4
+
+outputs:
+  network: 
+    value: { get_resource: network }
+  subnet:
+    value: { get_attr: [ subnet, name ] }

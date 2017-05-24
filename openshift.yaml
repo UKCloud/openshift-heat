@@ -1,0 +1,286 @@
+heat_template_version: 2016-04-08
+
+parameters:
+  flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: m1.medium
+    constraints:
+      - custom_constraint: nova.flavor
+  image:
+    type: string
+    description: Image ID or image name to use for the server
+    default: "rhel-atomic-cloud-7.3"
+    constraints:
+      - custom_constraint: glance.image
+  key_name:
+    type: string
+    description: SSH Key Pair
+    default: "venv-mac"
+    constraints:
+      - custom_constraint: nova.keypair
+  master_scale:
+    type: number
+    description: Number of master nodes to deploy
+    default: 3
+  worker_scale:
+    type: number
+    description: Number of worker nodes to deploy
+    default: 2
+  haproxy_scale:
+    type: number
+    description: Number of HAProxy nodes to deploy
+    default: 2
+  rhn_user:
+    type: string
+    label: rhn username
+    description: Name of the rhn user.
+  rhn_password:
+    type: string
+    label: RHN user password
+    description: rhn user password
+    hidden: true
+
+resources:
+  InternetGW:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: Internet }
+      name: InternetGW
+
+  internet_gw:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: InternetGW }
+      subnet: { get_attr: [ internal_net, subnet ] }
+
+  internal_net:
+    type: network.yaml
+    properties:
+      net_name: internal_net
+      allocation_pools: [{"start": "10.1.1.2", "end": "10.1.1.100"}]
+      cidr: "10.1.1.0/24"
+      dns: [ "10.1.1.101", "8.8.8.8" ]
+      gateway: "10.1.1.1"
+
+  bastion_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_attr: [ internal_net, network ] }
+      fixed_ips: [{ subnet: { get_attr: [ internal_net, subnet ] }, ip_address: 10.1.1.101 }]
+      security_groups:
+        - default
+        - { get_resource: ssh_secgroup }
+
+  haproxy_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_attr: [ internal_net, network ] }
+      fixed_ips:
+      - subnet_id: { get_attr: [ internal_net, subnet ] }
+
+  bastion_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties: 
+      floating_network: "Internet"
+
+  bastion_floating_ip_assoc:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: bastion_floating_ip }
+      port_id: { get_resource: bastion_port }
+
+  ssh_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules:
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 22
+          port_range_max: 22
+
+  bastion_host:
+    type: OS::Nova::Server
+    depends_on: [ internal_net, bastion_port ]
+    properties:
+      name: bastion_host
+      flavor: { get_param: flavor }
+      image: "rhel-7-LTS" 
+      key_name: { get_param: key_name }
+      networks:
+        - port: { get_resource: bastion_port }
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          params:
+           __rhn_username__: { get_param: rhn_user }
+           __rhn_password__: { get_param: rhn_password }
+           __dns_ip__: 10.1.1.101 
+          template: |
+            #!/bin/bash
+
+            # Log all output to file.
+            exec > >(tee -a /var/log/bash_script.log) 2>&1
+            set -x
+
+            # setup repos & install software packages
+            subscription-manager register --username __rhn_username__ --password __rhn_password__ --auto-attach
+            subscription-manager attach --pool=8a85f9875801950c01580c235a322cb4
+            subscription-manager repos --disable=*
+            subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-ose-3.5-rpms --enable=rhel-7-fast-datapath-rpms
+            yum install -y dnsmasq wget git net-tools bind-utils iptables-services bridge-utils bash-completion atomic-openshift-utils atomic-openshift-excluder atomic-docker-excluder
+
+            # setup dnsmasq config
+            cat >> /etc/dnsmasq.conf << EOF
+            domain-needed
+            bogus-priv
+            domain=example.com
+            expand-hosts
+            local=/example.com/
+            listen-address=127.0.0.1
+            listen-address=__dns_ip__
+            bind-interfaces
+            EOF
+
+            sed -i -- 's/__dns_ip__/8.8.8.8/g' /etc/resolv.conf
+            systemctl start dnsmasq
+
+
+  haproxy_group:
+    type: OS::Heat::ResourceGroup
+    depends_on: [ internal_net, bastion_host ]
+    properties:
+      count: { get_param: haproxy_scale }
+      resource_def:
+        type: server.yaml
+        properties:
+          server_name: haproxy-%index%
+          flavor: { get_param: flavor }
+          image: { get_param: image }
+          key_name: { get_param: key_name }
+          rhn_user: { get_param: rhn_user }
+          rhn_password: { get_param: rhn_password }
+          networks:
+            - network: { get_attr: [ internal_net, network ] }
+
+  master_group:
+    type: OS::Heat::ResourceGroup
+    depends_on: [ internal_net, bastion_host ]
+    properties:
+      count: { get_param: master_scale }
+      resource_def:
+        type: server.yaml
+        properties:
+          server_name: master-%index%
+          flavor: { get_param: flavor }
+          image: { get_param: image }
+          key_name: { get_param: key_name }
+          rhn_user: { get_param: rhn_user }
+          rhn_password: { get_param: rhn_password }
+          networks:
+            - network: { get_attr: [ internal_net, network ] }
+
+  worker_group:
+    type: OS::Heat::ResourceGroup
+    depends_on: [ internal_net, bastion_host ]
+    properties:
+      count: { get_param: worker_scale }
+      resource_def:
+        type: server.yaml
+        properties:
+          server_name: worker-%index%
+          flavor: { get_param: flavor }
+          image: { get_param: image }
+          key_name: { get_param: key_name }
+          rhn_user: { get_param: rhn_user }
+          rhn_password: { get_param: rhn_password }
+          networks:
+            - network: { get_attr: [ internal_net, network ] }
+
+#  bastion_boot_script:
+#    type: OS::Heat::SoftwareConfig
+#    properties:
+#      str_replace:
+#        params:
+#         __rhn_username__: { get_param: rhn_user }
+#         __rhn_password__: { get_param: rhn_password }
+#         __dns_ip__: 10.1.1.101 
+#        template: |
+#          #!/bin/bash
+#
+#          # Log all output to file.
+#          exec > >(tee -a /var/log/bash_script.log) 2>&1
+#          set -x
+#
+#          # setup repos & install software packages
+#          subscription-manager register --username __rhn_username__ --password __rhn_password__ --auto-attach
+#          subscription-manager attach --pool=8a85f9875801950c01580c235a322cb4
+#          subscription-manager repos --disable=*
+#          subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-ose-3.5-rpms --enable=rhel-7-fast-datapath-rpms
+#          yum install -y dnsmasq wget git net-tools bind-utils iptables-services bridge-utils bash-completion atomic-openshift-utils atomic-openshift-excluder atomic-docker-excluder
+#
+#          # setup dnsmasq config
+#          cat >> /etc/dnsmasq.conf << EOF
+#          domain-needed
+#          bogus-priv
+#          domain=example.com
+#          expand-hosts
+#          local=/example.com/
+#          listen-address=127.0.0.1
+#          listen-address=__dns_ip__
+#          bind-interfaces
+#          EOF
+#
+#          sed -i -- 's/__dns_ip__/8.8.8.8/g' /etc/resolv.conf
+#          systemctl start dnsmasq
+
+#  setup_host_file:
+#    type: OS::Heat::SoftwareConfig
+#    depends_on: [ worker_group, master_group, haproxy_group, bastion_host ]
+#    properties:
+#      config: |
+#        str_replace:
+#          params:
+#           __haproxy_details__: { get_attr: [ haproxy_group, host_entry ] }
+#          template: |
+#            #!/bin/bash
+#
+#            # Log all output to file.
+#            exec > >(tee -a /var/log/bash_script-1.log) 2>&1
+#            set -x
+#
+#            # add contents to /etc/hosts
+#            cat >> /etc/hosts << EOF
+#            __haproxy_details__
+#            EOF
+
+#  deployment_host_file:
+#    type: OS::Heat::SoftwareDeployment
+#    depends_on: [ setup_host_file ]
+#    properties:
+#      config: 
+#        get_resource: setup_host_file
+#      server:
+#        get_resource: bastion_host
+
+outputs:
+  bastion_ip:
+    description: External IP for connection to jump box.
+    value: { get_attr: [  bastion_floating_ip, floating_ip_address ] }
+  haproxy_ips:
+    description: IPs of the haproxy servers
+    value: { get_attr: [ haproxy_group, server_ip ] }
+  master_ips:
+    description: IPs of the masters
+    value: { get_attr: [ master_group, server_ip ] }
+  worker_ips:
+    description: IPs of the workers
+    value: { get_attr: [ worker_group, server_ip ] }
+  host_file:
+    description: host file contents
+    value: 
+      list_join: [ ', ',  { get_attr: [ worker_group, host_entry ] }, { get_attr: [ haproxy_group, host_entry ] }, { get_attr: [ master_group, host_entry ] } ]
+  host_file2:
+    description: host file contents-part 2
+    value: 
+      list_concat: [ { get_attr: [ worker_group, host_entry ] }, { get_attr: [ haproxy_group, host_entry ] }, { get_attr: [ master_group, host_entry ] } ]
