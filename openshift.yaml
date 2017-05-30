@@ -90,6 +90,17 @@ resources:
       floatingip_id: { get_resource: bastion_floating_ip }
       port_id: { get_resource: bastion_port }
 
+  haproxy_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties: 
+      floating_network: "Internet"
+
+  haproxy_floating_ip_assoc:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: haproxy_floating_ip }
+      port_id: { get_resource: haproxy_port }
+
   ssh_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -142,7 +153,6 @@ resources:
             bind-interfaces
             EOF
 
-            sed -i -- 's/__dns_ip__/8.8.8.8/g' /etc/resolv.conf
             systemctl start dnsmasq
 
 
@@ -267,20 +277,10 @@ outputs:
   bastion_ip:
     description: External IP for connection to jump box.
     value: { get_attr: [  bastion_floating_ip, floating_ip_address ] }
-  haproxy_ips:
-    description: IPs of the haproxy servers
-    value: { get_attr: [ haproxy_group, server_ip ] }
-  master_ips:
-    description: IPs of the masters
-    value: { get_attr: [ master_group, server_ip ] }
-  worker_ips:
-    description: IPs of the workers
-    value: { get_attr: [ worker_group, server_ip ] }
+  haproxy_external__ip:
+    description: External IP for haproxy..
+    value: { get_attr: [  haproxy_floating_ip, floating_ip_address ] }
   host_file:
     description: host file contents
     value: 
       list_join: [ ', ',  { get_attr: [ worker_group, host_entry ] }, { get_attr: [ haproxy_group, host_entry ] }, { get_attr: [ master_group, host_entry ] } ]
-  host_file2:
-    description: host file contents-part 2
-    value: 
-      list_concat: [ { get_attr: [ worker_group, host_entry ] }, { get_attr: [ haproxy_group, host_entry ] }, { get_attr: [ master_group, host_entry ] } ]
