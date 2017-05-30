@@ -6,16 +6,16 @@ parameters:
     description: name of the network
   allocation_pools:
     type: json
-    description: name of the network
+    description: IP allocation pool for DHCP
   cidr:
     type: string
-    description: name of the network
+    description:  network cidr
   dns:
     type: json
-    description: name of the network
+    description: dns servers
   gateway:
     type: string
-    description: name of the network
+    description: gateway of the network
 
 resources:
   network:
