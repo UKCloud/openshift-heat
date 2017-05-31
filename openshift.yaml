@@ -78,6 +78,9 @@ resources:
       network: { get_attr: [ internal_net, network ] }
       fixed_ips:
       - subnet_id: { get_attr: [ internal_net, subnet ] }
+      security_groups:
+        - default
+        - { get_resource: openshift_secgroup }
 
   bastion_floating_ip:
     type: OS::Neutron::FloatingIP
@@ -100,6 +103,15 @@ resources:
     properties:
       floatingip_id: { get_resource: haproxy_floating_ip }
       port_id: { get_resource: haproxy_port }
+
+  openshift_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules:
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 8443
+          port_range_max: 8443
 
   ssh_secgroup:
     type: OS::Neutron::SecurityGroup
@@ -145,9 +157,9 @@ resources:
             cat >> /etc/dnsmasq.conf << EOF
             domain-needed
             bogus-priv
-            domain=example.com
+            domain=openstacklocal
             expand-hosts
-            local=/example.com/
+            local=/openstacklocal/
             listen-address=127.0.0.1
             listen-address=__dns_ip__
             bind-interfaces
