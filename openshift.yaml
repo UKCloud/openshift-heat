@@ -167,23 +167,25 @@ resources:
 
             systemctl start dnsmasq
 
-
   haproxy_group:
     type: OS::Heat::ResourceGroup
-    depends_on: [ internal_net, bastion_host ]
+    depends_on: [ internal_net, bastion_host, haproxy_port ]
     properties:
       count: { get_param: haproxy_scale }
       resource_def:
-        type: server.yaml
+        type: server_with_port.yaml
         properties:
           server_name: haproxy-%index%
           flavor: { get_param: flavor }
-          image: { get_param: image }
+          image: "rhel-7-LTS"
           key_name: { get_param: key_name }
           rhn_user: { get_param: rhn_user }
           rhn_password: { get_param: rhn_password }
-          networks:
-            - network: { get_attr: [ internal_net, network ] }
+          network: { get_attr: [ internal_net, network  ] }
+          internal_vip: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] } 
+          sec_groups:
+            - default
+            - { get_resource: openshift_secgroup }
 
   master_group:
     type: OS::Heat::ResourceGroup
@@ -289,7 +291,7 @@ outputs:
   bastion_ip:
     description: External IP for connection to jump box.
     value: { get_attr: [  bastion_floating_ip, floating_ip_address ] }
-  haproxy_external__ip:
+  haproxy_external_ip:
     description: External IP for haproxy..
     value: { get_attr: [  haproxy_floating_ip, floating_ip_address ] }
   host_file:
