@@ -138,6 +138,7 @@ resources:
           params:
             __rhn_username__: { get_param: rhn_user }
             __rhn_password__: { get_param: rhn_password }
+            __dns_ip__: 10.1.1.101
           template: {get_file: files/install_config_agent_yum.sh}
 
   configure_config_agent:
