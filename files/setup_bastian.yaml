@@ -1,0 +1,29 @@
+---
+- hosts: localhost
+  vars:
+    time: _time_
+    haproxys: __haproxy_details__
+    masters: __master_details__
+    workers: __worker_details__
+  tasks:
+    - name: add hosts for haproxy
+      blockinfile:
+        dest: hosts.j2
+        create: yes
+        block: |
+          127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+          ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+          {% for item in haproxys %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in masters %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in workers %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+    - name: update hosts file
+      template: src=hosts.j2 dest=/etc/hosts
+    - name: restart dnsmasq
+      shell: systemctl restart dnsmasq

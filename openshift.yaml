@@ -1,6 +1,9 @@
 heat_template_version: 2016-04-08
 
 parameters:
+  time:
+    type: string
+    description: epoch time used to cause ansible to run on every update
   flavor:
     type: string
     description: Flavor for the server to be created
@@ -122,6 +125,42 @@ resources:
           port_range_min: 22
           port_range_max: 22
 
+#  # Install, configure and enable the Heat configuration agent
+#  config_agent:
+#    type: collect-config-setup/install_config_agent_centos_yum.yaml
+
+  install_config_agent_yum:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config: 
+        str_replace:
+          params:
+            __rhn_username__: { get_param: rhn_user }
+            __rhn_password__: { get_param: rhn_password }
+          template: {get_file: files/install_config_agent_yum.sh}
+
+  configure_config_agent:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config:
+        get_file: files/configure_config_agent.sh
+
+  start_config_agent:
+    type: "OS::Heat::SoftwareConfig"
+    properties:
+      group: ungrouped
+      config: {get_file: files/start_config_agent.sh}
+
+  install_config_agent:
+    type: "OS::Heat::MultipartMime"
+    properties:
+      parts:
+      - config: {get_resource: install_config_agent_yum}
+      - config: {get_resource: configure_config_agent}
+      - config: {get_resource: start_config_agent}
+
   bastion_host:
     type: OS::Nova::Server
     depends_on: [ internal_net, bastion_port ]
@@ -132,40 +171,8 @@ resources:
       key_name: { get_param: key_name }
       networks:
         - port: { get_resource: bastion_port }
-      user_data_format: RAW
-      user_data:
-        str_replace:
-          params:
-           __rhn_username__: { get_param: rhn_user }
-           __rhn_password__: { get_param: rhn_password }
-           __dns_ip__: 10.1.1.101 
-          template: |
-            #!/bin/bash
-
-            # Log all output to file.
-            exec > >(tee -a /var/log/bash_script.log) 2>&1
-            set -x
-
-            # setup repos & install software packages
-            subscription-manager register --username __rhn_username__ --password __rhn_password__ --auto-attach
-            subscription-manager attach --pool=8a85f9875801950c01580c235a322cb4
-            subscription-manager repos --disable=*
-            subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-ose-3.5-rpms --enable=rhel-7-fast-datapath-rpms
-            yum install -y dnsmasq wget git net-tools bind-utils iptables-services bridge-utils bash-completion atomic-openshift-utils atomic-openshift-excluder atomic-docker-excluder
-
-            # setup dnsmasq config
-            cat >> /etc/dnsmasq.conf << EOF
-            domain-needed
-            bogus-priv
-            domain=openstacklocal
-            expand-hosts
-            local=/openstacklocal/
-            listen-address=127.0.0.1
-            listen-address=__dns_ip__
-            bind-interfaces
-            EOF
-
-            systemctl start dnsmasq
+      user_data_format: SOFTWARE_CONFIG
+      user_data: { get_resource: install_config_agent }
 
   haproxy_group:
     type: OS::Heat::ResourceGroup
@@ -221,71 +228,31 @@ resources:
           networks:
             - network: { get_attr: [ internal_net, network ] }
 
-#  bastion_boot_script:
-#    type: OS::Heat::SoftwareConfig
-#    properties:
-#      str_replace:
-#        params:
-#         __rhn_username__: { get_param: rhn_user }
-#         __rhn_password__: { get_param: rhn_password }
-#         __dns_ip__: 10.1.1.101 
-#        template: |
-#          #!/bin/bash
-#
-#          # Log all output to file.
-#          exec > >(tee -a /var/log/bash_script.log) 2>&1
-#          set -x
-#
-#          # setup repos & install software packages
-#          subscription-manager register --username __rhn_username__ --password __rhn_password__ --auto-attach
-#          subscription-manager attach --pool=8a85f9875801950c01580c235a322cb4
-#          subscription-manager repos --disable=*
-#          subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-ose-3.5-rpms --enable=rhel-7-fast-datapath-rpms
-#          yum install -y dnsmasq wget git net-tools bind-utils iptables-services bridge-utils bash-completion atomic-openshift-utils atomic-openshift-excluder atomic-docker-excluder
-#
-#          # setup dnsmasq config
-#          cat >> /etc/dnsmasq.conf << EOF
-#          domain-needed
-#          bogus-priv
-#          domain=example.com
-#          expand-hosts
-#          local=/example.com/
-#          listen-address=127.0.0.1
-#          listen-address=__dns_ip__
-#          bind-interfaces
-#          EOF
-#
-#          sed -i -- 's/__dns_ip__/8.8.8.8/g' /etc/resolv.conf
-#          systemctl start dnsmasq
+  setup_host_file:
+    type: OS::Heat::SoftwareConfig
+    depends_on: [ worker_group, master_group, haproxy_group, bastion_host ]
+    properties:
+      group: ansible
+      config:
+        str_replace:
+          params:
+            __haproxy_details__: { get_attr: [ haproxy_group, host_entry ] }
+            __worker_details__: { get_attr: [ worker_group, host_entry ] }
+            __master_details__: { get_attr: [ master_group, host_entry ] }
+            __dns_ip__: 10.1.1.101
+            _time_: { get_param: time }
+          template: { get_file: 'files/setup_bastian.yaml' }
+      outputs:
+      - name: result
 
-#  setup_host_file:
-#    type: OS::Heat::SoftwareConfig
-#    depends_on: [ worker_group, master_group, haproxy_group, bastion_host ]
-#    properties:
-#      config: |
-#        str_replace:
-#          params:
-#           __haproxy_details__: { get_attr: [ haproxy_group, host_entry ] }
-#          template: |
-#            #!/bin/bash
-#
-#            # Log all output to file.
-#            exec > >(tee -a /var/log/bash_script-1.log) 2>&1
-#            set -x
-#
-#            # add contents to /etc/hosts
-#            cat >> /etc/hosts << EOF
-#            __haproxy_details__
-#            EOF
-
-#  deployment_host_file:
-#    type: OS::Heat::SoftwareDeployment
-#    depends_on: [ setup_host_file ]
-#    properties:
-#      config: 
-#        get_resource: setup_host_file
-#      server:
-#        get_resource: bastion_host
+  deployment_host_file:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      signal_transport: CFN_SIGNAL
+      config: 
+        get_resource: setup_host_file
+      server:
+        get_resource: bastion_host
 
 outputs:
   bastion_ip:

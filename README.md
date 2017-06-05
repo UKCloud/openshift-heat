@@ -6,6 +6,6 @@ Initial build deploys bastion host with DNS server built in, worker nodes and ma
 
 Create stack with:
 ```
-openstack stack create -f yaml -t openshift.yaml openshift_testing -e rhel_reg_creds.yaml
+openstack stack create -f yaml -t openshift.yaml openshift_testing -e rhel_reg_creds.yaml --parameter time="$(date)"
 ```
 Note: rhel_reg_creds.yaml specifies RHEL registration credentials for use in the openshift.yml file.
