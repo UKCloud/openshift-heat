@@ -1,10 +1,12 @@
 ---
 - hosts: localhost
   vars:
-    time: _time_
+    time: __time__
     haproxys: __haproxy_details__
     masters: __master_details__
     workers: __worker_details__
+    haproxy_vip: __haproxy_vip__
+    domainSuffix: __domain_suffix__
   tasks:
     - name: add hosts for haproxy
       blockinfile:
@@ -23,6 +25,8 @@
           {% for item in workers %}
           {{ item|replace('\"', "") }}
           {% endfor %}
+          {{ haproxy_vip }} console.{{ domainSuffix }}
+          {{ haproxy_vip }} ocp.{{ domainSuffix }}
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
     - name: restart dnsmasq

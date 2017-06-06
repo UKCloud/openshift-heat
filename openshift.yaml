@@ -43,6 +43,10 @@ parameters:
     label: RHN user password
     description: rhn user password
     hidden: true
+  domain_suffix:
+    type: string
+    description: domain suffix for OpenShift
+    default: customer1.openshift.ukcloud.com
 
 resources:
   InternetGW:
@@ -241,7 +245,9 @@ resources:
             __worker_details__: { get_attr: [ worker_group, host_entry ] }
             __master_details__: { get_attr: [ master_group, host_entry ] }
             __dns_ip__: 10.1.1.101
-            _time_: { get_param: time }
+            __time__: { get_param: time }
+            __haproxy_vip__: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] }
+            __domain_suffix__: { get_param: domain_suffix }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
