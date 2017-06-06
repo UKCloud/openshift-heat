@@ -27,3 +27,10 @@
       template: src=hosts.j2 dest=/etc/hosts
     - name: restart dnsmasq
       shell: systemctl restart dnsmasq
+    - name: add known hosts
+      blockinfile:
+        dest: /etc/ansible/ansible.cfg
+        create: yes
+        block: |
+          [defaults]
+          host_key_checking = False
