@@ -38,3 +38,30 @@
         block: |
           [defaults]
           host_key_checking = False
+    - name: create ansible variables template
+      blockinfile:
+        dest: ansible_vars.j2
+        create: yes
+        block: |
+          haproxy_details:
+          {% for item in haproxys %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          master_details:
+          {% for item in masters %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          worker_details:
+          {% for item in workers %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+    - name: create ansible vairables directory
+      file:
+        path: /etc/ansible/group_vars/
+        state: directory
+    - name: create ansible vairables file
+      file:
+        path: /etc/ansible/group_vars/all.yml
+        state: touch
+    - name: place ansible vars file
+      template: src=ansible_vars.j2 dest=/etc/ansible/group_vars/all.yml
