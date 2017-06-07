@@ -38,3 +38,20 @@
         block: |
           [defaults]
           host_key_checking = False
+    - name: create ansible hosts file
+      blockinfile:
+        dest: ansible_vars.j2
+        create: yes
+        block: |
+          {% for item in haproxys %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in masters %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in workers %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          workers:{{ workers }}
+    - name: place ansible vars file
+      template: src=ansible_vars.j2 dest=/etc/ansible/group_vars/all.yml
