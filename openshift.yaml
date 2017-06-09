@@ -4,10 +4,28 @@ parameters:
   time:
     type: string
     description: epoch time used to cause ansible to run on every update
-  flavor:
+  bastion_flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: t1.small
+    constraints:
+      - custom_constraint: nova.flavor
+  master_flavor:
     type: string
     description: Flavor for the server to be created
     default: m1.medium
+    constraints:
+      - custom_constraint: nova.flavor
+  worker_flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: m1.medium
+    constraints:
+      - custom_constraint: nova.flavor
+  haproxy_flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: t1.small
     constraints:
       - custom_constraint: nova.flavor
   image:
@@ -178,7 +196,7 @@ resources:
     depends_on: [ internal_net, bastion_port ]
     properties:
       name: bastion_host
-      flavor: { get_param: flavor }
+      flavor: { get_param: bastion_flavor }
       image: "rhel-7-LTS" 
       key_name: { get_param: key_name }
       networks:
@@ -195,7 +213,7 @@ resources:
         type: server_with_port.yaml
         properties:
           server_name: haproxy-%index%
-          flavor: { get_param: flavor }
+          flavor: { get_param: haproxy_flavor }
           image: "rhel-7-LTS"
           key_name: { get_param: key_name }
           rhn_user: { get_param: rhn_user }
@@ -215,7 +233,7 @@ resources:
         type: server.yaml
         properties:
           server_name: master-%index%
-          flavor: { get_param: flavor }
+          flavor: { get_param: master_flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
           rhn_user: { get_param: rhn_user }
@@ -232,7 +250,7 @@ resources:
         type: server.yaml
         properties:
           server_name: worker-%index%
-          flavor: { get_param: flavor }
+          flavor: { get_param: worker_flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
           rhn_user: { get_param: rhn_user }
