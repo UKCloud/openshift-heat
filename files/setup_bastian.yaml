@@ -55,6 +55,8 @@
           {% for item in workers %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
+          haproxy_vip: {{ haproxy_vip }}
+          domainSuffix: {{ domainSuffix }}
     - name: create ansible vairables directory
       file:
         path: /etc/ansible/group_vars/
