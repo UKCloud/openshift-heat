@@ -300,7 +300,6 @@ resources:
   openshift_registry_volume:
     type: OS::Cinder::Volume
     properties:
-      #multiattach: true
       name: openshift_registry_volume
       read_only: false
       size: { get_param: registry_volume_size }
