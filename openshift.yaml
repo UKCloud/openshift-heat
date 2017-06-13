@@ -51,6 +51,28 @@ parameters:
     type: comma_delimited_list
     description: ports to open for external access to haproxy servers
     default: "80,443,8443"
+  registry_volume_size:
+    type: string
+    description: Size of the OpenStack volume that backs the OpenShift registry
+    default: 100
+  openshift_openstack_username:
+    type: string
+    description: OpenShift username for cinder integration
+  openshift_openstack_password:
+    type: string
+    description: OpenShift password for cinder integration
+  os_auth_url:
+    type: string
+    description: OpenStack auth URL
+  os_tenant_id:
+    type: string
+    description: OpenStack tenant ID
+  os_tenant_name:
+    type: string
+    description: OpenStack tenant name
+  os_region:
+    type: string
+    description: OpenStack Region
 
 resources:
   InternetGW:
@@ -255,6 +277,14 @@ resources:
             __time__: { get_param: time }
             __haproxy_vip__: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] }
             __domain_suffix__: { get_param: domain_suffix }
+            __registry_volume__: { get_resource: openshift_registry_volume }
+            __openshift_openstack_username__: { get_param: openshift_openstack_username }
+            __openshift_openstack_password__: { get_param: openshift_openstack_password }
+            __openstack_auth_url__: { get_param: os_auth_url }
+            __openstack_tenant_id__: { get_param: os_tenant_id }
+            __openstack_tenant_name__: { get_param: os_tenant_name }
+            __openstack_region__: { get_param: os_region }
+            __registry_volume_size__: { get_param: registry_volume_size }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
@@ -267,6 +297,14 @@ resources:
         get_resource: setup_host_file
       server:
         get_resource: bastion_host
+
+  openshift_registry_volume:
+    type: OS::Cinder::Volume
+    properties:
+      name: openshift_registry_volume
+      read_only: false
+      size: { get_param: registry_volume_size }
+      volume_type: TIER2
 
 outputs:
   bastion_ip:
