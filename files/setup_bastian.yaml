@@ -14,6 +14,7 @@
     osTenantId: __openstack_tenant_id__
     osTenantName: __openstack_tenant_name__
     osRegion: __openstack_region__
+    registryVolumeSize: __registry_volume_size__
   tasks:
     - name: add hosts for haproxy
       blockinfile:
@@ -71,6 +72,7 @@
           osTenantId: {{ osTenantId }}
           osTenantName: {{ osTenantName }}
           osRegion: {{ osRegion }}
+          registryVolumeSize: {{ registryVolumeSize }}
     - name: create ansible vairables directory
       file:
         path: /etc/ansible/group_vars/

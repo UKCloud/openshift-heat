@@ -284,6 +284,7 @@ resources:
             __openstack_tenant_id__: { get_param: os_tenant_id }
             __openstack_tenant_name__: { get_param: os_tenant_name }
             __openstack_region__: { get_param: os_region }
+            __registry_volume_size__: { get_param: registry_volume_size }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
