@@ -8,8 +8,8 @@
     haproxy_vip: __haproxy_vip__
     domainSuffix: __domain_suffix__
     registryVolume: __registry_volume__
-    openshiftPassword: __openshift_openstack_password__
-    openshiftUsername: __openshift_openstack_username__
+    openstackOpenshiftPassword: __openshift_openstack_password__
+    openstackOpenshiftUsername: __openshift_openstack_username__
     osAuthUrl: __openstack_auth_url__
     osTenantId: __openstack_tenant_id__
     osTenantName: __openstack_tenant_name__
@@ -65,8 +65,8 @@
           haproxy_vip: {{ haproxy_vip }}
           domainSuffix: {{ domainSuffix }}
           registryVolume: {{ registryVolume }}
-          openshiftPassword: {{ openshiftPassword }}
-          openshiftUsername: {{ openshiftUsername }}
+          openstackOpenshiftPassword: {{ openstackOpenshiftPassword }}
+          openstackOpenshiftUsername: {{ openstackOpenshiftUsername }}
           osAuthUrl: {{ osAuthUrl }}
           osTenantId: {{ osTenantId }}
           osTenantName: {{ osTenantName }}
