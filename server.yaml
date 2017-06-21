@@ -30,8 +30,21 @@ parameters:
     label: RHN user password
     description: rhn user password
     hidden: true
+  storage_setup:
+    type: string
+    description: The contents for /etc/sysconfig/docker-storage-setup
 
 resources:
+  resize_lv:
+    type: "OS::Heat::CloudConfig"
+    properties:
+      cloud_config:
+        write_files:
+          - path: /etc/sysconfig/docker-storage-setup
+            permissions: 0644
+            owner: root
+            content: { get_param: storage_setup }
+
   server:
     type: OS::Nova::Server
     properties:
@@ -51,6 +64,7 @@ resources:
              subscription-manager register --username __rhn_username__ --password __rhn_password__ --auto-attach
              subscription-manager repos --disable=*
              subscription-manager repos --enable=rhel-7-server-rpms
+      user_data: { get_resource: resize_lv }	
 
 outputs:
   server_ip:
