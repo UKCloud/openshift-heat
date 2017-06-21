@@ -244,6 +244,10 @@ resources:
           rhn_password: { get_param: rhn_password }
           networks:
             - network: { get_attr: [ internal_net, network ] }
+          storage_setup: |
+            GROWPART=true
+            ROOT_SIZE=40G
+            DATA_SIZE=10G 
 
   worker_group:
     type: OS::Heat::ResourceGroup
@@ -261,6 +265,10 @@ resources:
           rhn_password: { get_param: rhn_password }
           networks:
             - network: { get_attr: [ internal_net, network ] }
+          storage_setup: |
+            GROWPART=true
+            ROOT_SIZE=15G
+            DATA_SIZE=35G
 
   setup_host_file:
     type: OS::Heat::SoftwareConfig
