@@ -214,7 +214,7 @@ resources:
     properties:
       count: { get_param: haproxy_scale }
       resource_def:
-        type: server_haproxy.yaml
+        type: server_with_port.yaml
         properties:
           server_name: haproxy-%index%
           flavor: { get_param: flavor }
