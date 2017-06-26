@@ -30,18 +30,25 @@ parameters:
     label: RHN user password
     description: rhn user password
     hidden: true
+  storage_setup:
+    type: string
+    description: The contents for /etc/sysconfig/docker-storage-setup
 
 resources:
-  server:
-    type: OS::Nova::Server
+  resize_lv:
+    type: OS::Heat::CloudConfig
     properties:
-      name: { get_param: server_name }
-      flavor: { get_param: flavor}
-      image: { get_param: image }
-      key_name: { get_param: key_name }
-      networks: { get_param: networks }
-      user_data_format: RAW
-      user_data:
+      cloud_config:
+        write_files:
+          - path: /etc/sysconfig/docker-storage-setup
+            permissions: 0644
+            owner: root
+            content: { get_param: storage_setup }
+
+  rhn_script:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
         str_replace:
           params:
            __rhn_username__: { get_param: rhn_user }
@@ -51,6 +58,24 @@ resources:
              subscription-manager register --username __rhn_username__ --password __rhn_password__ --auto-attach
              subscription-manager repos --disable=*
              subscription-manager repos --enable=rhel-7-server-rpms
+
+  server_init:
+    type: OS::Heat::MultipartMime
+    properties:
+      parts:
+      - config: { get_resource: resize_lv }
+      - config: { get_resource: rhn_script }
+
+  server:
+    type: OS::Nova::Server
+    properties:
+      name: { get_param: server_name }
+      flavor: { get_param: flavor}
+      image: { get_param: image }
+      key_name: { get_param: key_name }
+      networks: { get_param: networks }
+      user_data_format: SOFTWARE_CONFIG
+      user_data: { get_resource: server_init }
 
 outputs:
   server_ip:

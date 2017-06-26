@@ -234,7 +234,7 @@ resources:
     properties:
       count: { get_param: master_scale }
       resource_def:
-        type: server.yaml
+        type: server_atomic.yaml
         properties:
           server_name: master-%index%
           flavor: { get_param: flavor }
@@ -244,6 +244,10 @@ resources:
           rhn_password: { get_param: rhn_password }
           networks:
             - network: { get_attr: [ internal_net, network ] }
+          storage_setup: |
+            GROWPART=true
+            ROOT_SIZE=40G
+            DATA_SIZE=15G 
 
   worker_group:
     type: OS::Heat::ResourceGroup
@@ -251,7 +255,7 @@ resources:
     properties:
       count: { get_param: worker_scale }
       resource_def:
-        type: server.yaml
+        type: server_atomic.yaml
         properties:
           server_name: worker-%index%
           flavor: { get_param: flavor }
@@ -261,6 +265,10 @@ resources:
           rhn_password: { get_param: rhn_password }
           networks:
             - network: { get_attr: [ internal_net, network ] }
+          storage_setup: |
+            GROWPART=true
+            ROOT_SIZE=15G
+            DATA_SIZE=40G
 
   setup_host_file:
     type: OS::Heat::SoftwareConfig
