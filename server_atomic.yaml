@@ -21,15 +21,15 @@ parameters:
     description: Name of the server
   networks:
     type: json
-  rhn_user:
+  rhn_orgid:
     type: string
-    label: rhn username
-    description: Name of the rhn user.
-  rhn_password:
+    label: rhn username 
+    description: Name of the rhn activation org
+  rhn_activationkey:
     type: string
     label: RHN user password
-    description: rhn user password
-    hidden: true
+    description: rhn activation key
+    hidden: true    
   storage_setup:
     type: string
     description: The contents for /etc/sysconfig/docker-storage-setup
@@ -51,11 +51,11 @@ resources:
       config:
         str_replace:
           params:
-           __rhn_username__: { get_param: rhn_user }
-           __rhn_password__: { get_param: rhn_password }
+            __rhn_orgid__: { get_param: rhn_orgid }
+            __rhn_activationkey__: { get_param: rhn_activationkey }                  
           template: |
             #!/bin/bash -ex
-             subscription-manager register --username __rhn_username__ --password __rhn_password__ --auto-attach
+             subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
              subscription-manager repos --disable=*
              subscription-manager repos --enable=rhel-7-server-rpms
 
