@@ -12,7 +12,7 @@ exec > >(tee -a /var/log/bash_script.log) 2>&1
 set -x
 
 # setup repos & install software packages
-subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__ --auto-attach
+subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
 subscription-manager attach --pool=8a85f9875801950c01580c235a322cb4
 subscription-manager attach --pool=8a85f9815a3616cf015a36b0439d09ab
 subscription-manager repos --disable=*

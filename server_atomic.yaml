@@ -55,7 +55,7 @@ resources:
             __rhn_activationkey__: { get_param: rhn_activationkey }                  
           template: |
             #!/bin/bash -ex
-             subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__ --auto-attach
+             subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
              subscription-manager repos --disable=*
              subscription-manager repos --enable=rhel-7-server-rpms
 

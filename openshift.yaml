@@ -220,8 +220,8 @@ resources:
           flavor: { get_param: flavor }
           image: "rhel-7-LTS"
           key_name: { get_param: key_name }
-          rhn_user: { get_param: rhn_user }
-          rhn_password: { get_param: rhn_password }
+          rhn_orgid: { get_param: rhn_orgid }
+          rhn_activationkey: { get_param: rhn_activationkey }
           network: { get_attr: [ internal_net, network  ] }
           internal_vip: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] } 
           sec_groups:
@@ -240,8 +240,8 @@ resources:
           flavor: { get_param: flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
-          rhn_user: { get_param: rhn_user }
-          rhn_password: { get_param: rhn_password }
+          rhn_orgid: { get_param: rhn_orgid }
+          rhn_activationkey: { get_param: rhn_activationkey }
           networks:
             - network: { get_attr: [ internal_net, network ] }
           storage_setup: |
@@ -261,8 +261,8 @@ resources:
           flavor: { get_param: flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
-          rhn_user: { get_param: rhn_user }
-          rhn_password: { get_param: rhn_password }
+          rhn_orgid: { get_param: rhn_orgid }
+          rhn_activationkey: { get_param: rhn_activationkey }
           networks:
             - network: { get_attr: [ internal_net, network ] }
           storage_setup: |
