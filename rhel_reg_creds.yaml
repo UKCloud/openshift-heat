@@ -1,3 +1,5 @@
 parameter_defaults:
   rhn_user: "username"
   rhn_password: password
+  rhn_orgid: 6468465
+  rhn_activationkey: openshift
