@@ -76,9 +76,9 @@
           osTenantName: {{ osTenantName }}
           osRegion: {{ osRegion }}
           registryVolumeSize: {{ registryVolumeSize }}
-          accesskey: {{ s3accesskey }}
-          secretkey: {{ s3secretkey  }} 
-          regionendpoint: {{ s3regionendpoint }}
+          s3accesskey: {{ s3accesskey }}
+          s3secretkey: {{ s3secretkey  }} 
+          s3regionendpoint: {{ s3regionendpoint }}
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/
