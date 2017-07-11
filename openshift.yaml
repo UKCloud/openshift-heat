@@ -73,6 +73,15 @@ parameters:
   os_region:
     type: string
     description: OpenStack Region
+  s3_access_key:
+    type: string
+    description: s3 access key for registry backend
+  s3_secret_key:
+    type: string
+    description: s3 secret key for registry backend 
+  s3_region_endpoint:
+    type: string
+    description: s3 region end point for registry backend
 
 resources:
   InternetGW:
@@ -293,6 +302,9 @@ resources:
             __openstack_tenant_name__: { get_param: os_tenant_name }
             __openstack_region__: { get_param: os_region }
             __registry_volume_size__: { get_param: registry_volume_size }
+            __s3accesskey__: { get_param: s3_access_key }
+            __s3secretkey__: { get_param: s3_secret_key }
+            __s3regionendpoint__: { get_param: s3_region_endpoint  }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result

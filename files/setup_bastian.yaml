@@ -15,6 +15,9 @@
     osTenantName: __openstack_tenant_name__
     osRegion: __openstack_region__
     registryVolumeSize: __registry_volume_size__
+    s3accesskey: __s3accesskey__
+    s3secretkey: __s3secretkey__
+    s3regionendpoint: __s3regionendpoint__
   tasks:
     - name: add hosts for haproxy
       blockinfile:
@@ -73,7 +76,10 @@
           osTenantName: {{ osTenantName }}
           osRegion: {{ osRegion }}
           registryVolumeSize: {{ registryVolumeSize }}
-    - name: create ansible vairables directory
+          s3accesskey: {{ s3accesskey }}
+          s3secretkey: {{ s3secretkey  }} 
+          s3regionendpoint: {{ s3regionendpoint }}
+    - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/
         state: directory
