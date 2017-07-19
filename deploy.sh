@@ -34,12 +34,10 @@ function deployHeatStack() {
     -e rhel_reg_creds.yaml \
     -e environment.yaml \
     --parameter time="$(date)" \
-    --parameter domain_suffix="$domain_suffix" \
     --parameter os_auth_url=$OS_AUTH_URL \
     --parameter os_tenant_id=$OS_TENANT_ID \
     --parameter os_tenant_name=$OS_TENANT_NAME \
     --parameter os_region=$OS_REGION_NAME \
-    --parameter openshift_openstack_username=$openshift_openstack_username \
     --parameter openshift_openstack_password=$openshift_openstack_password \
     --wait
 }
