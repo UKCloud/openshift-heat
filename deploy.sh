@@ -3,7 +3,7 @@
 openshift_openstack_password=$1
 
 function validateSetup() {
-  if [[ -z $OS_TENANT_NAME ]]; then
+  if [[ -z $OS_TENANT_ID ]]; then
     echo -e "\nYou must source your OpenStack RC file so we can access the OpenStack API\n"
     exit 1
   fi
