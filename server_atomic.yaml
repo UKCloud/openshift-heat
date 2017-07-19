@@ -19,15 +19,8 @@ parameters:
   server_name:
     type: string
     description: Name of the server
-#  networks:
-#    type: json
-  network:
-    type: string
-  internal_vip:
-    type: string
-  sec_groups:
+  networks:
     type: json
-    default: { default }
   rhn_orgid:
     type: string
     label: rhn username 
@@ -37,8 +30,42 @@ parameters:
     label: RHN user password
     description: rhn activation key
     hidden: true    
+  storage_setup:
+    type: string
+    description: The contents for /etc/sysconfig/docker-storage-setup
 
 resources:
+  resize_lv:
+    type: OS::Heat::CloudConfig
+    properties:
+      cloud_config:
+        write_files:
+          - path: /etc/sysconfig/docker-storage-setup
+            permissions: 0644
+            owner: root
+            content: { get_param: storage_setup }
+
+  rhn_script:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        str_replace:
+          params:
+            __rhn_orgid__: { get_param: rhn_orgid }
+            __rhn_activationkey__: { get_param: rhn_activationkey }                  
+          template: |
+            #!/bin/bash -ex
+             subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
+             subscription-manager repos --disable=*
+             subscription-manager repos --enable=rhel-7-server-rpms
+
+  server_init:
+    type: OS::Heat::MultipartMime
+    properties:
+      parts:
+      - config: { get_resource: resize_lv }
+      - config: { get_resource: rhn_script }
+
   server:
     type: OS::Nova::Server
     properties:
@@ -46,32 +73,9 @@ resources:
       flavor: { get_param: flavor}
       image: { get_param: image }
       key_name: { get_param: key_name }
-      networks: 
-        - port: { get_resource: port }
-      user_data_format: RAW
-      user_data:
-        str_replace:
-          params:
-            __rhn_orgid__: { get_param: rhn_orgid }
-            __rhn_activationkey__: { get_param: rhn_activationkey }      
-          template: |
-            #!/bin/bash -ex
-             subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
-             subscription-manager repos --disable=*
-             subscription-manager repos --enable=rhel-7-server-rpms
-
-  port:
-    type: OS::Neutron::Port
-    properties:
-      name: 
-        str_replace:
-          template: port_servername
-          params:
-            servername: { get_param: server_name }
-      network: { get_param: network }
-      allowed_address_pairs:
-        - ip_address: { get_param: internal_vip } 
-      security_groups: { get_param: sec_groups }
+      networks: { get_param: networks }
+      user_data_format: SOFTWARE_CONFIG
+      user_data: { get_resource: server_init }
 
 outputs:
   server_ip:
