@@ -101,6 +101,9 @@ parameters:
   s3_region_endpoint:
     type: string
     description: s3 region end point for registry backend
+  management_net:
+    type: string
+    default: "1b6888a0-75e5-489b-9757-4dcd95f86d09"
 
 resources:
   InternetGW:
@@ -123,15 +126,6 @@ resources:
       cidr: "10.1.1.0/24"
       dns: [ "10.1.1.101", "8.8.8.8" ]
       gateway: "10.1.1.1"
-
-  management_net:
-    type: network.yaml
-    properties:
-      net_name: internal_net
-      allocation_pools: [{"start": "172.1.1.2", "end": "172.1.1.254"}]
-      cidr: "172.1.1.0/24"
-      dns: [ "10.1.1.101", "8.8.8.8" ]
-      gateway: "172.1.1.1"
 
   bastion_port:
     type: OS::Neutron::Port
@@ -237,7 +231,7 @@ resources:
       key_name: { get_param: key_name }
       networks:
         - port: { get_resource: bastion_port }
-        - network: { get_attr: [ management_net, network  ] }
+        - network: { get_param:  management_net }
       user_data_format: SOFTWARE_CONFIG
       user_data: { get_resource: install_config_agent }
 
@@ -256,7 +250,7 @@ resources:
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
           port_network: { get_attr: [ internal_net, network  ] }
-          mgmt_network: { get_attr: [ management_net, network ] }
+          mgmt_network: { get_param: management_net }
           internal_vip: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] } 
           sec_groups:
             - default
@@ -278,7 +272,7 @@ resources:
           rhn_activationkey: { get_param: rhn_activationkey }
           networks:
             - network: { get_attr: [ internal_net, network ] }
-            - network: { get_attr: [ management_net, network ] }
+            - network: { get_param: management_net }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=40G
@@ -300,7 +294,7 @@ resources:
           rhn_activationkey: { get_param: rhn_activationkey }
           networks:
             - network: { get_attr: [ internal_net, network ] }
-            - network: { get_attr: [ management_net, network ] }
+            - network: { get_param: management_net }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=15G
