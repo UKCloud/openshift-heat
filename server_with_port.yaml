@@ -19,9 +19,9 @@ parameters:
   server_name:
     type: string
     description: Name of the server
-#  networks:
-#    type: json
-  network:
+  mgmt_network:
+    type: string
+  port_network:
     type: string
   internal_vip:
     type: string
@@ -48,6 +48,7 @@ resources:
       key_name: { get_param: key_name }
       networks: 
         - port: { get_resource: port }
+        - network: { get_param: mgmt_network }
       user_data_format: RAW
       user_data:
         str_replace:
@@ -59,6 +60,7 @@ resources:
              subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
              subscription-manager repos --disable=*
              subscription-manager repos --enable=rhel-7-server-rpms
+             nmcli d connect eth1
 
   port:
     type: OS::Neutron::Port
@@ -68,7 +70,7 @@ resources:
           template: port_servername
           params:
             servername: { get_param: server_name }
-      network: { get_param: network }
+      network: { get_param: port_network }
       allowed_address_pairs:
         - ip_address: { get_param: internal_vip } 
       security_groups: { get_param: sec_groups }
