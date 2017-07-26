@@ -69,6 +69,10 @@ parameters:
     type: comma_delimited_list
     description: ports to open for external access to haproxy servers
     default: "80,443,8443"
+  mgmt_ports:
+    type: comma_delimited_list
+    description: ports to open for access to/from servers on the mgmt network
+    default: "22"
   registry_volume_size:
     type: string
     description: Size of the OpenStack volume that backs the OpenShift registry
@@ -184,10 +188,6 @@ resources:
             port_range_min: <%port%>
             port_range_max: <%port%>
 
-#  # Install, configure and enable the Heat configuration agent
-#  config_agent:
-#    type: collect-config-setup/install_config_agent_centos_yum.yaml
-
   install_config_agent_yum:
     type: "OS::Heat::SoftwareConfig"
     properties:
@@ -270,9 +270,8 @@ resources:
           key_name: { get_param: key_name }
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
-          networks:
-            - network: { get_attr: [ internal_net, network ] }
-            - network: { get_param: management_net }
+          port_network: { get_attr: [ internal_net, network ] }
+          mgmt_network: { get_param: management_net }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=40G
@@ -292,9 +291,8 @@ resources:
           key_name: { get_param: key_name }
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
-          networks:
-            - network: { get_attr: [ internal_net, network ] }
-            - network: { get_param: management_net }
+          port_network: { get_attr: [ internal_net, network ] }
+          mgmt_network: { get_param: management_net }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=15G

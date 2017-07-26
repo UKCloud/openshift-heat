@@ -77,11 +77,11 @@ resources:
 
 outputs:
   server_ip:
-    value: { get_attr: [  server, first_address ] }
+    value: { get_attr: [ server, networks, { get_param: port_network}, 0 ] }
   host_entry:
     value:
       str_replace:
         template: servername ipaddress
         params:
-          servername: { get_attr: [ server, first_address ] }
+          servername: { get_attr: [ server, networks, { get_param: port_network}, 0 ] }
           ipaddress: { get_attr: [  server, name ] }
