@@ -25,6 +25,8 @@ parameters:
     type: string
   internal_vip:
     type: string
+  mgmt_sec_groups:
+    type: json
   sec_groups:
     type: json
     default: { default }
@@ -48,7 +50,7 @@ resources:
       key_name: { get_param: key_name }
       networks: 
         - port: { get_resource: port }
-        - network: { get_param: mgmt_network }
+        - port: { get_resource: mgmt_port }
       user_data_format: RAW
       user_data:
         str_replace:
@@ -74,6 +76,17 @@ resources:
       allowed_address_pairs:
         - ip_address: { get_param: internal_vip } 
       security_groups: { get_param: sec_groups }
+
+  mgmt_port:
+    type: OS::Neutron::Port
+    properties:
+      name:
+        str_replace:
+          template: port_servername
+          params:
+            servername: { get_param: server_name }
+      network: { get_param: mgmt_network }
+      security_groups: { get_param: mgmt_sec_groups }
 
 outputs:
   server_ip:
