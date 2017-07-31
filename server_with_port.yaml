@@ -19,12 +19,14 @@ parameters:
   server_name:
     type: string
     description: Name of the server
-#  networks:
-#    type: json
-  network:
+  mgmt_network:
+    type: string
+  port_network:
     type: string
   internal_vip:
     type: string
+  mgmt_sec_groups:
+    type: json
   sec_groups:
     type: json
     default: { default }
@@ -48,6 +50,7 @@ resources:
       key_name: { get_param: key_name }
       networks: 
         - port: { get_resource: port }
+        - port: { get_resource: mgmt_port }
       user_data_format: RAW
       user_data:
         str_replace:
@@ -59,6 +62,7 @@ resources:
              subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
              subscription-manager repos --disable=*
              subscription-manager repos --enable=rhel-7-server-rpms
+             nmcli d connect eth1
 
   port:
     type: OS::Neutron::Port
@@ -68,18 +72,29 @@ resources:
           template: port_servername
           params:
             servername: { get_param: server_name }
-      network: { get_param: network }
+      network: { get_param: port_network }
       allowed_address_pairs:
         - ip_address: { get_param: internal_vip } 
       security_groups: { get_param: sec_groups }
 
+  mgmt_port:
+    type: OS::Neutron::Port
+    properties:
+      name:
+        str_replace:
+          template: port_servername
+          params:
+            servername: { get_param: server_name }
+      network: { get_param: mgmt_network }
+      security_groups: { get_param: mgmt_sec_groups }
+
 outputs:
   server_ip:
-    value: { get_attr: [  server, first_address ] }
+    value: { get_attr: [ server, networks, { get_param: port_network}, 0 ] }
   host_entry:
     value:
       str_replace:
         template: servername ipaddress
         params:
-          servername: { get_attr: [ server, first_address ] }
+          servername: { get_attr: [ server, networks, { get_param: port_network}, 0 ] }
           ipaddress: { get_attr: [  server, name ] }

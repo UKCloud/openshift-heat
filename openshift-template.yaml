@@ -69,6 +69,10 @@ parameters:
     type: comma_delimited_list
     description: ports to open for external access to haproxy servers
     default: "80,443,8443"
+  mgmt_ports:
+    type: comma_delimited_list
+    description: ports to open for access to/from servers on the mgmt network
+    default: "22"
   registry_volume_size:
     type: string
     description: Size of the OpenStack volume that backs the OpenShift registry
@@ -79,6 +83,7 @@ parameters:
   openshift_openstack_password:
     type: string
     description: OpenShift password for cinder integration
+    hidden: true
   os_auth_url:
     type: string
     description: OpenStack auth URL
@@ -100,6 +105,9 @@ parameters:
   s3_region_endpoint:
     type: string
     description: s3 region end point for registry backend
+  management_net:
+    type: string
+    default: "9efd7c93-faa7-4289-a6a4-e53011cb7368"
 
 resources:
   InternetGW:
@@ -118,16 +126,16 @@ resources:
     type: network.yaml
     properties:
       net_name: internal_net
-      allocation_pools: [{"start": "10.1.1.2", "end": "10.1.1.100"}]
-      cidr: "10.1.1.0/24"
-      dns: [ "10.1.1.101", "8.8.8.8" ]
-      gateway: "10.1.1.1"
+      allocation_pools: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
+      cidr: "10.2.1.0/24"
+      dns: [ "10.2.1.101", "8.8.8.8" ]
+      gateway: "10.2.1.1"
 
   bastion_port:
     type: OS::Neutron::Port
     properties:
       network: { get_attr: [ internal_net, network ] }
-      fixed_ips: [{ subnet: { get_attr: [ internal_net, subnet ] }, ip_address: 10.1.1.101 }]
+      fixed_ips: [{ subnet: { get_attr: [ internal_net, subnet ] }, ip_address: 10.2.1.101 }]
       security_groups:
         - default
         - { get_resource: ssh_secgroup }
@@ -140,6 +148,13 @@ resources:
       - subnet_id: { get_attr: [ internal_net, subnet ] }
       security_groups:
         - default
+        - { get_resource: openshift_secgroup }
+
+  bastion_mgmt_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: management_net }
+      security_groups:
         - { get_resource: openshift_secgroup }
 
   bastion_floating_ip:
@@ -180,9 +195,18 @@ resources:
             port_range_min: <%port%>
             port_range_max: <%port%>
 
-#  # Install, configure and enable the Heat configuration agent
-#  config_agent:
-#    type: collect-config-setup/install_config_agent_centos_yum.yaml
+  openshift_mgmt_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules:
+        repeat:
+          for_each:
+            <%port%>: { get_param: mgmt_ports }
+          template:
+            protocol: tcp
+            port_range_min: <%port%>
+            port_range_max: <%port%>
+            remote_ip_prefix: 10.1.0.0/26
 
   install_config_agent_yum:
     type: "OS::Heat::SoftwareConfig"
@@ -193,7 +217,7 @@ resources:
           params:
             __rhn_orgid__: { get_param: rhn_orgid }
             __rhn_activationkey__: { get_param: rhn_activationkey }
-            __dns_ip__: 10.1.1.101
+            __dns_ip__: 10.2.1.101
           template: {get_file: files/install_config_agent_yum.sh}
 
   configure_config_agent:
@@ -227,6 +251,7 @@ resources:
       key_name: { get_param: key_name }
       networks:
         - port: { get_resource: bastion_port }
+        - port: { get_resource:  bastion_mgmt_port }
       user_data_format: SOFTWARE_CONFIG
       user_data: { get_resource: install_config_agent }
 
@@ -244,11 +269,14 @@ resources:
           key_name: { get_param: key_name }
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
-          network: { get_attr: [ internal_net, network  ] }
+          port_network: { get_attr: [ internal_net, network  ] }
+          mgmt_network: { get_param: management_net }
           internal_vip: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] } 
           sec_groups:
             - default
             - { get_resource: openshift_secgroup }
+          mgmt_sec_groups:
+            - { get_resource: openshift_mgmt_secgroup }
 
   master_group:
     type: OS::Heat::ResourceGroup
@@ -264,12 +292,14 @@ resources:
           key_name: { get_param: key_name }
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
-          networks:
-            - network: { get_attr: [ internal_net, network ] }
+          port_network: { get_attr: [ internal_net, network ] }
+          mgmt_network: { get_param: management_net }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=40G
             DATA_SIZE=15G 
+          mgmt_sec_groups:
+            - { get_resource: openshift_mgmt_secgroup }
 
   worker_group:
     type: OS::Heat::ResourceGroup
@@ -285,12 +315,14 @@ resources:
           key_name: { get_param: key_name }
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
-          networks:
-            - network: { get_attr: [ internal_net, network ] }
+          port_network: { get_attr: [ internal_net, network ] }
+          mgmt_network: { get_param: management_net }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=15G
             DATA_SIZE=40G
+          mgmt_sec_groups:
+            - { get_resource: openshift_mgmt_secgroup }
 
   setup_host_file:
     type: OS::Heat::SoftwareConfig
@@ -303,7 +335,7 @@ resources:
             __haproxy_details__: { get_attr: [ haproxy_group, host_entry ] }
             __worker_details__: { get_attr: [ worker_group, host_entry ] }
             __master_details__: { get_attr: [ master_group, host_entry ] }
-            __dns_ip__: 10.1.1.101
+            __dns_ip__: 10.2.1.101
             __time__: { get_param: time }
             __haproxy_vip__: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] }
             __domain_suffix__: { get_param: domain_suffix }

@@ -11,6 +11,9 @@ set -eux
 exec > >(tee -a /var/log/bash_script.log) 2>&1
 set -x
 
+#connect eth1 and use dhcp to get address from neutron network
+nmcli d connect eth1
+
 # setup repos & install software packages
 subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
 subscription-manager attach --pool=8a85f9875801950c01580c235a322cb4
