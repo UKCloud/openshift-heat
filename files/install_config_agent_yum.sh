@@ -14,6 +14,9 @@ set -x
 #connect eth1 and use dhcp to get address from neutron network
 nmcli d connect eth1
 
+#set UK timezone
+ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
+
 # setup repos & install software packages
 subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
 subscription-manager attach --pool=8a85f9875801950c01580c235a322cb4
