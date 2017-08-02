@@ -18,6 +18,7 @@
     s3accesskey: __s3accesskey__
     s3secretkey: __s3secretkey__
     s3regionendpoint: __s3regionendpoint__
+    s3bucketname: __s3bucketname__
   tasks:
     - name: add hosts for haproxy
       blockinfile:
@@ -79,6 +80,7 @@
           s3accesskey: {{ s3accesskey }}
           s3secretkey: {{ s3secretkey  }} 
           s3regionendpoint: {{ s3regionendpoint }}
+          s3bucketname: {{ s3bucketname }}
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/

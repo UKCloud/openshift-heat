@@ -105,6 +105,9 @@ parameters:
   s3_region_endpoint:
     type: string
     description: s3 region end point for registry backend
+  s3_bucket_name:
+    type: string
+    description: s3 bucket for registry backend - must exist
   management_net:
     type: string
     default: "9efd7c93-faa7-4289-a6a4-e53011cb7368"
@@ -350,6 +353,7 @@ resources:
             __s3accesskey__: { get_param: s3_access_key }
             __s3secretkey__: { get_param: s3_secret_key }
             __s3regionendpoint__: { get_param: s3_region_endpoint  }
+            __s3bucketname__: { get_param: s3_bucket_name }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
