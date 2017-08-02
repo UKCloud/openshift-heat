@@ -15,7 +15,7 @@ set -x
 nmcli d connect eth1
 
 #set UK timezone
-ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
+ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
 # setup repos & install software packages
 subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
