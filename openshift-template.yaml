@@ -65,6 +65,10 @@ parameters:
     type: string
     description: domain suffix for OpenShift
     default: customer1.openshift.ukcloud.com
+  local_domain_suffix:
+    type: string
+    description: domain suffix for local DNS for OpenShift
+    default: openstacklocal
   haproxy_ports:
     type: comma_delimited_list
     description: ports to open for external access to haproxy servers
@@ -131,7 +135,7 @@ resources:
       net_name: internal_net
       allocation_pools: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
       cidr: "10.2.1.0/24"
-      dns: [ "10.2.1.101", "8.8.8.8" ]
+      dns: [ "8.8.8.8" ]
       gateway: "10.2.1.1"
 
   bastion_port:
@@ -220,7 +224,6 @@ resources:
           params:
             __rhn_orgid__: { get_param: rhn_orgid }
             __rhn_activationkey__: { get_param: rhn_activationkey }
-            __dns_ip__: 10.2.1.101
           template: {get_file: files/install_config_agent_yum.sh}
 
   configure_config_agent:
@@ -338,7 +341,6 @@ resources:
             __haproxy_details__: { get_attr: [ haproxy_group, host_entry ] }
             __worker_details__: { get_attr: [ worker_group, host_entry ] }
             __master_details__: { get_attr: [ master_group, host_entry ] }
-            __dns_ip__: 10.2.1.101
             __time__: { get_param: time }
             __haproxy_vip__: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] }
             __domain_suffix__: { get_param: domain_suffix }
@@ -354,6 +356,7 @@ resources:
             __s3secretkey__: { get_param: s3_secret_key }
             __s3regionendpoint__: { get_param: s3_region_endpoint  }
             __s3bucketname__: { get_param: s3_bucket_name }
+            __local_domain_suffix__: { get_param: local_domain_suffix }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
