@@ -273,7 +273,11 @@ resources:
       resource_def:
         type: server_with_port.yaml
         properties:
-          server_name: haproxy-%index%.{ get_param: local_domain_suffix }
+          server_name: 
+            str_replace:
+              template: haproxy-%index%.suffix
+              params:
+                suffix: { get_param: local_domain_suffix }
           flavor: { get_param: haproxy_flavor }
           image: "rhel-7-LTS"
           key_name: { get_param: key_name }
@@ -296,7 +300,11 @@ resources:
       resource_def:
         type: server_atomic.yaml
         properties:
-          server_name: master-%index%.{ get_param: local_domain_suffix }
+          server_name: 
+            str_replace:
+              template: master-%index%.suffix
+              params:
+                suffix: { get_param: local_domain_suffix }
           flavor: { get_param: master_flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
