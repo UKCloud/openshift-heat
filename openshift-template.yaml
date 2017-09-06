@@ -251,7 +251,7 @@ resources:
     type: OS::Nova::Server
     depends_on: [ internal_net, bastion_port ]
     properties:
-      name: bastion_host
+      name: bastion_host.{ get_param: local_domain_suffix }
       flavor: { get_param: bastion_flavor }
       image: "rhel-7-LTS" 
       key_name: { get_param: key_name }
@@ -269,7 +269,7 @@ resources:
       resource_def:
         type: server_with_port.yaml
         properties:
-          server_name: haproxy-%index%
+          server_name: haproxy-%index%.{ get_param: local_domain_suffix }
           flavor: { get_param: haproxy_flavor }
           image: "rhel-7-LTS"
           key_name: { get_param: key_name }
@@ -292,7 +292,7 @@ resources:
       resource_def:
         type: server_atomic.yaml
         properties:
-          server_name: master-%index%
+          server_name: master-%index%.{ get_param: local_domain_suffix }
           flavor: { get_param: master_flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
@@ -315,7 +315,7 @@ resources:
       resource_def:
         type: server_atomic.yaml
         properties:
-          server_name: worker-%index%
+          server_name: worker-%index%.{ get_param: local_domain_suffix }
           flavor: { get_param: worker_flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
