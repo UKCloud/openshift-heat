@@ -327,7 +327,11 @@ resources:
       resource_def:
         type: server_atomic.yaml
         properties:
-          server_name: worker-%index%.{ get_param: local_domain_suffix }
+          server_name: 
+            str_replace:
+              template: worker-%index%.suffix
+              params:
+                suffix: { get_param: local_domain_suffix }
           flavor: { get_param: worker_flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
