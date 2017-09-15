@@ -146,6 +146,7 @@ resources:
       security_groups:
         - default
         - { get_resource: ssh_secgroup }
+        - { get_resource: http_secgroup }
 
   haproxy_port:
     type: OS::Neutron::Port
@@ -189,6 +190,15 @@ resources:
           remote_ip_prefix: 0.0.0.0/0
           port_range_min: 22
           port_range_max: 22
+
+  http_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules:
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 80
+          port_range_max: 80
 
   openshift_secgroup:
     type: OS::Neutron::SecurityGroup
