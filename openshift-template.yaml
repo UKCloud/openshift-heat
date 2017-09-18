@@ -115,7 +115,7 @@ parameters:
   setup_monitoring:
     type: boolean
     description: install zabbix monitoring service in cluster?
-    default: yes
+    default: true
   management_net:
     type: string
     default: "9efd7c93-faa7-4289-a6a4-e53011cb7368"
