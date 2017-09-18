@@ -20,6 +20,7 @@
     s3secretkey: __s3secretkey__
     s3regionendpoint: __s3regionendpoint__
     s3bucketname: __s3bucketname__
+    setupMonitoring: __setupMonitoring__
   tasks:
   tasks:
     - name: temporarily add host entries before we setup proper DNS
@@ -82,6 +83,7 @@
           s3regionendpoint: {{ s3regionendpoint }}
           s3bucketname: {{ s3bucketname }}
           localDomainSuffix: {{ localDomainSuffix }}
+          setupMonitoring: {{ setupMonitoring }}
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/

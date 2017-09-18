@@ -112,6 +112,10 @@ parameters:
   s3_bucket_name:
     type: string
     description: s3 bucket for registry backend - must exist
+  setup_monitoring:
+    type: boolean
+    description: install zabbix monitoring service in cluster?
+    default: yes
   management_net:
     type: string
     default: "9efd7c93-faa7-4289-a6a4-e53011cb7368"
@@ -383,6 +387,7 @@ resources:
             __s3regionendpoint__: { get_param: s3_region_endpoint  }
             __s3bucketname__: { get_param: s3_bucket_name }
             __local_domain_suffix__: { get_param: local_domain_suffix }
+            __setupMonitoring: { get_param: setupMonitoring }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
