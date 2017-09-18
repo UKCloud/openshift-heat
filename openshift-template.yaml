@@ -387,7 +387,7 @@ resources:
             __s3regionendpoint__: { get_param: s3_region_endpoint  }
             __s3bucketname__: { get_param: s3_bucket_name }
             __local_domain_suffix__: { get_param: local_domain_suffix }
-            __setupMonitoring__: { get_param: setupMonitoring }
+            __setupMonitoring__: { get_param: setup_monitoring }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
