@@ -112,6 +112,10 @@ parameters:
   s3_bucket_name:
     type: string
     description: s3 bucket for registry backend - must exist
+  setup_monitoring:
+    type: boolean
+    description: install zabbix monitoring service in cluster?
+    default: true
   management_net:
     type: string
     default: "9efd7c93-faa7-4289-a6a4-e53011cb7368"
@@ -146,6 +150,7 @@ resources:
       security_groups:
         - default
         - { get_resource: ssh_secgroup }
+        - { get_resource: http_secgroup }
 
   haproxy_port:
     type: OS::Neutron::Port
@@ -189,6 +194,15 @@ resources:
           remote_ip_prefix: 0.0.0.0/0
           port_range_min: 22
           port_range_max: 22
+
+  http_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules:
+        - protocol: tcp
+          remote_ip_prefix: 0.0.0.0/0
+          port_range_min: 80
+          port_range_max: 80
 
   openshift_secgroup:
     type: OS::Neutron::SecurityGroup
@@ -373,6 +387,7 @@ resources:
             __s3regionendpoint__: { get_param: s3_region_endpoint  }
             __s3bucketname__: { get_param: s3_bucket_name }
             __local_domain_suffix__: { get_param: local_domain_suffix }
+            __setupMonitoring__: { get_param: setup_monitoring }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
