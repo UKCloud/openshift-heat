@@ -7,6 +7,7 @@
     workers: __worker_details__
     haproxy_vip: __haproxy_vip__
     domainSuffix: __domain_suffix__
+    localDomainSuffix: __local_domain_suffix__
     registryVolume: __registry_volume__
     openstackOpenshiftPassword: __openshift_openstack_password__
     openstackOpenshiftUsername: __openshift_openstack_username__
@@ -18,15 +19,17 @@
     s3accesskey: __s3accesskey__
     s3secretkey: __s3secretkey__
     s3regionendpoint: __s3regionendpoint__
+    s3bucketname: __s3bucketname__
+    setupMonitoring: __setupMonitoring__
   tasks:
-    - name: add hosts for haproxy
+  tasks:
+    - name: temporarily add host entries before we setup proper DNS
       blockinfile:
         dest: hosts.j2
         create: yes
         block: |
           127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
           ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-
           {% for item in haproxys %}
           {{ item|replace('\"', "") }}
           {% endfor %}
@@ -40,15 +43,14 @@
           {{ haproxy_vip }} ocp.{{ domainSuffix }}
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
-    - name: restart dnsmasq
-      shell: systemctl restart dnsmasq
-    - name: add known hosts
-      blockinfile:
-        dest: /etc/ansible/ansible.cfg
-        create: yes
-        block: |
-          [defaults]
-          host_key_checking = False
+    - name: disable TTY for sudo on bastion
+      lineinfile:
+        path: /etc/sudoers
+        regexp: '^Defaults.*requiretty$'
+        line: '#Defaults    requiretty'
+        backup: yes
+      become: yes
+      become_method: sudo
     - name: create ansible variables template
       blockinfile:
         dest: ansible_vars.j2
@@ -79,6 +81,9 @@
           s3accesskey: {{ s3accesskey }}
           s3secretkey: {{ s3secretkey  }} 
           s3regionendpoint: {{ s3regionendpoint }}
+          s3bucketname: {{ s3bucketname }}
+          localDomainSuffix: {{ localDomainSuffix }}
+          setupMonitoring: {{ setupMonitoring }}
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/

@@ -19,8 +19,10 @@ parameters:
   server_name:
     type: string
     description: Name of the server
-  networks:
-    type: json
+  mgmt_network:
+    type: string
+  port_network:
+    type: string
   rhn_orgid:
     type: string
     label: rhn username 
@@ -33,6 +35,8 @@ parameters:
   storage_setup:
     type: string
     description: The contents for /etc/sysconfig/docker-storage-setup
+  mgmt_sec_groups:
+    type: json
 
 resources:
   resize_lv:
@@ -58,6 +62,7 @@ resources:
              subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
              subscription-manager repos --disable=*
              subscription-manager repos --enable=rhel-7-server-rpms
+             ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
   server_init:
     type: OS::Heat::MultipartMime
@@ -73,17 +78,30 @@ resources:
       flavor: { get_param: flavor}
       image: { get_param: image }
       key_name: { get_param: key_name }
-      networks: { get_param: networks }
+      networks:
+        - network: { get_param: port_network }
+        - port: { get_resource: mgmt_port }
       user_data_format: SOFTWARE_CONFIG
       user_data: { get_resource: server_init }
 
+  mgmt_port:
+    type: OS::Neutron::Port
+    properties:
+      name:
+        str_replace:
+          template: port_servername
+          params:
+            servername: { get_param: server_name }
+      network: { get_param: mgmt_network }
+      security_groups: { get_param: mgmt_sec_groups }
+
 outputs:
   server_ip:
-    value: { get_attr: [  server, first_address ] }
+    value: { get_attr: [ server, networks, { get_param: port_network }, 0 ] }
   host_entry:
     value:
       str_replace:
         template: servername ipaddress
         params:
-          servername: { get_attr: [ server, first_address ] }
+          servername: { get_attr: [ server, networks, { get_param: port_network}, 0 ] }
           ipaddress: { get_attr: [  server, name ] }

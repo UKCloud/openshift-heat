@@ -4,8 +4,24 @@ OpenStack Heat template used to deploy basic OpenShift cluster.
 
 Initial build deploys bastion host with DNS server built in, worker nodes and master nodes according to specified scale.
 
+# Setup environment details
+Edit environment.yaml with the details for the deployment
+Edit rhel_reg_creds.yaml with the  Red Hat registration details used to access the Red Hat repos
+
+The Openshift floating IP can either be pre-configured or dynamically signed.
+
+To pre-configure reserve a floating IP in OpenStack by running:
+
+```
+openstack floating ip create <External Network ID>
+```
+
+Add the ID returned to the key haproxy_floating_ip in environment.yaml.
+
+If you wish to have it dynamically assigned then comment out the key haproxy_floating_ip in the environment.yaml
+
+# Deploy Stack
 Create stack with:
 ```
-openstack stack create -f yaml -t openshift.yaml openshift_testing -e rhel_reg_creds.yaml --parameter time="$(date)" --parameter os_auth_url=$OS_AUTH_URL --parameter os_tenant_id=$OS_TENANT_ID --parameter os_tenant_name=$OS_TENANT_NAME --parameter os_region=$OS_REGION_NAME --parameter domain_suffix=example.com --parameter openshift_openstack_username=xxxx --parameter openshift_openstack_password=xxxx --wait
+./deploy.sh
 ```
-Note: rhel_reg_creds.yaml specifies RHEL registration credentials for use in the openshift.yml file.

@@ -1,0 +1,9 @@
+parameter_defaults:
+  key_name: <openstack key name>
+  domain_suffix: <domain suffix to be used for the OpenShift deployment>
+  openshift_openstack_username: <OpenStack username for the tenancy OpenShift will be deployed to>
+  s3_region_endpoint: <s3 endpoint to be used for the OpenShift registry>
+  s3_access_key: <s3 secret to be used for the OpenShift registry>
+  s3_secret_key: <s3 secret to be used for the OpenShift registry>
+  s3_bucket_name: <existing s3 bucket to be used for the OpenShift registry>
+  #haproxy_floating_ip: <pre-provisioned floating ip>
