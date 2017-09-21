@@ -279,6 +279,12 @@ resources:
       user_data_format: SOFTWARE_CONFIG
       user_data: { get_resource: install_config_agent }
 
+  haproxy-servergroup:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: haproxy-servergroup
+      policies: [ 'anti-affinity' ]
+
   haproxy_group:
     type: OS::Heat::ResourceGroup
     depends_on: [ internal_net, bastion_host, haproxy_port ]
@@ -305,6 +311,13 @@ resources:
             - { get_resource: openshift_secgroup }
           mgmt_sec_groups:
             - { get_resource: openshift_mgmt_secgroup }
+          server_group: { get_resource: haproxy-servergroup }
+
+  master-servergroup:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: master-servergroup
+      policies: [ 'anti-affinity' ]
 
   master_group:
     type: OS::Heat::ResourceGroup
@@ -332,6 +345,13 @@ resources:
             DATA_SIZE=15G 
           mgmt_sec_groups:
             - { get_resource: openshift_mgmt_secgroup }
+          server_group: { get_resource: master-servergroup }
+
+  worker-servergroup:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: worker-servergroup
+      policies: [ 'anti-affinity' ]
 
   worker_group:
     type: OS::Heat::ResourceGroup
@@ -359,6 +379,7 @@ resources:
             DATA_SIZE=40G
           mgmt_sec_groups:
             - { get_resource: openshift_mgmt_secgroup }
+          server_group: { get_resource: worker-servergroup }
 
   setup_host_file:
     type: OS::Heat::SoftwareConfig
