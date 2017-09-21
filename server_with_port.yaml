@@ -39,6 +39,9 @@ parameters:
     label: RHN user password
     description: rhn activation key
     hidden: true    
+  server_group:
+    type: string
+    label: group server belongs to
 
 resources:
   server:
@@ -51,6 +54,8 @@ resources:
       networks: 
         - port: { get_resource: port }
         - port: { get_resource: mgmt_port }
+      scheduler_hints:
+        group: { get_param: server_group }
       user_data_format: RAW
       user_data:
         str_replace:
