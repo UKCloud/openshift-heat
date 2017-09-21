@@ -26,10 +26,16 @@ retry() {
    done
 }
 
-# setup repos & install software packages
+# register with redhat
 retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
-retry subscription-manager attach --pool=8a85f9875801950c01580c235a322cb4
-retry subscription-manager attach --pool=8a85f9815a3616cf015a36b0439d09ab
+
+# determine pool ID's for red hat subscriptions
+openstackPoolId=$(retry subscription-manager list --available | grep 'Red Hat OpenStack Platform for Service Providers' -A100 | grep -m 1 'Pool ID' | awk '{print $NF}')
+openshiftPoolId=$(retry subscription-manager list --available | grep 'Red Hat OpenShift Container Platform for Certified Cloud and Service Providers' -A100 | grep -m 1 'Pool ID' | awk '{print $NF}')
+
+# setup repos & install software packages
+retry subscription-manager attach --pool=$openstackPoolId
+retry subscription-manager attach --pool=$openshiftPoolId
 retry subscription-manager repos --disable=*
 retry subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-ose-3.5-rpms --enable=rhel-7-fast-datapath-rpms --enable=rhel-7-server-openstack-9-rpms --enable=rhel-7-server-rh-common-rpms --enable=rhel-7-server-openstack-9-director-rpms
 retry yum install -y wget git net-tools bind-utils iptables-services bridge-utils bash-completion atomic-openshift-utils atomic-openshift-excluder atomic-docker-excluder atomic-openshift-clients
