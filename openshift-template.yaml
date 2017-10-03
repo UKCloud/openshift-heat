@@ -73,10 +73,6 @@ parameters:
     type: comma_delimited_list
     description: ports to open for external access to haproxy servers
     default: "80,443,8443"
-  mgmt_ports:
-    type: comma_delimited_list
-    description: ports to open for access to/from servers on the mgmt network
-    default: "22"
   registry_volume_size:
     type: string
     description: Size of the OpenStack volume that backs the OpenShift registry
@@ -116,9 +112,6 @@ parameters:
     type: boolean
     description: install zabbix monitoring service in cluster?
     default: true
-  management_net:
-    type: string
-    default: "9efd7c93-faa7-4289-a6a4-e53011cb7368"
 
 resources:
   InternetGW:
@@ -160,13 +153,6 @@ resources:
       - subnet_id: { get_attr: [ internal_net, subnet ] }
       security_groups:
         - default
-        - { get_resource: openshift_secgroup }
-
-  bastion_mgmt_port:
-    type: OS::Neutron::Port
-    properties:
-      network: { get_param: management_net }
-      security_groups:
         - { get_resource: openshift_secgroup }
 
   bastion_floating_ip:
@@ -216,19 +202,6 @@ resources:
             port_range_min: <%port%>
             port_range_max: <%port%>
 
-  openshift_mgmt_secgroup:
-    type: OS::Neutron::SecurityGroup
-    properties:
-      rules:
-        repeat:
-          for_each:
-            <%port%>: { get_param: mgmt_ports }
-          template:
-            protocol: tcp
-            port_range_min: <%port%>
-            port_range_max: <%port%>
-            remote_ip_prefix: 10.1.0.0/26
-
   install_config_agent_yum:
     type: "OS::Heat::SoftwareConfig"
     properties:
@@ -275,7 +248,6 @@ resources:
       key_name: { get_param: key_name }
       networks:
         - port: { get_resource: bastion_port }
-        - port: { get_resource:  bastion_mgmt_port }
       user_data_format: SOFTWARE_CONFIG
       user_data: { get_resource: install_config_agent }
 
@@ -304,13 +276,10 @@ resources:
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
           port_network: { get_attr: [ internal_net, network  ] }
-          mgmt_network: { get_param: management_net }
           internal_vip: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] } 
           sec_groups:
             - default
             - { get_resource: openshift_secgroup }
-          mgmt_sec_groups:
-            - { get_resource: openshift_mgmt_secgroup }
           server_group: { get_resource: haproxy-servergroup }
 
   master-servergroup:
@@ -338,13 +307,10 @@ resources:
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
           port_network: { get_attr: [ internal_net, network ] }
-          mgmt_network: { get_param: management_net }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=40G
             DATA_SIZE=15G 
-          mgmt_sec_groups:
-            - { get_resource: openshift_mgmt_secgroup }
           server_group: { get_resource: master-servergroup }
 
   worker-servergroup:
@@ -372,13 +338,10 @@ resources:
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
           port_network: { get_attr: [ internal_net, network ] }
-          mgmt_network: { get_param: management_net }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=15G
             DATA_SIZE=40G
-          mgmt_sec_groups:
-            - { get_resource: openshift_mgmt_secgroup }
           server_group: { get_resource: worker-servergroup }
 
   setup_host_file:

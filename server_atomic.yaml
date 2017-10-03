@@ -19,8 +19,6 @@ parameters:
   server_name:
     type: string
     description: Name of the server
-  mgmt_network:
-    type: string
   port_network:
     type: string
   rhn_orgid:
@@ -35,8 +33,6 @@ parameters:
   storage_setup:
     type: string
     description: The contents for /etc/sysconfig/docker-storage-setup
-  mgmt_sec_groups:
-    type: json
   server_group:
     type: string
     label: group server belongs to
@@ -83,22 +79,10 @@ resources:
       key_name: { get_param: key_name }
       networks:
         - network: { get_param: port_network }
-        - port: { get_resource: mgmt_port }
       scheduler_hints:
         group: { get_param: server_group }
       user_data_format: SOFTWARE_CONFIG
       user_data: { get_resource: server_init }
-
-  mgmt_port:
-    type: OS::Neutron::Port
-    properties:
-      name:
-        str_replace:
-          template: port_servername
-          params:
-            servername: { get_param: server_name }
-      network: { get_param: mgmt_network }
-      security_groups: { get_param: mgmt_sec_groups }
 
 outputs:
   server_ip:
