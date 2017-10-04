@@ -94,3 +94,20 @@
         state: touch
     - name: place ansible vars file
       template: src=ansible_vars.j2 dest=/etc/ansible/group_vars/all.yml
+    - name: Pull UKCloud openshift code
+      git:
+        repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
+        dest: /usr/share/ansible/openshift-deployment-ansible
+    - name: Create variables symlink
+      file:
+        src: /etc/ansible/group_vars
+        dest: /usr/share/ansible/openshift-deployment-ansible/group_vars
+        owner: cloud-user
+        group: cloud-user
+        state: link
+    - name: Update repo permissions
+      file:
+        path: /usr/share/ansible/openshift-deployment-ansible
+        owner: cloud-user
+        group: cloud-user
+        recurse: yes
