@@ -6,9 +6,10 @@ Initial build deploys bastion host with DNS server built in, worker nodes and ma
 
 # Setup environment details
 Edit environment.yaml with the details for the deployment
+
 Edit rhel_reg_creds.yaml with the  Red Hat registration details used to access the Red Hat repos
 
-The Openshift floating IP can either be pre-configured or dynamically signed.
+The Openshift floating IP can either be pre-configured or dynamically assigned.
 
 To pre-configure reserve a floating IP in OpenStack by running:
 
