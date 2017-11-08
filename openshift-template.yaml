@@ -108,6 +108,10 @@ parameters:
   s3_bucket_name:
     type: string
     description: s3 bucket for registry backend - must exist
+  openshift_version:
+    type: string
+    description: OpenShift version to deploy
+    default: 3.5
   setup_monitoring:
     type: boolean
     description: install zabbix monitoring service in cluster?
@@ -211,6 +215,7 @@ resources:
           params:
             __rhn_orgid__: { get_param: rhn_orgid }
             __rhn_activationkey__: { get_param: rhn_activationkey }
+            __openshift_version__: { get_param: openshift_version }
           template: {get_file: files/install_config_agent_yum.sh}
 
   configure_config_agent:
