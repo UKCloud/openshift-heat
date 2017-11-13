@@ -309,8 +309,8 @@ resources:
           port_network: { get_attr: [ internal_net, network ] }
           storage_setup: |
             GROWPART=true
-            ROOT_SIZE=40G
-            DATA_SIZE=15G 
+            ROOT_SIZE=39G
+            DATA_SIZE=20G 
           server_group: { get_resource: master-servergroup }
 
   worker-servergroup:
@@ -340,8 +340,8 @@ resources:
           port_network: { get_attr: [ internal_net, network ] }
           storage_setup: |
             GROWPART=true
-            ROOT_SIZE=15G
-            DATA_SIZE=40G
+            ROOT_SIZE=20G
+            DATA_SIZE=39G
           server_group: { get_resource: worker-servergroup }
 
   setup_host_file:
