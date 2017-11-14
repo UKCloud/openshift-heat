@@ -377,6 +377,7 @@ resources:
             __s3bucketname__: { get_param: s3_bucket_name }
             __local_domain_suffix__: { get_param: local_domain_suffix }
             __setupMonitoring__: { get_param: setup_monitoring }
+            __openshiftVersion__: ( get_param: openshift_version }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
