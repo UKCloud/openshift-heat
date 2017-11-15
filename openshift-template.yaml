@@ -76,7 +76,7 @@ parameters:
   registry_volume_size:
     type: string
     description: Size of the OpenStack volume that backs the OpenShift registry
-    default: 100
+    default: 1
   openshift_openstack_username:
     type: string
     description: OpenShift username for cinder integration
@@ -314,8 +314,8 @@ resources:
           port_network: { get_attr: [ internal_net, network ] }
           storage_setup: |
             GROWPART=true
-            ROOT_SIZE=40G
-            DATA_SIZE=15G 
+            ROOT_SIZE=41G
+            DATA_SIZE=12G 
           server_group: { get_resource: master-servergroup }
 
   worker-servergroup:
