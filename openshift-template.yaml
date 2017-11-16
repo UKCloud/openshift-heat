@@ -315,7 +315,7 @@ resources:
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=41G
-            DATA_SIZE=12G 
+            DATA_SIZE=12G
           server_group: { get_resource: master-servergroup }
 
   worker-servergroup:
