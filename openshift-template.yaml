@@ -115,7 +115,7 @@ parameters:
   get_certificates:
     type: boolean
     description: download certificates with certbot during install
-    default: true
+    default: false
 
 resources:
   InternetGW:
