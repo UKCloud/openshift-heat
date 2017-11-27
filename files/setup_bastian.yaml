@@ -8,14 +8,12 @@
     haproxy_vip: __haproxy_vip__
     domainSuffix: __domain_suffix__
     localDomainSuffix: __local_domain_suffix__
-    registryVolume: __registry_volume__
     openstackOpenshiftPassword: __openshift_openstack_password__
     openstackOpenshiftUsername: __openshift_openstack_username__
     osAuthUrl: __openstack_auth_url__
     osTenantId: __openstack_tenant_id__
     osTenantName: __openstack_tenant_name__
     osRegion: __openstack_region__
-    registryVolumeSize: __registry_volume_size__
     s3accesskey: __s3accesskey__
     s3secretkey: __s3secretkey__
     s3regionendpoint: __s3regionendpoint__
@@ -70,14 +68,12 @@
           {% endfor %}
           haproxy_vip: {{ haproxy_vip }}
           domainSuffix: {{ domainSuffix }}
-          registryVolume: {{ registryVolume }}
           openstackOpenshiftPassword: {{ openstackOpenshiftPassword }}
           openstackOpenshiftUsername: {{ openstackOpenshiftUsername }}
           osAuthUrl: {{ osAuthUrl }}
           osTenantId: {{ osTenantId }}
           osTenantName: {{ osTenantName }}
           osRegion: {{ osRegion }}
-          registryVolumeSize: {{ registryVolumeSize }}
           s3accesskey: {{ s3accesskey }}
           s3secretkey: {{ s3secretkey  }} 
           s3regionendpoint: {{ s3regionendpoint }}
