@@ -108,6 +108,10 @@ parameters:
     type: boolean
     description: install zabbix monitoring service in cluster?
     default: true
+  get_certificates:
+    type: boolean
+    description: download certificates with certbot during install
+    default: false
 
 resources:
   InternetGW:
@@ -366,6 +370,7 @@ resources:
             __s3bucketname__: { get_param: s3_bucket_name }
             __local_domain_suffix__: { get_param: local_domain_suffix }
             __setupMonitoring__: { get_param: setup_monitoring }
+            __getCertificates__: { get_param: get_certificates }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
