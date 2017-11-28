@@ -6,4 +6,6 @@ parameter_defaults:
   s3_access_key: <s3 secret to be used for the OpenShift registry>
   s3_secret_key: <s3 secret to be used for the OpenShift registry>
   s3_bucket_name: <existing s3 bucket to be used for the OpenShift registry>
+  #openshift_version: <major version number eg: 3.5 or 3.6>
+  #local_domain_suffix: <local internal domain name - defaults to openstacklocal if not specified>
   #haproxy_floating_ip: <pre-provisioned floating ip>

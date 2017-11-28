@@ -37,7 +37,9 @@ openshiftPoolId=$(retry subscription-manager list --available | grep 'Red Hat Op
 retry subscription-manager attach --pool=$openstackPoolId
 retry subscription-manager attach --pool=$openshiftPoolId
 retry subscription-manager repos --disable=*
-retry subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-ose-3.5-rpms --enable=rhel-7-fast-datapath-rpms --enable=rhel-7-server-openstack-9-rpms --enable=rhel-7-server-rh-common-rpms --enable=rhel-7-server-openstack-9-director-rpms
-retry yum install -y wget git net-tools bind-utils iptables-services bridge-utils bash-completion atomic-openshift-utils atomic-openshift-excluder atomic-docker-excluder atomic-openshift-clients
-
+retry subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-fast-datapath-rpms --enable=rhel-7-server-openstack-9-rpms --enable=rhel-7-server-openstack-9-director-rpms --enable=rhel-7-server-rh-common-rpms
 retry yum -y install os-collect-config python-zaqarclient os-refresh-config os-apply-config openstack-heat-templates python-oslo-log python-psutil ansible
+
+# setup OpenShift repos and install packages required specifically for OpenShift
+retry subscription-manager repos --enable=rhel-7-server-ose-__openshift_version__-rpms
+retry yum install -y wget git net-tools bind-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct atomic-openshift-utils atomic-openshift-excluder atomic-docker-excluder atomic-openshift-clients

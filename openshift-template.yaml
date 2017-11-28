@@ -104,6 +104,10 @@ parameters:
   s3_bucket_name:
     type: string
     description: s3 bucket for registry backend - must exist
+  openshift_version:
+    type: string
+    description: OpenShift version to deploy
+    default: 3.5
   setup_monitoring:
     type: boolean
     description: install zabbix monitoring service in cluster?
@@ -211,6 +215,7 @@ resources:
           params:
             __rhn_orgid__: { get_param: rhn_orgid }
             __rhn_activationkey__: { get_param: rhn_activationkey }
+            __openshift_version__: { get_param: openshift_version }
           template: {get_file: files/install_config_agent_yum.sh}
 
   configure_config_agent:
@@ -309,8 +314,8 @@ resources:
           port_network: { get_attr: [ internal_net, network ] }
           storage_setup: |
             GROWPART=true
-            ROOT_SIZE=39G
-            DATA_SIZE=20G 
+            ROOT_SIZE=41G
+            DATA_SIZE=12G
           server_group: { get_resource: master-servergroup }
 
   worker-servergroup:
@@ -340,7 +345,7 @@ resources:
           port_network: { get_attr: [ internal_net, network ] }
           storage_setup: |
             GROWPART=true
-            ROOT_SIZE=20G
+            ROOT_SIZE=16G
             DATA_SIZE=39G
           server_group: { get_resource: worker-servergroup }
 
@@ -370,6 +375,7 @@ resources:
             __s3bucketname__: { get_param: s3_bucket_name }
             __local_domain_suffix__: { get_param: local_domain_suffix }
             __setupMonitoring__: { get_param: setup_monitoring }
+            __openshiftVersion__: { get_param: openshift_version }
             __getCertificates__: { get_param: get_certificates }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:

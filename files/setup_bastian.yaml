@@ -19,6 +19,7 @@
     s3regionendpoint: __s3regionendpoint__
     s3bucketname: __s3bucketname__
     setupMonitoring: __setupMonitoring__
+    openshiftVersion: __openshiftVersion__
     getCertificates: __getCertificates__
   tasks:
     - name: temporarily add host entries before we setup proper DNS
@@ -80,12 +81,13 @@
           s3bucketname: {{ s3bucketname }}
           localDomainSuffix: {{ localDomainSuffix }}
           setupMonitoring: {{ setupMonitoring }}
+          openshiftVersion: {{ openshiftVersion }}
           getCertificates: {{ getCertificates }}
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/
         state: directory
-    - name: create ansible vairables file
+    - name: create ansible variables file
       file:
         path: /etc/ansible/group_vars/all.yml
         state: touch
