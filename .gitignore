@@ -1,4 +1,23 @@
 
-
 environment.yaml
 rhel_reg_creds.yaml
+
+# auto-generated from openshift-template.yaml: see deploy.sh
+openshift.yaml
+# Backup filename as generated on BSD systems
+openshift.yaml-e
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Code editors
+.idea
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/

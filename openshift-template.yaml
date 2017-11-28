@@ -31,7 +31,7 @@ parameters:
   image:
     type: string
     description: Image ID or image name to use for the server
-    default: "rhel-atomic-cloud-7.3"
+    default: "rhel-atomic-cloud-7.4.2-8"
     constraints:
       - custom_constraint: glance.image
   key_name:
@@ -73,10 +73,6 @@ parameters:
     type: comma_delimited_list
     description: ports to open for external access to haproxy servers
     default: "80,443,8443"
-  registry_volume_size:
-    type: string
-    description: Size of the OpenStack volume that backs the OpenShift registry
-    default: 1
   openshift_openstack_username:
     type: string
     description: OpenShift username for cinder integration
@@ -116,6 +112,10 @@ parameters:
     type: boolean
     description: install zabbix monitoring service in cluster?
     default: true
+  get_certificates:
+    type: boolean
+    description: download certificates with certbot during install
+    default: false
 
 resources:
   InternetGW:
@@ -363,14 +363,12 @@ resources:
             __time__: { get_param: time }
             __haproxy_vip__: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] }
             __domain_suffix__: { get_param: domain_suffix }
-            __registry_volume__: { get_resource: openshift_registry_volume }
             __openshift_openstack_username__: { get_param: openshift_openstack_username }
             __openshift_openstack_password__: { get_param: openshift_openstack_password }
             __openstack_auth_url__: { get_param: os_auth_url }
             __openstack_tenant_id__: { get_param: os_tenant_id }
             __openstack_tenant_name__: { get_param: os_tenant_name }
             __openstack_region__: { get_param: os_region }
-            __registry_volume_size__: { get_param: registry_volume_size }
             __s3accesskey__: { get_param: s3_access_key }
             __s3secretkey__: { get_param: s3_secret_key }
             __s3regionendpoint__: { get_param: s3_region_endpoint  }
@@ -378,6 +376,7 @@ resources:
             __local_domain_suffix__: { get_param: local_domain_suffix }
             __setupMonitoring__: { get_param: setup_monitoring }
             __openshiftVersion__: { get_param: openshift_version }
+            __getCertificates__: { get_param: get_certificates }
           template: { get_file: 'files/setup_bastian.yaml' }
       outputs:
       - name: result
@@ -390,14 +389,6 @@ resources:
         get_resource: setup_host_file
       server:
         get_resource: bastion_host
-
-  openshift_registry_volume:
-    type: OS::Cinder::Volume
-    properties:
-      name: openshift_registry_volume
-      read_only: false
-      size: { get_param: registry_volume_size }
-      volume_type: TIER2
 
 outputs:
   bastion_ip:
