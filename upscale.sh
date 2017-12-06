@@ -6,6 +6,11 @@ if [[ -z $(grep worker_scale environment.yaml) ]] ; then
     exit
 fi
 
+if [[ -z $OS_TENANT_ID ]] ; then
+    echo "\nYou must source your OpenStackRC file first\n"
+    exit 1
+fi
+
 echo -e "Please provide a password for the OpenStack tenancy OpenShift will be deployed to..."
 read -s openshift_openstack_password
 
