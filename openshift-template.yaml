@@ -377,7 +377,7 @@ resources:
             __setupMonitoring__: { get_param: setup_monitoring }
             __openshiftVersion__: { get_param: openshift_version }
             __getCertificates__: { get_param: get_certificates }
-          template: { get_file: 'files/setup_bastian.yaml' }
+          template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
 
