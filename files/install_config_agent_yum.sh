@@ -5,15 +5,14 @@ set -x
 # fetched&started in another step
 [ -e /run/ostree-booted ] && exit 0
 
-#!/bin/bash
 
 # Log all output to file.
 exec > >(tee -a /var/log/bash_script.log) 2>&1
 
-#connect eth1 and use dhcp to get address from neutron network
+# connect eth1 and use dhcp to get address from neutron network
 nmcli d connect eth1
 
-#set UK timezone
+# set UK timezone
 ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
 retry() {
@@ -37,9 +36,40 @@ openshiftPoolId=$(retry subscription-manager list --available | grep 'Red Hat Op
 retry subscription-manager attach --pool=$openstackPoolId
 retry subscription-manager attach --pool=$openshiftPoolId
 retry subscription-manager repos --disable=*
-retry subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-fast-datapath-rpms --enable=rhel-7-server-openstack-9-rpms --enable=rhel-7-server-openstack-9-director-rpms --enable=rhel-7-server-rh-common-rpms
-retry yum -y install os-collect-config python-zaqarclient os-refresh-config os-apply-config openstack-heat-templates python-oslo-log python-psutil ansible-2.4.0.0-5.el7
+
+retry subscription-manager repos \
+        --enable=rhel-7-server-rpms \
+        --enable=rhel-7-server-extras-rpms \
+        --enable=rhel-7-fast-datapath-rpms \
+        --enable=rhel-7-server-openstack-9-rpms \
+        --enable=rhel-7-server-openstack-9-director-rpms \
+        --enable=rhel-7-server-rh-common-rpms
+
+retry yum install -y \
+        os-collect-config \
+        python-zaqarclient \
+        os-refresh-config \
+        os-apply-config \
+        openstack-heat-templates \
+        python-oslo-log \
+        python-psutil \
+        ansible-2.4.0.0-5.el7
 
 # setup OpenShift repos and install packages required specifically for OpenShift
 retry subscription-manager repos --enable=rhel-7-server-ose-__openshift_version__-rpms
-retry yum install -y wget git net-tools bind-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct atomic-openshift-utils atomic-openshift-excluder atomic-docker-excluder atomic-openshift-clients
+
+retry yum install -y \
+        wget \
+        git \
+        net-tools \
+        bind-utils \
+        iptables-services \
+        bridge-utils \
+        bash-completion \
+        kexec-tools \
+        sos \
+        psacct \
+        atomic-openshift-utils \
+        atomic-openshift-excluder \
+        atomic-docker-excluder \
+        atomic-openshift-clients
