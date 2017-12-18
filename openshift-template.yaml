@@ -147,7 +147,6 @@ resources:
       security_groups:
         - default
         - { get_resource: ssh_secgroup }
-        - { get_resource: http_secgroup }
 
   haproxy_port:
     type: OS::Neutron::Port
