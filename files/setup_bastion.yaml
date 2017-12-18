@@ -93,10 +93,14 @@
         state: touch
     - name: place ansible vars file
       template: src=ansible_vars.j2 dest=/etc/ansible/group_vars/all.yml
+
+    # Change the branch name by changing 'version', below
     - name: Pull UKCloud openshift code
       git:
         repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
         dest: /usr/share/ansible/openshift-deployment-ansible
+        version: master
+
     - name: Create variables symlink
       file:
         src: /etc/ansible/group_vars
