@@ -111,7 +111,7 @@ parameters:
   setup_monitoring:
     type: boolean
     description: install zabbix monitoring service in cluster?
-    default: true
+    default: false
   get_certificates:
     type: boolean
     description: download certificates with certbot during install
