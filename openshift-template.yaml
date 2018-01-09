@@ -108,10 +108,6 @@ parameters:
     type: string
     description: OpenShift version to deploy
     default: 3.5
-  setup_monitoring:
-    type: boolean
-    description: install zabbix monitoring service in cluster?
-    default: false
   get_certificates:
     type: boolean
     description: download certificates with certbot during install
@@ -373,7 +369,6 @@ resources:
             __s3regionendpoint__: { get_param: s3_region_endpoint  }
             __s3bucketname__: { get_param: s3_bucket_name }
             __local_domain_suffix__: { get_param: local_domain_suffix }
-            __setupMonitoring__: { get_param: setup_monitoring }
             __openshiftVersion__: { get_param: openshift_version }
             __getCertificates__: { get_param: get_certificates }
           template: { get_file: 'files/setup_bastion.yaml' }
