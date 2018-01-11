@@ -18,7 +18,6 @@
     s3secretkey: __s3secretkey__
     s3regionendpoint: __s3regionendpoint__
     s3bucketname: __s3bucketname__
-    setupMonitoring: __setupMonitoring__
     openshiftVersion: __openshiftVersion__
     getCertificates: __getCertificates__
   tasks:
@@ -80,7 +79,6 @@
           s3regionendpoint: {{ s3regionendpoint }}
           s3bucketname: {{ s3bucketname }}
           localDomainSuffix: {{ localDomainSuffix }}
-          setupMonitoring: {{ setupMonitoring }}
           openshiftVersion: {{ openshiftVersion }}
           getCertificates: {{ getCertificates }}
     - name: create ansible variables directory
