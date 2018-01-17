@@ -107,7 +107,7 @@ parameters:
   openshift_version:
     type: string
     description: OpenShift version to deploy
-    default: 3.5
+    default: 3.7
   get_certificates:
     type: boolean
     description: download certificates with certbot during install
