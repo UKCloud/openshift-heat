@@ -112,6 +112,10 @@ parameters:
     type: boolean
     description: download certificates with certbot during install
     default: false
+  do_upgrades:
+    type: boolean
+    description: Whether to perform upgrade as part of Ansible deployment
+    default: false
 
 resources:
   InternetGW:
@@ -371,6 +375,7 @@ resources:
             __local_domain_suffix__: { get_param: local_domain_suffix }
             __openshiftVersion__: { get_param: openshift_version }
             __getCertificates__: { get_param: get_certificates }
+            __doUpgrades__: { get_param: do_upgrades }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
