@@ -114,8 +114,8 @@ parameters:
     default: false
   do_upgrades:
     type: boolean
-    description: Whether to perform upgrade as part of Ansible deployment
-    default: false
+    description: Whether to perform OS package upgrades as part of Ansible deployment
+    default: true
 
 resources:
   InternetGW:
