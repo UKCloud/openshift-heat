@@ -20,6 +20,7 @@
     s3bucketname: __s3bucketname__
     openshiftVersion: __openshiftVersion__
     getCertificates: __getCertificates__
+    doUpgrades: __doUpgrades__
   tasks:
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
@@ -81,6 +82,7 @@
           localDomainSuffix: {{ localDomainSuffix }}
           openshiftVersion: {{ openshiftVersion }}
           getCertificates: {{ getCertificates }}
+          doUpgrades: {{ doUpgrades }}
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/
