@@ -7,7 +7,7 @@ parameters:
   bastion_flavor:
     type: string
     description: Flavor for the server to be created
-    default: t1.large
+    default: m1.small
     constraints:
       - custom_constraint: nova.flavor
   master_flavor:
