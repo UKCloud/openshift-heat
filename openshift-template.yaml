@@ -7,7 +7,7 @@ parameters:
   bastion_flavor:
     type: string
     description: Flavor for the server to be created
-    default: t1.small
+    default: m1.small
     constraints:
       - custom_constraint: nova.flavor
   master_flavor:
@@ -116,6 +116,14 @@ parameters:
     type: boolean
     description: Whether to perform OS package upgrades as part of Ansible deployment
     default: true
+  install_logging:
+    type: boolean
+    description: Whether to deploy the aggregated logging stack into the environment
+    default: false
+  logging_cluster_size:
+    type: number
+    description: Size of the ES cluster to deploy if logging deployed with install_logging
+    default: 1
 
 resources:
   InternetGW:
@@ -376,6 +384,8 @@ resources:
             __openshiftVersion__: { get_param: openshift_version }
             __getCertificates__: { get_param: get_certificates }
             __doUpgrades__: { get_param: do_upgrades }
+            __installLogging__: { get_param: install_logging }
+            __loggingClusterSize__: { get_param: logging_cluster_size }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
