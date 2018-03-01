@@ -55,16 +55,18 @@ parameters:
     type: string
     description: domain suffix for local DNS for OpenShift
     default: openstacklocal
-  haproxy_ports:
-    type: comma_delimited_list
-    description: ports to open for external access to haproxy servers
-    default: "8443"
   internal_network:
     type: string
     description: network on which to deploy the cluster
   internal_network_subnet:
     type: string
     description: subnet of network to attach to
+  cluster_security_group:
+    type: string
+    description: Security group for cluster
+  loadbalancer_security_group:
+    type: string
+    description: Security group for loadbalancer
 
 resources:
   name_nonce:
@@ -80,43 +82,14 @@ resources:
       fixed_ips:
       - subnet_id: { get_param: internal_network_subnet }
       security_groups:
-        - { get_resource: cluster_secgroup }
-        - { get_resource: openshift_secgroup }
+        - { get_param: cluster_security_group }
+        - { get_param: loadbalancer_security_group }
 
   haproxy_floating_ip_assoc:
     type: OS::Neutron::FloatingIPAssociation
     properties:
       floatingip_id: { get_param: haproxy_floating_ip }
       port_id: { get_resource: haproxy_port }
-
-  cluster_secgroup:
-    type: OS::Neutron::SecurityGroup
-    properties:
-      rules:
-        - direction: egress
-          ethertype: IPv4
-        - direction: egress
-          ethertype: IPv6
-        - protocol: tcp
-          direction: ingress
-          ethertype: IPv4
-          remote_mode: remote_group_id
-        - protocol: tcp
-          direction: ingress
-          ethertype: IPv6
-          remote_mode: remote_group_id
-
-  openshift_secgroup:
-    type: OS::Neutron::SecurityGroup
-    properties:
-      rules:
-        repeat:
-          for_each:
-            <%port%>: { get_param: haproxy_ports }
-          template:
-            protocol: tcp
-            port_range_min: <%port%>
-            port_range_max: <%port%>
 
   haproxy-servergroup:
     type: OS::Nova::ServerGroup
@@ -146,8 +119,8 @@ resources:
           port_network: { get_param: internal_network }
           internal_vip: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] } 
           sec_groups:
-            - { get_resource: cluster_secgroup }
-            - { get_resource: openshift_secgroup }
+            - { get_param: cluster_security_group }
+            - { get_param: loadbalancer_security_group }
           server_group: { get_resource: haproxy-servergroup }
 
   node-servergroup:
@@ -182,7 +155,7 @@ resources:
           rhn_activationkey: { get_param: rhn_activationkey }
           port_network: { get_param: internal_network }
           sec_groups:
-            - { get_resource: cluster_secgroup }
+            - { get_param: cluster_security_group }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=41G

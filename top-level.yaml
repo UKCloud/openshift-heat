@@ -29,6 +29,7 @@ resources:
     type: OS::Heat::Stack
     properties:
       template: { get_file: network.yaml }
+
   extra_gateway:
     type: OS::Heat::Stack
     properties:
@@ -37,22 +38,15 @@ resources:
         interface_network: { get_param: net-2_external_network }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-  cluster_secgroup:
-    type: OS::Neutron::SecurityGroup
+
+  security_groups:
+    type: OS::Heat::Stack
     properties:
-      rules:
-        - direction: egress
-          ethertype: IPv4
-        - direction: egress
-          ethertype: IPv6
-        - protocol: tcp
-          direction: ingress
-          ethertype: IPv4
-          remote_mode: remote_group_id
-        - protocol: tcp
-          direction: ingress
-          ethertype: IPv6
-          remote_mode: remote_group_id
+      template: { get_file: security_groups.yaml }
+      parameters:
+        control_plane_ports: "8443"
+        data_plane_ports: "80,443"
+
   masters_deployment:
     type: OS::Heat::Stack
     properties:
@@ -64,7 +58,8 @@ resources:
         haproxy_floating_ip: 438472c3-a50f-4e13-8d3a-fc1461f6ffc9
         node_type: master
         node_scale: 3
-        haproxy_ports: "8443"
+        cluster_security_group: { get_attr: [ security_groups, outputs, cluster_security_group ] }
+        loadbalancer_security_group: { get_attr: [ security_groups, outputs, control_plane_security_group ] }
   workers_deployment:
     type: OS::Heat::Stack
     properties:
@@ -76,7 +71,8 @@ resources:
         haproxy_floating_ip: fc10d714-2ccb-41b8-96f5-2d8dcb83b060
         node_type: worker
         node_scale: 2
-        haproxy_ports: "80,443"
+        cluster_security_group: { get_attr: [ security_groups, outputs, cluster_security_group ] }
+        loadbalancer_security_group: { get_attr: [ security_groups, outputs, data_plane_security_group ] }
   net-2_workers_deployment:
     type: OS::Heat::Stack
     properties:
@@ -88,7 +84,8 @@ resources:
         haproxy_floating_ip: 2098fc9a-81ed-499c-95d0-e98cf1a9a99f
         node_type: worker
         node_scale: 2
-        haproxy_ports: "80,443"
+        cluster_security_group: { get_attr: [ security_groups, outputs, cluster_security_group] }
+        loadbalancer_security_group: { get_attr: [ security_groups, outputs, data_plane_security_group ] }
   bastion_deployment:
     type: OS::Heat::Stack
     depends_on: [ masters_deployment, workers_deployment ] 
@@ -108,7 +105,7 @@ resources:
         os_tenant_name: { get_param: os_tenant_name }
         os_region: { get_param: os_region }
         openshift_openstack_password: { get_param: openshift_openstack_password }
-        cluster_security_group: { get_resource: cluster_secgroup }
+        cluster_security_group: { get_attr: [ security_groups, outputs, cluster_security_group] }
         bastion_fixed_ip: 10.2.1.101
         # details of the master stack:
         haproxy_vip: { get_attr: [ masters_deployment, outputs, haproxy_internal_vip ] }
