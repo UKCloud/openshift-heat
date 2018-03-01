@@ -37,6 +37,22 @@ resources:
         interface_network: { get_param: net-2_external_network }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+  cluster_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      rules:
+        - direction: egress
+          ethertype: IPv4
+        - direction: egress
+          ethertype: IPv6
+        - protocol: tcp
+          direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+        - protocol: tcp
+          direction: ingress
+          ethertype: IPv6
+          remote_mode: remote_group_id
   masters_deployment:
     type: OS::Heat::Stack
     properties:
@@ -92,6 +108,7 @@ resources:
         os_tenant_name: { get_param: os_tenant_name }
         os_region: { get_param: os_region }
         openshift_openstack_password: { get_param: openshift_openstack_password }
+        cluster_security_group: { get_resource: cluster_secgroup }
         bastion_fixed_ip: 10.2.1.101
         # details of the master stack:
         haproxy_vip: { get_attr: [ masters_deployment, outputs, haproxy_internal_vip ] }
