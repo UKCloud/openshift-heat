@@ -12,6 +12,7 @@ parameters:
 
 resources:
   cluster_secgroup:
+    name: clusterwide_sg
     type: OS::Neutron::SecurityGroup
     properties:
       rules:
@@ -19,16 +20,17 @@ resources:
           ethertype: IPv4
         - direction: egress
           ethertype: IPv6
-        - protocol: tcp
+        - protocol: any
           direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
-        - protocol: tcp
+        - protocol: any
           direction: ingress
           ethertype: IPv6
           remote_mode: remote_group_id
 
   control_plane_secgroup:
+    name: controlplane_sg
     type: OS::Neutron::SecurityGroup
     properties:
       rules:
@@ -41,6 +43,7 @@ resources:
             port_range_max: <%port%>
 
   data_plane_secgroup:
+    name: dataplane_sg
     type: OS::Neutron::SecurityGroup
     properties:
       rules:
