@@ -2,10 +2,15 @@
 - hosts: localhost
   vars:
     time: __time__
-    haproxys: __haproxy_details__
-    masters: __master_details__
-    workers: __worker_details__
     haproxy_vip: __haproxy_vip__
+    controlPlaneLb: __control_plane_lb__
+    masterNodes: __master_details__
+    internetDpVip: __internet_dp_vip__
+    internetDpLb:  __internet_dp_lb__
+    internetNodes: __internet_node_details__
+    net2DpVip: __net-2_dp_vip__
+    net2DpLb: __net-2_dp_lb__
+    net2Nodes: __net-2_node_details__
     domainSuffix: __domain_suffix__
     localDomainSuffix: __local_domain_suffix__
     openstackOpenshiftPassword: __openshift_openstack_password__
@@ -31,13 +36,22 @@
         block: |
           127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
           ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-          {% for item in haproxys %}
+          {% for item in masterNodes %}
           {{ item|replace('\"', "") }}
           {% endfor %}
-          {% for item in masters %}
+          {% for item in internetNodes %}
           {{ item|replace('\"', "") }}
           {% endfor %}
-          {% for item in workers %}
+          {% for item in net2Nodes %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in controlPlaneLb %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in internetDpLb %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in net2DpLb %}
           {{ item|replace('\"', "") }}
           {% endfor %}
           {{ haproxy_vip }} console.{{ domainSuffix }}
@@ -57,19 +71,47 @@
         dest: ansible_vars.j2
         create: yes
         block: |
-          haproxy_details:
-          {% for item in haproxys %}
-            {{ item|replace(' ', ': ') }}
-          {% endfor %}
           master_details:
-          {% for item in masters %}
+          {% for item in masterNodes %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           worker_details:
-          {% for item in workers %}
+          {% for item in internetNodes %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in net2Nodes %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          worker_details_internet:
+          {% for item in internetNodes %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          worker_details_net2:
+          {% for item in net2Nodes %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          control_plane_details:
+          {% for item in controlPlaneLb %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          data_plane_details:
+          {% for item in internetDpLb %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in net2DpLb %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          data_plane_internet:
+          {% for item in internetDpLb %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          data_plane_net2:
+          {% for item in net2DpLb %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           haproxy_vip: {{ haproxy_vip }}
+          internet_vip: {{ internetDpVip }}
+          net-2_vip: {{ net2DpVip }}
           domainSuffix: {{ domainSuffix }}
           openstackOpenshiftPassword: {{ openstackOpenshiftPassword }}
           openstackOpenshiftUsername: {{ openstackOpenshiftUsername }}

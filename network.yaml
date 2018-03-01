@@ -1,28 +1,41 @@
 heat_template_version: 2016-04-08
 
 parameters:
-  net_name:
-    type: string
-    description: name of the network
   allocation_pools:
     type: json
     description: IP allocation pool for DHCP
+    default: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
   cidr:
     type: string
     description:  network cidr
+    default: "10.2.1.0/24"
   dns:
     type: json
     description: dns servers
+    default: [ "8.8.8.8" ]
   gateway:
     type: string
     description: gateway of the network
+    default: "10.2.1.1"
 
 resources:
+  InternetGW:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: Internet }
+      name: InternetGW
+
+  internet_gw:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: InternetGW }
+      subnet: { get_resource: subnet }
+
   network:
     type: OS::Neutron::Net
     properties:
       admin_state_up: true
-      name: { get_param: net_name}
+      name: internal_net_testing
 
   subnet:
     type: OS::Neutron::Subnet

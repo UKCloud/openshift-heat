@@ -21,6 +21,9 @@ parameters:
     description: Name of the server
   port_network:
     type: string
+  sec_groups:
+    type: json
+    default: { default }
   rhn_orgid:
     type: string
     label: rhn username 
@@ -78,11 +81,22 @@ resources:
       image: { get_param: image }
       key_name: { get_param: key_name }
       networks:
-        - network: { get_param: port_network }
+        - port: { get_resource: port }
       scheduler_hints:
         group: { get_param: server_group }
       user_data_format: SOFTWARE_CONFIG
       user_data: { get_resource: server_init }
+
+  port:
+    type: OS::Neutron::Port
+    properties:
+      name:
+        str_replace:
+          template: port_servername
+          params:
+            servername: { get_param: server_name }
+      network: { get_param: port_network }
+      security_groups: { get_param: sec_groups }
 
 outputs:
   server_ip:

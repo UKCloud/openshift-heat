@@ -1,0 +1,107 @@
+heat_template_version: 2016-04-08
+
+parameters:
+  openshift_openstack_password:
+    type: string
+    description: OpenShift password for cinder integration
+    hidden: true
+  os_auth_url:
+    type: string
+    description: OpenStack auth URL
+  os_tenant_id:
+    type: string
+    description: OpenStack tenant ID
+  os_tenant_name:
+    type: string
+    description: OpenStack tenant name
+  os_region:
+    type: string
+    description: OpenStack Region
+  net-2_external_network:
+    type: string
+    description: Name of the external network net-2 will attach to
+  time:
+    type: string
+    description: epoch time used to cause ansible to run on every update
+
+resources:
+  internal_network:
+    type: OS::Heat::Stack
+    properties:
+      template: { get_file: network.yaml }
+  extra_gateway:
+    type: OS::Heat::Stack
+    properties:
+      template: { get_file: extra_gateway.yaml }
+      parameters:
+        interface_network: { get_param: net-2_external_network }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+  masters_deployment:
+    type: OS::Heat::Stack
+    properties:
+      template: { get_file: nodes.yaml }
+      parameters:
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        key_name: venv-mac
+        haproxy_floating_ip: 438472c3-a50f-4e13-8d3a-fc1461f6ffc9
+        node_type: master
+        node_scale: 3
+        haproxy_ports: "8443"
+  workers_deployment:
+    type: OS::Heat::Stack
+    properties:
+      template: { get_file: nodes.yaml }
+      parameters:
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        key_name: venv-mac
+        haproxy_floating_ip: fc10d714-2ccb-41b8-96f5-2d8dcb83b060
+        node_type: worker
+        node_scale: 2
+        haproxy_ports: "80,443"
+  net-2_workers_deployment:
+    type: OS::Heat::Stack
+    properties:
+      template: { get_file: nodes.yaml }
+      parameters:
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        key_name: venv-mac
+        haproxy_floating_ip: 2098fc9a-81ed-499c-95d0-e98cf1a9a99f
+        node_type: worker
+        node_scale: 2
+        haproxy_ports: "80,443"
+  bastion_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ masters_deployment, workers_deployment ] 
+    properties:
+      template: { get_file: bastion.yaml }
+      parameters:
+        time: { get_param: time }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        key_name: venv-mac
+        domain_suffix: customer1.cor00005.cna.ukcloud.com
+        openshift_openstack_username: openshift@ukcloud.com
+        s3_bucket_name: test-bucket
+        time: { get_param: time }
+        os_auth_url: { get_param: os_auth_url }
+        os_tenant_id: { get_param: os_tenant_id }
+        os_tenant_name: { get_param: os_tenant_name }
+        os_region: { get_param: os_region }
+        openshift_openstack_password: { get_param: openshift_openstack_password }
+        bastion_fixed_ip: 10.2.1.101
+        # details of the master stack:
+        haproxy_vip: { get_attr: [ masters_deployment, outputs, haproxy_internal_vip ] }
+        control_plane_lb: { get_attr: [ masters_deployment, outputs, haproxy_list ] } 
+        master_details: { get_attr: [ masters_deployment, outputs, node_list ] }
+        # details of the internet facing node stack:
+        internet_dp_vip: { get_attr: [ workers_deployment, outputs, haproxy_internal_vip ] }
+        internet_dp_lb: { get_attr: [ workers_deployment, outputs, haproxy_list ] } 
+        internet_node_details: { get_attr: [ workers_deployment, outputs, node_list ] }
+        # details of the net-x facing node stack:
+        net-2_dp_vip: { get_attr: [ net-2_workers_deployment, outputs, haproxy_internal_vip ] }
+        net-2_dp_lb: { get_attr: [ net-2_workers_deployment, outputs, haproxy_list ] } 
+        net-2_node_details: { get_attr: [ net-2_workers_deployment, outputs, node_list ] }
