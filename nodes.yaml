@@ -61,12 +61,12 @@ parameters:
   internal_network_subnet:
     type: string
     description: subnet of network to attach to
-  cluster_security_group:
-    type: string
-    description: Security group for cluster
-  loadbalancer_security_group:
-    type: string
-    description: Security group for loadbalancer
+  cluster_security_groups:
+    type: comma_delimited_list
+    description: Security groups for cluster
+  loadbalancer_security_groups:
+    type: comma_delimited_list
+    description: Security groups for loadbalancer
 
 resources:
   name_nonce:
@@ -81,9 +81,7 @@ resources:
       network: { get_param: internal_network }
       fixed_ips:
       - subnet_id: { get_param: internal_network_subnet }
-      security_groups:
-        - { get_param: cluster_security_group }
-        - { get_param: loadbalancer_security_group }
+      security_groups: { get_param: loadbalancer_security_groups }
 
   haproxy_floating_ip_assoc:
     type: OS::Neutron::FloatingIPAssociation
@@ -118,9 +116,7 @@ resources:
           rhn_activationkey: { get_param: rhn_activationkey }
           port_network: { get_param: internal_network }
           internal_vip: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] } 
-          sec_groups:
-            - { get_param: cluster_security_group }
-            - { get_param: loadbalancer_security_group }
+          sec_groups: { get_param: loadbalancer_security_groups }
           server_group: { get_resource: haproxy-servergroup }
 
   node-servergroup:
@@ -154,8 +150,7 @@ resources:
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
           port_network: { get_param: internal_network }
-          sec_groups:
-            - { get_param: cluster_security_group }
+          sec_groups: { get_param: cluster_security_groups }
           storage_setup: |
             GROWPART=true
             ROOT_SIZE=41G

@@ -49,6 +49,7 @@ resources:
 
   masters_deployment:
     type: OS::Heat::Stack
+    depends_on: [ security_groups ]
     properties:
       template: { get_file: nodes.yaml }
       parameters:
@@ -58,10 +59,19 @@ resources:
         haproxy_floating_ip: 438472c3-a50f-4e13-8d3a-fc1461f6ffc9
         node_type: master
         node_scale: 3
-        cluster_security_group: { get_attr: [ security_groups, outputs, cluster_security_group ] }
-        loadbalancer_security_group: { get_attr: [ security_groups, outputs, control_plane_security_group ] }
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
+          - { get_attr: [ security_groups, outputs, masters_security_group ] }
+          - { get_attr: [ security_groups, outputs, masters_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, nodes_security_group ] }
+        loadbalancer_security_groups:
+          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
+          - { get_attr: [ security_groups, outputs, control_plane_security_group ] }
+          - { get_attr: [ security_groups, outputs, dns_security_group ] }
+
   workers_deployment:
     type: OS::Heat::Stack
+    depends_on: [ security_groups ]
     properties:
       template: { get_file: nodes.yaml }
       parameters:
@@ -71,10 +81,16 @@ resources:
         haproxy_floating_ip: fc10d714-2ccb-41b8-96f5-2d8dcb83b060
         node_type: worker
         node_scale: 2
-        cluster_security_group: { get_attr: [ security_groups, outputs, cluster_security_group ] }
-        loadbalancer_security_group: { get_attr: [ security_groups, outputs, data_plane_security_group ] }
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
+          - { get_attr: [ security_groups, outputs, nodes_security_group ] }
+        loadbalancer_security_groups:
+          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
+          - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
+
   net-2_workers_deployment:
     type: OS::Heat::Stack
+    depends_on: [ security_groups ]
     properties:
       template: { get_file: nodes.yaml }
       parameters:
@@ -84,11 +100,16 @@ resources:
         haproxy_floating_ip: 2098fc9a-81ed-499c-95d0-e98cf1a9a99f
         node_type: worker
         node_scale: 2
-        cluster_security_group: { get_attr: [ security_groups, outputs, cluster_security_group] }
-        loadbalancer_security_group: { get_attr: [ security_groups, outputs, data_plane_security_group ] }
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
+          - { get_attr: [ security_groups, outputs, nodes_security_group ] }
+        loadbalancer_security_groups:
+          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
+          - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
+
   bastion_deployment:
     type: OS::Heat::Stack
-    depends_on: [ masters_deployment, workers_deployment ] 
+    depends_on: [ masters_deployment, workers_deployment ]
     properties:
       template: { get_file: bastion.yaml }
       parameters:
