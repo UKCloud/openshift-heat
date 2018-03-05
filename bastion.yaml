@@ -85,9 +85,9 @@ parameters:
   bastion_fixed_ip:
     type: string
     description: fixed IP of the bastion in this stack
-  cluster_security_group:
-    type: string
-    description: Security group for cluster
+  server_security_groups:
+    type: comma_delimited_list
+    description: Security groups for server
 
   install_logging:
     type: boolean
@@ -137,9 +137,7 @@ resources:
     properties:
       network: { get_param: internal_network }
       fixed_ips: [{ subnet: { get_param: internal_network_subnet  }, ip_address: { get_param: bastion_fixed_ip } }]
-      security_groups:
-        - { get_param: cluster_security_group }
-        - { get_resource: ssh_secgroup }
+      security_groups: { get_param: server_security_groups }
 
   bastion_floating_ip:
     type: OS::Neutron::FloatingIP
@@ -151,15 +149,6 @@ resources:
     properties:
       floatingip_id: { get_resource: bastion_floating_ip }
       port_id: { get_resource: bastion_port }
-
-  ssh_secgroup:
-    type: OS::Neutron::SecurityGroup
-    properties:
-      rules:
-        - protocol: tcp
-          remote_ip_prefix: 0.0.0.0/0
-          port_range_min: 22
-          port_range_max: 22
 
   install_config_agent_yum:
     type: "OS::Heat::SoftwareConfig"
