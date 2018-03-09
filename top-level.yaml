@@ -17,9 +17,13 @@ parameters:
   os_region:
     type: string
     description: OpenStack Region
-  net-2_external_network:
+  net2_external_network:
     type: string
-    description: Name of the external network net-2 will attach to
+    description: Name of the external network net2 will attach to
+  net2_dns_server:
+    type: string
+    description: DNS server for net2
+    default: 8.8.8.8
   time:
     type: string
     description: epoch time used to cause ansible to run on every update
@@ -35,7 +39,7 @@ resources:
     properties:
       template: { get_file: extra_gateway.yaml }
       parameters:
-        interface_network: { get_param: net-2_external_network }
+        interface_network: { get_param: net2_external_network }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
 
@@ -94,7 +98,7 @@ resources:
           - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
           - { get_attr: [ security_groups, outputs, all_egress_security_group ] }
 
-  net-2_workers_deployment:
+  net2_workers_deployment:
     type: OS::Heat::Stack
     depends_on: [ security_groups ]
     properties:
@@ -149,6 +153,7 @@ resources:
         internet_dp_lb: { get_attr: [ workers_deployment, outputs, haproxy_list ] } 
         internet_node_details: { get_attr: [ workers_deployment, outputs, node_list ] }
         # details of the net-x facing node stack:
-        net-2_dp_vip: { get_attr: [ net-2_workers_deployment, outputs, haproxy_internal_vip ] }
-        net-2_dp_lb: { get_attr: [ net-2_workers_deployment, outputs, haproxy_list ] } 
-        net-2_node_details: { get_attr: [ net-2_workers_deployment, outputs, node_list ] }
+        net2_dp_vip: { get_attr: [ net2_workers_deployment, outputs, haproxy_internal_vip ] }
+        net2_dp_lb: { get_attr: [ net2_workers_deployment, outputs, haproxy_list ] }
+        net2_node_details: { get_attr: [ net2_workers_deployment, outputs, node_list ] }
+        net2_dns_server: { get_param: net2_dns_server }

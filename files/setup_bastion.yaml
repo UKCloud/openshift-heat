@@ -8,9 +8,9 @@
     internetDpVip: __internet_dp_vip__
     internetDpLb:  __internet_dp_lb__
     internetNodes: __internet_node_details__
-    net2DpVip: __net-2_dp_vip__
-    net2DpLb: __net-2_dp_lb__
-    net2Nodes: __net-2_node_details__
+    net2DpVip: __net2_dp_vip__
+    net2DpLb: __net2_dp_lb__
+    net2Nodes: __net2_node_details__
     domainSuffix: __domain_suffix__
     localDomainSuffix: __local_domain_suffix__
     openstackOpenshiftPassword: __openshift_openstack_password__
@@ -28,6 +28,7 @@
     doUpgrades: __doUpgrades__
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
+    net2DnsServer: __net2DnsServer__
   tasks:
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
@@ -111,7 +112,7 @@
           {% endfor %}
           haproxy_vip: {{ haproxy_vip }}
           internet_vip: {{ internetDpVip }}
-          net-2_vip: {{ net2DpVip }}
+          net2_vip: {{ net2DpVip }}
           domainSuffix: {{ domainSuffix }}
           openstackOpenshiftPassword: {{ openstackOpenshiftPassword }}
           openstackOpenshiftUsername: {{ openstackOpenshiftUsername }}
@@ -129,6 +130,7 @@
           doUpgrades: {{ doUpgrades }}
           installLogging: {{ installLogging }}
           loggingClusterSize: {{ loggingClusterSize }}
+          net2_dns_server: {{ net2DnsServer }}
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/
