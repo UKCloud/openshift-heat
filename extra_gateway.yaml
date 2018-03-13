@@ -11,6 +11,10 @@ parameters:
   internal_network_subnet:
     type: string
     description: subnet of network to attach to
+  fixed_ip:
+    type: string
+    description: fixed IP to use on the network
+    default: "10.2.1.254"
 
 resources:
   router:
@@ -29,4 +33,5 @@ resources:
     type: OS::Neutron::Port
     properties:
       network: { get_param: internal_network }
-      fixed_ips: [{ subnet: { get_param: internal_network_subnet  }, ip_address: 10.2.1.254 }]
+      fixed_ips: [{ subnet: { get_param: internal_network_subnet  }, ip_address: { get_param: fixed_ip } }]
+      security_groups: []

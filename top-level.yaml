@@ -64,17 +64,19 @@ resources:
         node_type: master
         node_scale: 3
         cluster_security_groups:
-          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
-          - { get_attr: [ security_groups, outputs, masters_security_group ] }
           - { get_attr: [ security_groups, outputs, masters_egress_security_group ] }
-          - { get_attr: [ security_groups, outputs, nodes_security_group ] }
-          - { get_attr: [ security_groups, outputs, nodes_egress_security_group ] }
-          - { get_attr: [ security_groups, outputs, all_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, masters_security_group ] }
         loadbalancer_security_groups:
-          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
+          - { get_attr: [ security_groups, outputs, control_plane_lb_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, control_plane_security_group ] }
-          - { get_attr: [ security_groups, outputs, dns_security_group ] }
-          - { get_attr: [ security_groups, outputs, all_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, dns_internet_security_group ] }
+          - { get_attr: [ security_groups, outputs, dns_forwarder_security_group ] }
 
   workers_deployment:
     type: OS::Heat::Stack
@@ -89,14 +91,17 @@ resources:
         node_type: worker
         node_scale: 2
         cluster_security_groups:
-          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
-          - { get_attr: [ security_groups, outputs, nodes_security_group ] }
-          - { get_attr: [ security_groups, outputs, nodes_egress_security_group ] }
-          - { get_attr: [ security_groups, outputs, all_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
         loadbalancer_security_groups:
-          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
+          - { get_attr: [ security_groups, outputs, internet_lb_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
-          - { get_attr: [ security_groups, outputs, all_egress_security_group ] }
 
   net2_workers_deployment:
     type: OS::Heat::Stack
@@ -111,14 +116,18 @@ resources:
         node_type: worker
         node_scale: 2
         cluster_security_groups:
-          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
-          - { get_attr: [ security_groups, outputs, nodes_security_group ] }
-          - { get_attr: [ security_groups, outputs, nodes_egress_security_group ] }
-          - { get_attr: [ security_groups, outputs, all_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
         loadbalancer_security_groups:
-          - { get_attr: [ security_groups, outputs, cluster_security_group ] }
+          - { get_attr: [ security_groups, outputs, net2_lb_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
-          - { get_attr: [ security_groups, outputs, all_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, dns_net2_security_group ] }
 
   bastion_deployment:
     type: OS::Heat::Stack
@@ -140,9 +149,10 @@ resources:
         os_region: { get_param: os_region }
         openshift_openstack_password: { get_param: openshift_openstack_password }
         server_security_groups: 
-          - { get_attr: [ security_groups, outputs, cluster_security_group] }
-          - { get_attr: [ security_groups, outputs, all_egress_security_group] }
-          - { get_attr: [ security_groups, outputs, bastion_security_group] }
+          - { get_attr: [ security_groups, outputs, bastion_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_external_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
         bastion_fixed_ip: 10.2.1.101
         # details of the master stack:
         haproxy_vip: { get_attr: [ masters_deployment, outputs, haproxy_internal_vip ] }

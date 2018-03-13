@@ -27,26 +27,74 @@ resources:
         - direction: egress
           ethertype: IPv4
 
-  nodes_egress_secgroup:
+  internet_nodes_egress_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: nodes_egress_sg
+      name: internet_nodes_egress_sg
       rules:
         - direction: egress
           ethertype: IPv4
 
-  all_egress_secgroup:
+  net2_nodes_egress_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: all_egress_sg
+      name: net2_nodes_egress_sg
       rules:
         - direction: egress
           ethertype: IPv4
 
-  bastion_secgroup:
+  all_nodes_egress_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: bastion_sg
+      name: all_nodes_egress_sg
+      rules:
+        - direction: egress
+          ethertype: IPv4
+
+  controlplane_lb_egress_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: controlplane_lb_egress_sg
+      rules:
+        - direction: egress
+          ethertype: IPv4
+
+  internet_lb_egress_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: internet_lb_egress_sg
+      rules:
+        - direction: egress
+          ethertype: IPv4
+
+  net2_lb_egress_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: net2_lb_egress_sg
+      rules:
+        - direction: egress
+          ethertype: IPv4
+
+  all_net2_egress_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: all_net2_egress_sg
+      rules:
+        - direction: egress
+          ethertype: IPv4
+
+  all_internet_egress_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: all_internet_egress_sg
+      rules:
+        - direction: egress
+          ethertype: IPv4
+
+  bastion_external_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: bastion_external_sg
       rules:
         - direction: ingress
           remote_ip_prefix: 0.0.0.0/0
@@ -54,16 +102,15 @@ resources:
           port_range_min: 22
           port_range_max: 22
 
-  cluster_secgroup:
+  bastion_internal_ssh_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: clusterwide_sg
+      name: bastion_internal_ssh_sg
       rules:
-        - direction: egress
-          ethertype: IPv4
         - direction: ingress
           ethertype: IPv4
-          remote_ip_prefix: 10.2.1.101/32
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: bastion_egress_secgroup }
           protocol: tcp
           port_range_min: 22
           port_range_max: 22
@@ -96,10 +143,10 @@ resources:
             port_range_min: <%port%>
             port_range_max: <%port%>
 
-  nodes_secgroup:
+  all_nodes_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: nodes_sg
+      name: all_nodes_sg
       rules:
         - direction: ingress
           ethertype: IPv4
@@ -111,40 +158,106 @@ resources:
         - direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
-          remote_group_id: { get_resource: all_egress_secgroup }
+          protocol: udp
+          port_range_min: 4789
+          port_range_max: 4789
+
+  internet_nodes_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: internet_nodes_sg
+      rules:
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: all_internet_egress_secgroup }
           protocol: tcp
           port_range_min: 80
           port_range_max: 80
         - direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
-          remote_group_id: { get_resource: all_egress_secgroup }
+          remote_group_id: { get_resource: all_internet_egress_secgroup }
           protocol: tcp
           port_range_min: 443
           port_range_max: 443
-        - direction: ingress
-          ethertype: IPv4
-          remote_mode: remote_group_id
-          protocol: udp
-          port_range_min: 4789
-          port_range_max: 4789
 
-  dns_secgroup:
+  net2_nodes_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: dns_sg
+      name: net2_nodes_sg
       rules:
         - direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
-          remote_group_id: { get_resource: all_egress_secgroup }
+          remote_group_id: { get_resource: all_net2_egress_secgroup }
+          protocol: tcp
+          port_range_min: 80
+          port_range_max: 80
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: all_net2_egress_secgroup }
+          protocol: tcp
+          port_range_min: 443
+          port_range_max: 443
+
+  dns_internet_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: dns_internet_sg
+      rules:
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: all_internet_egress_secgroup }
           protocol: tcp
           port_range_min: 53
           port_range_max: 53
         - direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
-          remote_group_id: { get_resource: all_egress_secgroup }
+          remote_group_id: { get_resource: all_internet_egress_secgroup }
+          protocol: udp
+          port_range_min: 53
+          port_range_max: 53
+
+  dns_forwarder_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: dns_forwarder_sg
+      rules:
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: net2_lb_egress_secgroup }
+          protocol: tcp
+          port_range_min: 53
+          port_range_max: 53
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: net2_lb_egress_secgroup }
+          protocol: udp
+          port_range_min: 53
+          port_range_max: 53
+
+  dns_net2_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: dns_net2_sg
+      rules:
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: all_net2_egress_secgroup }
+          protocol: tcp
+          port_range_min: 53
+          port_range_max: 53
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: all_net2_egress_secgroup }
           protocol: udp
           port_range_min: 53
           port_range_max: 53
@@ -158,21 +271,28 @@ resources:
         - direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
-          remote_group_id: { get_resource: all_egress_secgroup }
+          remote_group_id: { get_resource: all_nodes_egress_secgroup }
           protocol: tcp
           port_range_min: 8443
           port_range_max: 8443
         - direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
-          remote_group_id: { get_resource: nodes_egress_secgroup }
+          remote_group_id: { get_resource: controlplane_lb_egress_secgroup }
+          protocol: tcp
+          port_range_min: 8443
+          port_range_max: 8443
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: all_nodes_egress_secgroup }
           protocol: tcp
           port_range_min: 8053
           port_range_max: 8053
         - direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
-          remote_group_id: { get_resource: nodes_egress_secgroup }
+          remote_group_id: { get_resource: all_nodes_egress_secgroup }
           protocol: udp
           port_range_min: 8053
           port_range_max: 8053
@@ -183,37 +303,83 @@ resources:
           port_range_min: 2379
           port_range_max: 2380
 
+  net2_router_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: net2_router_sg
+      rules:
+        - direction: egress
+          ethertype: IPv4
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: all_net2_egress_secgroup }
+
 outputs:
   bastion_egress_security_group:
-    description: Cluster wide security group
+    description: Bastion egress security group
     value: { get_resource: bastion_egress_secgroup }
-  bastion_security_group:
-    description: Cluster wide security group
-    value: { get_resource: bastion_secgroup }
-  all_egress_security_group:
-    description: Cluster wide security group
-    value: { get_resource: all_egress_secgroup }
-  cluster_security_group:
-    description: Cluster wide security group
-    value: { get_resource: cluster_secgroup }
-  masters_security_group:
-    description: Masters security group
-    value: { get_resource: masters_secgroup }
   masters_egress_security_group:
     description: Masters egress security group
     value: { get_resource: masters_egress_secgroup }
-  nodes_security_group:
-    description: Nodes security group
-    value: { get_resource: nodes_secgroup }
-  nodes_egress_security_group:
-    description: Masters egress security group
-    value: { get_resource: nodes_egress_secgroup }
-  dns_security_group:
-    description: DNS security group
-    value: { get_resource: dns_secgroup }
+  internet_nodes_egress_security_group:
+    description: Internet facing nodes egress security group
+    value: { get_resource: internet_nodes_egress_secgroup }
+  net2_nodes_egress_security_group:
+    description: Net2 facing nodes egress security group
+    value: { get_resource: net2_nodes_egress_secgroup }
+  all_nodes_egress_security_group:
+    description: All nodes egress security group
+    value: { get_resource: all_nodes_egress_secgroup }
+  control_plane_lb_egress_security_group:
+    description: Control Plane LB egress security group
+    value: { get_resource: controlplane_lb_egress_secgroup }
+  internet_lb_egress_security_group:
+    description: Internet data plane LB egress security group
+    value: { get_resource: internet_lb_egress_secgroup }
+  net2_lb_egress_security_group:
+    description: Net2 data plane LB egress security group
+    value: { get_resource: net2_lb_egress_secgroup }
+  all_net2_egress_security_group:
+    description: All net2 servers egress security group
+    value: { get_resource: all_net2_egress_secgroup }
+  all_internet_egress_security_group:
+    description: All internet facing servers egress security group
+    value: { get_resource: all_internet_egress_secgroup }
+
+  bastion_external_security_group:
+    description: Bastion external security group
+    value: { get_resource: bastion_external_secgroup }
+  bastion_internal_ssh_security_group:
+    description: Bastion ssh security group
+    value: { get_resource: bastion_internal_ssh_secgroup }
   control_plane_security_group:
     description: Security group controlling access to the control plane
     value: { get_resource: control_plane_secgroup }
   data_plane_security_group:
     description: Security group controlling access to the data plane
     value: { get_resource: data_plane_secgroup }
+  all_nodes_security_group:
+    description: Security group controlling access to all openshift nodes
+    value: { get_resource: all_nodes_secgroup }
+  internet_nodes_security_group:
+    description: Security group controlling access to all internet openshift nodes
+    value: { get_resource: internet_nodes_secgroup }
+  net2_nodes_security_group:
+    description: Security group controlling access to all net2 openshift nodes
+    value: { get_resource: net2_nodes_secgroup }
+  dns_internet_security_group:
+    description: Internet based DNS security group
+    value: { get_resource: dns_internet_secgroup }
+  dns_forwarder_security_group:
+    description: DNS forwarder access security group
+    value: { get_resource: dns_forwarder_secgroup }
+  dns_net2_security_group:
+    description: Net2 based DNS security group
+    value: { get_resource: dns_net2_secgroup }
+  masters_security_group:
+    description: Masters security group
+    value: { get_resource: masters_secgroup }
+  net2_router_security_group:
+    description: Net2 Router security group
+    value: { get_resource: net2_router_secgroup }
