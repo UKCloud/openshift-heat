@@ -61,6 +61,9 @@ parameters:
     label: RHN activation key
     description: rhn activation key
     hidden: true
+  satellite_fqdn:
+    type: string
+    description: FQDN of satellite server
   domain_suffix:
     type: string
     description: domain suffix for OpenShift
@@ -223,6 +226,7 @@ resources:
             __rhn_orgid__: { get_param: rhn_orgid }
             __rhn_activationkey__: { get_param: rhn_activationkey }
             __openshift_version__: { get_param: openshift_version }
+            __satellite_fqdn__: { get_param: satellite_fqdn }
           template: {get_file: files/install_config_agent_yum.sh}
 
   configure_config_agent:

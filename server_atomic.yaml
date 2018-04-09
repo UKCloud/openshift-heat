@@ -29,7 +29,10 @@ parameters:
     type: string
     label: RHN user password
     description: rhn activation key
-    hidden: true    
+    hidden: true
+  satellite_fqdn:
+    type: string
+    description: FQDN of satellite server
   storage_setup:
     type: string
     description: The contents for /etc/sysconfig/docker-storage-setup
@@ -55,9 +58,13 @@ resources:
         str_replace:
           params:
             __rhn_orgid__: { get_param: rhn_orgid }
-            __rhn_activationkey__: { get_param: rhn_activationkey }                  
+            __rhn_activationkey__: { get_param: rhn_activationkey }
+            __satellite_fqdn__: { get_param: satellite_fqdn }                  
           template: |
             #!/bin/bash -ex
+             curl -O http://__satellite_fqdn__/pub/katello-rhsm-consumer
+             chmod 755 katello-rhsm-consumer
+             ./katello-rhsm-consumer
              subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
              subscription-manager repos --disable=*
              subscription-manager repos --enable=rhel-7-server-rpms
