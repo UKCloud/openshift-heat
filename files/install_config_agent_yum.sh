@@ -25,15 +25,17 @@ retry() {
    done
 }
 # get and install katello package from our satellite server
-rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
+[ __satellite_deploy__ = true ] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
 
 # register with redhat
 retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
 
 # install katello agent from specific repo and then disable
-subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
-yum install katello-agent
-subscription-manager repos --disable=rhel-7-server-satellite-tools-6.3-rpms
+if [ __satellite_deploy__ = true ]
+then
+	subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
+	yum install katello-agent
+fi
 
 # determine pool ID's for red hat subscriptions
 openstackPoolId=$(retry subscription-manager list --available | grep 'Red Hat OpenStack Platform for Service Providers' -A100 | grep -m 1 'Pool ID' | awk '{print $NF}')
@@ -50,7 +52,8 @@ retry subscription-manager repos \
         --enable=rhel-7-fast-datapath-rpms \
         --enable=rhel-7-server-openstack-9-rpms \
         --enable=rhel-7-server-openstack-9-director-rpms \
-        --enable=rhel-7-server-rh-common-rpms
+        --enable=rhel-7-server-rh-common-rpms \
+        --enable=rhel-7-server-satellite-tools-6.3-rpms
 
 retry yum install -y \
         os-collect-config \

@@ -29,6 +29,9 @@ function determineFloatingIpMethod() {
   fi
 }
 
+function determineSatelliteDeploy() {
+  if [[ $(grep 
+
 function deployHeatStack() {
   openstack stack create -f yaml -t openshift.yaml openshift-$OS_TENANT_NAME \
     -e rhel_reg_creds.yaml \
