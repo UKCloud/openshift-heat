@@ -62,6 +62,8 @@ resources:
             __satellite_fqdn__: { get_param: satellite_fqdn }                  
           template: |
             #!/bin/bash -ex
+             pwd
+             cd /home/cloud-user
              curl -O http://__satellite_fqdn__/pub/katello-rhsm-consumer
              chmod 755 katello-rhsm-consumer
              ./katello-rhsm-consumer
