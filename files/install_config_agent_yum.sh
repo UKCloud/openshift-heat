@@ -1,6 +1,9 @@
 #!/bin/bash
 set -x
 
+# set satellite deploy variable
+__satellite_deploy__=SATELLITE
+
 # on Atomic host os-collect-config runs inside a container which is
 # fetched&started in another step
 [ -e /run/ostree-booted ] && exit 0
@@ -25,13 +28,14 @@ retry() {
    done
 }
 # get and install katello package from our satellite server
-[ __satellite_deploy__ = true ] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
+echo $SATELLITE
+[ $SATELLITE = true ] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
 
 # register with redhat
 retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
 
 # install katello agent from specific repo and then disable
-if [ __satellite_deploy__ = true ]
+if [ $SATELLITE = true ]
 then
 	subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
 	yum install katello-agent
