@@ -1,3 +1,5 @@
 parameter_defaults:
   rhn_orgid: changeme
   rhn_activationkey: changeme
+  satellite_fqdn: changeme
+  satellite_deploy: changeme

@@ -24,9 +24,18 @@ retry() {
       sleep 15
    done
 }
+# get and install katello package from our satellite server
+[[ "__satellite_deploy__" = True ]] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
 
 # register with redhat
 retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
+
+# install katello agent from specific repo and then disable
+if [[ "__satellite_deploy__" = True ]]
+then
+        subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
+        yum install -y katello-agent
+fi
 
 # determine pool ID's for red hat subscriptions
 openstackPoolId=$(retry subscription-manager list --available | grep 'Red Hat OpenStack Platform for Service Providers' -A100 | grep -m 1 'Pool ID' | awk '{print $NF}')
@@ -43,7 +52,8 @@ retry subscription-manager repos \
         --enable=rhel-7-fast-datapath-rpms \
         --enable=rhel-7-server-openstack-9-rpms \
         --enable=rhel-7-server-openstack-9-director-rpms \
-        --enable=rhel-7-server-rh-common-rpms
+        --enable=rhel-7-server-rh-common-rpms \
+        --enable=rhel-7-server-satellite-tools-6.3-rpms
 
 retry yum install -y \
         os-collect-config \
@@ -69,7 +79,7 @@ retry yum install -y \
         kexec-tools \
         sos \
         psacct \
-        atomic-openshift-utils-3.7.14-1.git.0.4b35b2d.el7.noarch \
+        atomic-openshift-utils \
         atomic-openshift-excluder \
         atomic-docker-excluder \
         atomic-openshift-clients
