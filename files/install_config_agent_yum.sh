@@ -63,7 +63,7 @@ retry yum install -y \
         openstack-heat-templates \
         python-oslo-log \
         python-psutil \
-        ansible-2.4.0.0-5.el7 
+        ansible-2.4.0.0-5.el7
 
 # setup OpenShift repos and install packages required specifically for OpenShift
 retry subscription-manager repos --enable=rhel-7-server-ose-__openshift_version__-rpms
