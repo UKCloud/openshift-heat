@@ -64,7 +64,7 @@ parameters:
   satellite_fqdn:
     type: string
     description: FQDN of satellite server
-    default:
+    default: notused
   satellite_deploy:
     type: boolean
     description: If true register with internal satellite server
