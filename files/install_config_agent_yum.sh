@@ -29,13 +29,13 @@ retry() {
 }
 # get and install katello package from our satellite server
 echo $SATELLITE
-[ $SATELLITE = true ] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
+[ $SATELLITE = True ] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
 
 # register with redhat
 retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
 
 # install katello agent from specific repo and then disable
-if [ $SATELLITE = true ]
+if [ $SATELLITE = True ]
 then
 	subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
 	yum install katello-agent

@@ -68,7 +68,7 @@ resources:
             __satellite_deploy__: { get_param: satellite_deploy }      
           template: |
             #!/bin/bash -ex
-             [ __satellite_deploy__ = true ] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
+             [ __satellite_deploy__ = True ] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
              subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
              subscription-manager repos --disable=*
              if [ __satellite_deploy__ = true ] 
