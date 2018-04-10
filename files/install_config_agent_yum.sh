@@ -34,6 +34,7 @@ retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_ac
 if [ __satellite_deploy__ = True ]
 then
 	subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
+        yum install -y katello-agent
 fi
 
 # determine pool ID's for red hat subscriptions
@@ -63,7 +64,6 @@ retry yum install -y \
         python-oslo-log \
         python-psutil \
         ansible-2.4.0.0-5.el7 \
-        katello-agent
 
 # setup OpenShift repos and install packages required specifically for OpenShift
 retry subscription-manager repos --enable=rhel-7-server-ose-__openshift_version__-rpms
