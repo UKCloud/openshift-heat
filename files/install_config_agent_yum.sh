@@ -34,7 +34,6 @@ retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_ac
 if [ __satellite_deploy__ = True ]
 then
 	subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
-	yum install katello-agent
 fi
 
 # determine pool ID's for red hat subscriptions
@@ -63,7 +62,8 @@ retry yum install -y \
         openstack-heat-templates \
         python-oslo-log \
         python-psutil \
-        ansible-2.4.0.0-5.el7
+        ansible-2.4.0.0-5.el7 \
+        katello-agent
 
 # setup OpenShift repos and install packages required specifically for OpenShift
 retry subscription-manager repos --enable=rhel-7-server-ose-__openshift_version__-rpms
@@ -79,7 +79,7 @@ retry yum install -y \
         kexec-tools \
         sos \
         psacct \
-        atomic-openshift-utils-3.7.14-1.git.0.4b35b2d.el7.noarch \
+        atomic-openshift-utils \
         atomic-openshift-excluder \
         atomic-docker-excluder \
         atomic-openshift-clients
