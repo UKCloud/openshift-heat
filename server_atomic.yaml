@@ -69,7 +69,7 @@ resources:
           template: |
             #!/bin/bash -ex
              cd /home/cloud-user
-             if [ __satellite_deploy__ = True ] 
+             if [[ "__satellite_deploy__" = True ]] 
              then
              	curl -O http://__satellite_fqdn__/pub/katello-rhsm-consumer
              	chmod 755 katello-rhsm-consumer
