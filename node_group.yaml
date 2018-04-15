@@ -1,0 +1,103 @@
+heat_template_version: 2016-04-08
+
+parameters:
+  node_type:
+    type: string
+    description: Type of node to deploy in [master, worker]
+    constraints:
+      - allowed_values: 
+        - master
+        - worker
+  node_flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: m1.medium
+    constraints:
+      - custom_constraint: nova.flavor
+  image:
+    type: string
+    description: Image ID or image name to use for the server
+    default: "rhel-atomic-cloud-7.4.2-8"
+    constraints:
+      - custom_constraint: glance.image
+  key_name:
+    type: string
+    description: SSH Key Pair
+    default: "venv-mac"
+    constraints:
+      - custom_constraint: nova.keypair
+  node_scale:
+    type: number
+    description: Number of nodes to deploy
+    default: 3
+  rhn_orgid:
+    type: string
+    label: rhn activation org
+    description: Name of the rhn activation org
+  rhn_activationkey:
+    type: string
+    label: RHN activation key
+    description: rhn activation key
+    hidden: true
+  purpose_ident:
+    type: string
+    description: identifier to indicate node purpose
+    default: infra
+  local_domain_suffix:
+    type: string
+    description: domain suffix for local DNS for OpenShift
+    default: openstacklocal
+  internal_network:
+    type: string
+    description: network on which to deploy the cluster
+  internal_network_subnet:
+    type: string
+    description: subnet of network to attach to
+  cluster_security_groups:
+    type: comma_delimited_list
+    description: Security groups for cluster
+
+resources:
+
+  node-servergroup:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: 
+        str_replace:
+          template: nodetype-servergroup
+          params:
+            nodetype: { get_param: node_type }
+      policies: [ 'anti-affinity' ]
+
+  node_group:
+    type: OS::Heat::ResourceGroup
+    depends_on: []
+    properties:
+      count: { get_param: node_scale }
+      resource_def:
+        type: server_atomic.yaml
+        properties:
+          server_name: 
+            str_replace:
+              template: nodetype-ident-%index%.suffix
+              params:
+                nodetype: { get_param: node_type }
+                suffix: { get_param: local_domain_suffix }
+                ident: { get_param: purpose_ident }
+          flavor: { get_param: node_flavor }
+          image: { get_param: image }
+          key_name: { get_param: key_name }
+          rhn_orgid: { get_param: rhn_orgid }
+          rhn_activationkey: { get_param: rhn_activationkey }
+          port_network: { get_param: internal_network }
+          sec_groups: { get_param: cluster_security_groups }
+          storage_setup: |
+            GROWPART=true
+            ROOT_SIZE=41G
+            DATA_SIZE=12G
+          server_group: { get_resource: node-servergroup }
+
+outputs:
+  node_list:
+    description: host file contents
+    value: { get_attr: [ node_group, host_entry ] }

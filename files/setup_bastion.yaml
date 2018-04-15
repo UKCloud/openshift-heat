@@ -8,6 +8,7 @@
     internetDpVip: __internet_dp_vip__
     internetDpLb:  __internet_dp_lb__
     internetNodes: __internet_node_details__
+    infraNodes: __infra_node_details__
     net2DpVip: __net2_dp_vip__
     net2DpLb: __net2_dp_lb__
     net2Nodes: __net2_node_details__
@@ -41,6 +42,9 @@
           {{ item|replace('\"', "") }}
           {% endfor %}
           {% for item in internetNodes %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in infraNodes %}
           {{ item|replace('\"', "") }}
           {% endfor %}
           {% for item in net2Nodes %}
@@ -77,10 +81,17 @@
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           worker_details:
+          {% for item in infraNodes %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
           {% for item in internetNodes %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           {% for item in net2Nodes %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          infrastructure_node_details:
+          {% for item in infraNodes %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           worker_details_internet:

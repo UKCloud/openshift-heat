@@ -34,15 +34,6 @@ resources:
     properties:
       template: { get_file: network.yaml }
 
-  extra_gateway:
-    type: OS::Heat::Stack
-    properties:
-      template: { get_file: extra_gateway.yaml }
-      parameters:
-        interface_network: { get_param: net2_external_network }
-        internal_network: { get_attr: [internal_network, outputs, network] }
-        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-
   security_groups:
     type: OS::Heat::Stack
     properties:
@@ -51,26 +42,18 @@ resources:
         control_plane_ports: "8443"
         data_plane_ports: "80,443"
 
-  masters_deployment:
+  control_plane_lb:
     type: OS::Heat::Stack
-    depends_on: [ security_groups ]
+    depends_on: [ internal_network, security_groups ]
     properties:
-      template: { get_file: nodes.yaml }
+      template: { get_file: loadbalancers.yaml }
       parameters:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         key_name: venv-mac
         haproxy_floating_ip: 438472c3-a50f-4e13-8d3a-fc1461f6ffc9
-        node_type: master
-        node_scale: 3
-        cluster_security_groups:
-          - { get_attr: [ security_groups, outputs, masters_egress_security_group ] }
-          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
-          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
-          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
-          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
-          - { get_attr: [ security_groups, outputs, masters_security_group ] }
-        loadbalancer_security_groups:
+        scale: 2
+        security_groups:
           - { get_attr: [ security_groups, outputs, control_plane_lb_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
@@ -78,17 +61,37 @@ resources:
           - { get_attr: [ security_groups, outputs, dns_internet_security_group ] }
           - { get_attr: [ security_groups, outputs, dns_forwarder_security_group ] }
 
-  workers_deployment:
+  master_nodes_deployment:
     type: OS::Heat::Stack
-    depends_on: [ security_groups ]
+    depends_on: [ internal_network, security_groups ]
     properties:
-      template: { get_file: nodes.yaml }
+      template: { get_file: node_group.yaml }
       parameters:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         key_name: venv-mac
-        haproxy_floating_ip: fc10d714-2ccb-41b8-96f5-2d8dcb83b060
+        node_type: master
+        purpose_ident:
+        node_scale: 3
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+
+  infra_nodes_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: node_group.yaml }
+      parameters:
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        key_name: venv-mac
         node_type: worker
+        purpose_ident: infra
         node_scale: 2
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
@@ -97,23 +100,65 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
           - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
-        loadbalancer_security_groups:
+
+  worker_nodes_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: node_group.yaml }
+      parameters:
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        key_name: venv-mac
+        node_type: worker
+        purpose_ident: tenant
+        node_scale: 2
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+
+  data_plane_internet_lb:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: loadbalancers.yaml }
+      parameters:
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        key_name: venv-mac
+        haproxy_floating_ip: fc10d714-2ccb-41b8-96f5-2d8dcb83b060
+        scale: 2
+        security_groups:
           - { get_attr: [ security_groups, outputs, internet_lb_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
 
-  net2_workers_deployment:
+  extra_gateway:
     type: OS::Heat::Stack
-    depends_on: [ security_groups ]
+    depends_on: [ internal_network ]
     properties:
-      template: { get_file: nodes.yaml }
+      template: { get_file: extra_gateway.yaml }
+      parameters:
+        interface_network: { get_param: net2_external_network }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+
+  net2_nodes_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: node_group.yaml }
       parameters:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         key_name: venv-mac
-        haproxy_floating_ip: 2098fc9a-81ed-499c-95d0-e98cf1a9a99f
         node_type: worker
+        purpose_ident: { get_param: net2_external_network }
         node_scale: 2
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
@@ -122,7 +167,19 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
           - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
-        loadbalancer_security_groups:
+
+  data_plane_net2_lb:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: loadbalancers.yaml }
+      parameters:
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        key_name: venv-mac
+        haproxy_floating_ip: 2098fc9a-81ed-499c-95d0-e98cf1a9a99f
+        scale: 2
+        security_groups:
           - { get_attr: [ security_groups, outputs, net2_lb_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
@@ -131,7 +188,7 @@ resources:
 
   bastion_deployment:
     type: OS::Heat::Stack
-    depends_on: [ masters_deployment, workers_deployment ]
+    depends_on: [ master_nodes_deployment, worker_nodes_deployment ]
     properties:
       template: { get_file: bastion.yaml }
       parameters:
@@ -155,15 +212,22 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
         bastion_fixed_ip: 10.2.1.101
         # details of the master stack:
-        haproxy_vip: { get_attr: [ masters_deployment, outputs, haproxy_internal_vip ] }
-        control_plane_lb: { get_attr: [ masters_deployment, outputs, haproxy_list ] } 
-        master_details: { get_attr: [ masters_deployment, outputs, node_list ] }
+        haproxy_vip: { get_attr: [ control_plane_lb, outputs, haproxy_internal_vip ] }
+        control_plane_lb: { get_attr: [ control_plane_lb, outputs, haproxy_list ] }
+        master_details: { get_attr: [ master_nodes_deployment, outputs, node_list ] }
         # details of the internet facing node stack:
-        internet_dp_vip: { get_attr: [ workers_deployment, outputs, haproxy_internal_vip ] }
-        internet_dp_lb: { get_attr: [ workers_deployment, outputs, haproxy_list ] } 
-        internet_node_details: { get_attr: [ workers_deployment, outputs, node_list ] }
+        internet_dp_vip: { get_attr: [ data_plane_internet_lb, outputs, haproxy_internal_vip ] }
+        internet_dp_lb: { get_attr: [ data_plane_internet_lb, outputs, haproxy_list ] }
+        internet_node_details: { get_attr: [ worker_nodes_deployment, outputs, node_list ] }
+        infra_node_details: { get_attr: [ infra_nodes_deployment, outputs, node_list ] }
         # details of the net-x facing node stack:
-        net2_dp_vip: { get_attr: [ net2_workers_deployment, outputs, haproxy_internal_vip ] }
-        net2_dp_lb: { get_attr: [ net2_workers_deployment, outputs, haproxy_list ] }
-        net2_node_details: { get_attr: [ net2_workers_deployment, outputs, node_list ] }
+        net2_dp_vip: { get_attr: [ data_plane_net2_lb, outputs, haproxy_internal_vip ] }
+        net2_dp_lb: { get_attr: [ data_plane_net2_lb, outputs, haproxy_list ] }
+        net2_node_details: { get_attr: [ net2_nodes_deployment, outputs, node_list ] }
         net2_dns_server: { get_param: net2_dns_server }
+
+outputs:
+  bastion_ip:
+    description: External IP for connection to jump box.
+    value: { get_attr: [ bastion_deployment, outputs, bastion_ip ] }
+

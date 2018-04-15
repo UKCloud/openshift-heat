@@ -115,6 +115,9 @@ parameters:
   internet_node_details:
     type: comma_delimited_list
     description: Details of the deployed internet nodes in the cluster
+  infra_node_details:
+    type: comma_delimited_list
+    description: Details of the deployed infrastructure nodes in the cluster
   net2_dp_vip:
     type: string
     description: internal fixed IP of the haproxy vip serving net2 traffic
@@ -217,6 +220,7 @@ resources:
             __internet_dp_vip__: { get_param: [ internet_dp_vip ] }
             __internet_dp_lb__: { get_param: [ internet_dp_lb ] }
             __internet_node_details__: { get_param: [ internet_node_details ] }
+            __infra_node_details__: { get_param: [ infra_node_details ] }
             __net2_dp_vip__: { get_param: [ net2_dp_vip ] }
             __net2_dp_lb__: { get_param: [ net2_dp_lb ] }
             __net2_node_details__: { get_param: [ net2_node_details ] }
