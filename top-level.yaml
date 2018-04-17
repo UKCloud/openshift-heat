@@ -27,12 +27,21 @@ parameters:
   time:
     type: string
     description: epoch time used to cause ansible to run on every update
+  local_domain_suffix:
+    type: string
+    description: domain suffix for local DNS for OpenShift
+    default: openstacklocal
 
 resources:
   internal_network:
     type: OS::Heat::Stack
     properties:
       template: { get_file: network.yaml }
+      parameters:
+        allocation_pools: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
+        cidr: "10.2.1.0/24"
+        dns: [ "8.8.8.8" ]
+        gateway: "10.2.1.1"
 
   security_groups:
     type: OS::Heat::Stack
@@ -48,11 +57,14 @@ resources:
     properties:
       template: { get_file: loadbalancers.yaml }
       parameters:
+        haproxy_floating_ip: 438472c3-a50f-4e13-8d3a-fc1461f6ffc9
+        floating_ip_network: "Internet"
+        key_name: venv-mac
+        scale: 2
+        purpose_ident: cp
+        local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        key_name: venv-mac
-        haproxy_floating_ip: 438472c3-a50f-4e13-8d3a-fc1461f6ffc9
-        scale: 2
         security_groups:
           - { get_attr: [ security_groups, outputs, control_plane_lb_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
@@ -67,12 +79,14 @@ resources:
     properties:
       template: { get_file: node_group.yaml }
       parameters:
+        node_type: master
+        node_flavor: m1.medium
+        key_name: venv-mac
+        node_scale: 3
+        purpose_ident:
+        local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        key_name: venv-mac
-        node_type: master
-        purpose_ident:
-        node_scale: 3
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -87,12 +101,14 @@ resources:
     properties:
       template: { get_file: node_group.yaml }
       parameters:
+        node_type: worker
+        node_flavor: m1.medium
+        key_name: venv-mac
+        node_scale: 2
+        purpose_ident: infra
+        local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        key_name: venv-mac
-        node_type: worker
-        purpose_ident: infra
-        node_scale: 2
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -107,12 +123,14 @@ resources:
     properties:
       template: { get_file: node_group.yaml }
       parameters:
+        node_type: worker
+        node_flavor: m1.medium
+        key_name: venv-mac
+        node_scale: 2
+        purpose_ident: tenant
+        local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        key_name: venv-mac
-        node_type: worker
-        purpose_ident: tenant
-        node_scale: 2
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -127,18 +145,21 @@ resources:
     properties:
       template: { get_file: loadbalancers.yaml }
       parameters:
+        haproxy_floating_ip: fc10d714-2ccb-41b8-96f5-2d8dcb83b060
+        floating_ip_network: "Internet"
+        key_name: venv-mac
+        scale: 2
+        purpose_ident: www
+        local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        key_name: venv-mac
-        haproxy_floating_ip: fc10d714-2ccb-41b8-96f5-2d8dcb83b060
-        scale: 2
         security_groups:
           - { get_attr: [ security_groups, outputs, internet_lb_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
 
-  extra_gateway:
+  net2_gateway:
     type: OS::Heat::Stack
     depends_on: [ internal_network ]
     properties:
@@ -147,6 +168,7 @@ resources:
         interface_network: { get_param: net2_external_network }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        fixed_ip: "10.2.1.254"
 
   net2_nodes_deployment:
     type: OS::Heat::Stack
@@ -154,12 +176,14 @@ resources:
     properties:
       template: { get_file: node_group.yaml }
       parameters:
+        node_type: worker
+        node_flavor: m1.medium
+        key_name: venv-mac
+        node_scale: 2
+        purpose_ident: { get_param: net2_external_network }
+        local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        key_name: venv-mac
-        node_type: worker
-        purpose_ident: { get_param: net2_external_network }
-        node_scale: 2
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -170,15 +194,18 @@ resources:
 
   data_plane_net2_lb:
     type: OS::Heat::Stack
-    depends_on: [ internal_network, security_groups ]
+    depends_on: [ internal_network, security_groups, net2_gateway ]
     properties:
       template: { get_file: loadbalancers.yaml }
       parameters:
+        haproxy_floating_ip: 2098fc9a-81ed-499c-95d0-e98cf1a9a99f
+        floating_ip_network: { get_param: net2_external_network }
+        key_name: venv-mac
+        scale: 2
+        purpose_ident: { get_param: net2_external_network }
+        local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        key_name: venv-mac
-        haproxy_floating_ip: 2098fc9a-81ed-499c-95d0-e98cf1a9a99f
-        scale: 2
         security_groups:
           - { get_attr: [ security_groups, outputs, net2_lb_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
@@ -193,24 +220,28 @@ resources:
       template: { get_file: bastion.yaml }
       parameters:
         time: { get_param: time }
-        internal_network: { get_attr: [internal_network, outputs, network] }
-        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        bastion_flavor:
         key_name: venv-mac
         domain_suffix: customer1.cor00005.cna.ukcloud.com
+        local_domain_suffix: { get_param: local_domain_suffix }
         openshift_openstack_username: openshift@ukcloud.com
-        s3_bucket_name: test-bucket
-        time: { get_param: time }
+        openshift_openstack_password: { get_param: openshift_openstack_password }
         os_auth_url: { get_param: os_auth_url }
         os_tenant_id: { get_param: os_tenant_id }
         os_tenant_name: { get_param: os_tenant_name }
         os_region: { get_param: os_region }
-        openshift_openstack_password: { get_param: openshift_openstack_password }
+        s3_bucket_name: test-bucket
+        openshift_version: 3.7
+        get_certificates: false
+        do_upgrades: false
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        bastion_fixed_ip: 10.2.1.101
         server_security_groups: 
           - { get_attr: [ security_groups, outputs, bastion_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_external_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
-        bastion_fixed_ip: 10.2.1.101
         # details of the master stack:
         haproxy_vip: { get_attr: [ control_plane_lb, outputs, haproxy_internal_vip ] }
         control_plane_lb: { get_attr: [ control_plane_lb, outputs, haproxy_list ] }

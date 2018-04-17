@@ -3,6 +3,9 @@ heat_template_version: 2016-04-08
 parameters:
   haproxy_floating_ip:
      type: string
+  floating_ip_network:
+    type: string
+    description: Name of the network floating ip to be allocated from
   haproxy_flavor:
     type: string
     description: Flavor for the server to be created
@@ -61,10 +64,15 @@ resources:
       - subnet_id: { get_param: internal_network_subnet }
       security_groups: { get_param: security_groups }
 
+  floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: floating_ip_network }
+
   haproxy_floating_ip_assoc:
     type: OS::Neutron::FloatingIPAssociation
     properties:
-      floatingip_id: { get_param: haproxy_floating_ip }
+      floatingip_id: { get_resource: floating_ip }
       port_id: { get_resource: haproxy_port }
 
   haproxy-servergroup:

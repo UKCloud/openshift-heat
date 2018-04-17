@@ -260,10 +260,3 @@ outputs:
   bastion_ip:
     description: External IP for connection to jump box.
     value: { get_attr: [  bastion_floating_ip, floating_ip_address ] }
-  haproxy_external_ip:
-    description: External IP for haproxy..
-    value: { get_param: haproxy_floating_ip }
-  host_file:
-    description: host file contents
-    value: 
-      list_join: [ ', ',  { get_param: [ worker_details ] }, { get_param: [ master_details ] } ]
