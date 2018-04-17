@@ -32,7 +32,15 @@ parameters:
     type: string
     label: RHN user password
     description: rhn activation key
-    hidden: true    
+    hidden: true
+  satellite_fqdn:
+    type: string
+    description: FQDN of satellite server
+    default: notused
+  satellite_deploy:
+    type: boolean
+    description: Register with internal satellite if true
+    default: false
   storage_setup:
     type: string
     description: The contents for /etc/sysconfig/docker-storage-setup
@@ -58,9 +66,18 @@ resources:
         str_replace:
           params:
             __rhn_orgid__: { get_param: rhn_orgid }
-            __rhn_activationkey__: { get_param: rhn_activationkey }                  
+            __rhn_activationkey__: { get_param: rhn_activationkey }
+            __satellite_fqdn__: { get_param: satellite_fqdn }
+            __satellite_deploy__: { get_param: satellite_deploy }                  
           template: |
             #!/bin/bash -ex
+             cd /home/cloud-user
+             if [[ "__satellite_deploy__" = True ]] 
+             then
+             	curl -O http://__satellite_fqdn__/pub/katello-rhsm-consumer
+             	chmod 755 katello-rhsm-consumer
+             	./katello-rhsm-consumer
+             fi
              subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
              subscription-manager repos --disable=*
              subscription-manager repos --enable=rhel-7-server-rpms
