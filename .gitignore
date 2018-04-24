@@ -1,6 +1,7 @@
 
 environment.yaml
 rhel_reg_creds.yaml
+s3creds.yaml
 
 # auto-generated from openshift-template.yaml: see deploy.sh
 openshift.yaml
