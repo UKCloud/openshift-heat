@@ -1,0 +1,4 @@
+parameter_defaults:
+  s3_region_endpoint: 
+  s3_access_key: 
+  s3_secret_key: 
