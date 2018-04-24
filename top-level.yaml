@@ -88,12 +88,12 @@ resources:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         cluster_security_groups:
-          - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, masters_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
-          - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, masters_security_group ] }
 
   infra_nodes_deployment:
     type: OS::Heat::Stack
@@ -180,7 +180,7 @@ resources:
         node_flavor: m1.medium
         key_name: venv-mac
         node_scale: 2
-        purpose_ident: { get_param: net2_external_network }
+        purpose_ident: janet
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -202,7 +202,7 @@ resources:
         floating_ip_network: { get_param: net2_external_network }
         key_name: venv-mac
         scale: 2
-        purpose_ident: { get_param: net2_external_network }
+        purpose_ident: janet
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
