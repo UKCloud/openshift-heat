@@ -1,6 +1,7 @@
 #!/bin/bash
 
-openshift_openstack_password=$1
+multinetwork=$1
+openshift_openstack_password=$2
 
 function validateSetup() {
   if [[ -z $OS_TENANT_ID ]]; then
@@ -17,18 +18,10 @@ function getPassword() {
   fi
 }
 
-function determineFloatingIpMethod() {
-  if [[ $(grep -q '  haproxy_floating_ip:' environment.yaml ; echo $?) == 0 ]]; then
-    sed -e "s/parameters:/parameters:\\`echo -e '\n\r'`  haproxy_floating_ip:\\`echo -e '\n\r'`     type: string/g" openshift-template.yaml > openshift.yaml
-    sed -i -e "s/  floatingip_id: { get_resource: haproxy_floating_ip }/  floatingip_id: { get_param: haproxy_floating_ip }/g" openshift.yaml
-    sed -i -e "s/    value: { get_attr: \[  haproxy_floating_ip, floating_ip_address \] }/    value: { get_param: haproxy_floating_ip }/g" openshift.yaml
-    sed -i -e "s///" openshift.yaml
-  else
-    sed -e "s/resources:/resources:\\`echo -e '\n\r'`  haproxy_floating_ip:\\`echo -e '\n\r'`    type: OS::Neutron::FloatingIP\\`echo -e '\n\r'`    properties:\\`echo -e '\n\r'`      floating_network: "Internet"\\`echo -e '\n\r'`/g" openshift-template.yaml > openshift.yaml
-    sed -i -e "s///" openshift.yaml
-  fi
+function setupHeatTemplate() {
+  ansible-playbook ./setup-heat-templates.yaml  --extra-vars "multinetwork=$multinetwork"
 }
- 
+
 function deployHeatStack() {
   openstack stack create -f yaml -t openshift.yaml openshift-$OS_TENANT_NAME \
     -e rhel_reg_creds.yaml \
@@ -44,5 +37,5 @@ function deployHeatStack() {
 
 validateSetup
 getPassword
-determineFloatingIpMethod
+setupHeatTemplate
 deployHeatStack

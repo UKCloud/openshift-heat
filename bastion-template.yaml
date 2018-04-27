@@ -126,26 +126,8 @@ parameters:
   infra_node_details:
     type: comma_delimited_list
     description: Details of the deployed infrastructure nodes in the cluster
-  net2_dp_vip:
-    type: string
-    description: internal fixed IP of the haproxy vip serving net2 traffic
-  net2_dp_lb:
-    type: comma_delimited_list
-    description: Details of the data plane haproxy nodes for net2
-  net2_node_details:
-    type: comma_delimited_list
-    description: Details of the deployed net2 nodes in the cluster
-  net2_dns_server:
-    type: string
-    description: DNS server for net2
 
 resources:
-  name_nonce:
-    type: OS::Heat::RandomString
-    properties:
-      length: 4
-      sequence: lowercase
-
   bastion_port:
     type: OS::Neutron::Port
     properties:
@@ -231,9 +213,6 @@ resources:
             __internet_dp_lb__: { get_param: [ internet_dp_lb ] }
             __internet_node_details__: { get_param: [ internet_node_details ] }
             __infra_node_details__: { get_param: [ infra_node_details ] }
-            __net2_dp_vip__: { get_param: [ net2_dp_vip ] }
-            __net2_dp_lb__: { get_param: [ net2_dp_lb ] }
-            __net2_node_details__: { get_param: [ net2_node_details ] }
             __time__: { get_param: time }
             __domain_suffix__: { get_param: domain_suffix }
             __openshift_openstack_username__: { get_param: openshift_openstack_username }
@@ -252,7 +231,6 @@ resources:
             __doUpgrades__: { get_param: do_upgrades }
             __installLogging__: { get_param: install_logging }
             __loggingClusterSize__: { get_param: logging_cluster_size }
-            __net2DnsServer__: { get_param: net2_dns_server }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result

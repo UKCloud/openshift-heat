@@ -1,7 +1,9 @@
 
 environment.yaml
 rhel_reg_creds.yaml
-s3creds.yaml
+
+# ignore auto-created ansible retry files
+*.retry
 
 # auto-generated from openshift-template.yaml: see deploy.sh
 openshift.yaml
