@@ -153,6 +153,7 @@
           doUpgrades: {{ doUpgrades }}
           installLogging: {{ installLogging }}
           loggingClusterSize: {{ loggingClusterSize }}
+          multinetwork: {{ multinetwork }}
           {% if multinetwork %}
           net2_dns_server: {{ net2DnsServer }}
           net2_vip: {{ net2DpVip }}
