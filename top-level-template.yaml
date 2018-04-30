@@ -75,6 +75,9 @@ parameters:
     type: number
     description: Size of the ES cluster to deploy if logging deployed with install_logging
     default: 1
+  multinetwork:
+    type: boolean
+    description: Whether to deploy a secondary external network
 
 resources:
   internal_network:
@@ -232,6 +235,7 @@ resources:
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_external_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+        multinetwork: { get_param: multinetwork }
         # details of the master stack:
         haproxy_vip: { get_attr: [ control_plane_lb, outputs, haproxy_internal_vip ] }
         control_plane_lb: { get_attr: [ control_plane_lb, outputs, haproxy_list ] }

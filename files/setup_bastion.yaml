@@ -9,9 +9,6 @@
     internetDpLb:  __internet_dp_lb__
     internetNodes: __internet_node_details__
     infraNodes: __infra_node_details__
-    net2DpVip: __net2_dp_vip__
-    net2DpLb: __net2_dp_lb__
-    net2Nodes: __net2_node_details__
     domainSuffix: __domain_suffix__
     localDomainSuffix: __local_domain_suffix__
     openstackOpenshiftPassword: __openshift_openstack_password__
@@ -29,7 +26,11 @@
     doUpgrades: __doUpgrades__
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
+    multinetwork: __multinetwork__
     net2DnsServer: __net2DnsServer__
+    net2DpVip: __net2_dp_vip__
+    net2DpLb: __net2_dp_lb__
+    net2Nodes: __net2_node_details__
   tasks:
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
@@ -47,18 +48,22 @@
           {% for item in infraNodes %}
           {{ item|replace('\"', "") }}
           {% endfor %}
+          {% if multinetwork %}
           {% for item in net2Nodes %}
           {{ item|replace('\"', "") }}
           {% endfor %}
+          {% endif %}
           {% for item in controlPlaneLb %}
           {{ item|replace('\"', "") }}
           {% endfor %}
           {% for item in internetDpLb %}
           {{ item|replace('\"', "") }}
           {% endfor %}
+          {% if multinetwork %}
           {% for item in net2DpLb %}
           {{ item|replace('\"', "") }}
           {% endfor %}
+          {% endif %}
           {{ haproxy_vip }} console.{{ domainSuffix }}
           {{ haproxy_vip }} ocp.{{ domainSuffix }}
     - name: update hosts file
@@ -87,9 +92,11 @@
           {% for item in internetNodes %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
+          {% if multinetwork %}
           {% for item in net2Nodes %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
+          {% endif %}
           infrastructure_node_details:
           {% for item in infraNodes %}
             {{ item|replace(' ', ': ') }}
@@ -99,9 +106,11 @@
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           worker_details_net2:
+          {% if multinetwork %}
           {% for item in net2Nodes %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
+          {% endif %}
           control_plane_details:
           {% for item in controlPlaneLb %}
             {{ item|replace(' ', ': ') }}
@@ -110,20 +119,23 @@
           {% for item in internetDpLb %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
+          {% if multinetwork %}
           {% for item in net2DpLb %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
+          {% endif %}
           data_plane_internet:
           {% for item in internetDpLb %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           data_plane_net2:
+          {% if multinetwork %}
           {% for item in net2DpLb %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
+          {% endif %}
           haproxy_vip: {{ haproxy_vip }}
           internet_vip: {{ internetDpVip }}
-          net2_vip: {{ net2DpVip }}
           domainSuffix: {{ domainSuffix }}
           openstackOpenshiftPassword: {{ openstackOpenshiftPassword }}
           openstackOpenshiftUsername: {{ openstackOpenshiftUsername }}
@@ -141,7 +153,10 @@
           doUpgrades: {{ doUpgrades }}
           installLogging: {{ installLogging }}
           loggingClusterSize: {{ loggingClusterSize }}
+          {% if multinetwork %}
           net2_dns_server: {{ net2DnsServer }}
+          net2_vip: {{ net2DpVip }}
+          {% endif %}
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/

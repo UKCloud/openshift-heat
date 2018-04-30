@@ -3,12 +3,12 @@
     multinetwork: false
   tasks:
   - name: create deployment template
-    template:
+    copy:
       src: ./top-level-template.yaml
       dest: ./openshift.yaml
 
   - name: create deployment bastion template
-    template:
+    copy:
       src: ./bastion-template.yaml
       dest: ./bastion.yaml
 
@@ -139,3 +139,15 @@
                 net2_node_details: { get_attr: [ net2_nodes_deployment, outputs, node_list ] }
                 net2_dns_server: { get_param: net2_dns_server }
     when: multinetwork
+
+#  - name: add net2 vars to bastion setup playbook
+#    blockinfile:
+#      dest: openshift.yaml
+#      insertbefore: "tasks:"
+#      marker: "  # ANSIBLE MANAGED BLOCK - setup_bastion"
+#      block: |2
+#        net2DnsServer: __net2DnsServer__
+#        net2DpVip: __net2_dp_vip__
+#        net2DpLb: __net2_dp_lb__
+#        net2Nodes: __net2_node_details__
+#    when: multinetwork

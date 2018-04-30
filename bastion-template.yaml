@@ -126,6 +126,9 @@ parameters:
   infra_node_details:
     type: comma_delimited_list
     description: Details of the deployed infrastructure nodes in the cluster
+  multinetwork:
+    type: boolean
+    description: Test
 
 resources:
   bastion_port:
@@ -231,6 +234,7 @@ resources:
             __doUpgrades__: { get_param: do_upgrades }
             __installLogging__: { get_param: install_logging }
             __loggingClusterSize__: { get_param: logging_cluster_size }
+            __multinetwork__ : { get_param: multinetwork }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
