@@ -105,7 +105,6 @@ resources:
       template: { get_file: loadbalancers.yaml }
       parameters:
         haproxy_floating_ip: { get_param: controlplane_floating_ip }
-        floating_ip_network: "Internet"
         key_name: { get_param: key_name }
         scale: 2
         purpose_ident: cp
@@ -193,7 +192,6 @@ resources:
       template: { get_file: loadbalancers.yaml }
       parameters:
         haproxy_floating_ip: { get_param: dataplane_floating_ip }
-        floating_ip_network: "internet"
         key_name: { get_param: key_name }
         scale: 2
         purpose_ident: www

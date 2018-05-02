@@ -106,8 +106,7 @@
             properties:
               template: { get_file: loadbalancers.yaml }
               parameters:
-                haproxy_floating_ip: 2098fc9a-81ed-499c-95d0-e98cf1a9a99f
-                floating_ip_network: { get_param: net2_external_network }
+                haproxy_floating_ip: { get_param: net2_floating_ip }
                 key_name: venv-mac
                 scale: 2
                 purpose_ident: janet
