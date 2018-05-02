@@ -25,7 +25,11 @@
           net2_dns_server:
             type: string
             description: DNS server for net2
-            default: 8.8.8.8
+            default: "8.8.8.8"
+          net2_gateway_internal_ip:
+            type: string
+            description: DNS server for net2
+            default: "10.2.1.254"
     when: multinetwork
 
   - name: add net2 parameters to bastion file if required
@@ -47,6 +51,9 @@
           net2_dns_server:
             type: string
             description: DNS server for net2
+          net2_gateway:
+            type: string
+            description: Gateway for the net2 connection
     when: multinetwork
 
   - name: add net2 resources if required
@@ -69,7 +76,7 @@
                 interface_network: { get_param: net2_external_network }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-                fixed_ip: "10.2.1.254"
+                fixed_ip: { get_param: net2_gateway_internal_ip }
 
           net2_nodes_deployment:
             type: OS::Heat::Stack
@@ -115,19 +122,7 @@
                   - { get_attr: [ security_groups, outputs, dns_net2_security_group ] }
     when: multinetwork
 
-  - name: add net2 parameters to bastion host file if required
-    blockinfile:
-      dest: bastion.yaml
-      insertbefore: "template: { get_file: 'files/setup_bastion.yaml' }"
-      marker: "            # ANSIBLE MANAGED BLOCK - host file"
-      block: |2
-                    __net2_dp_vip__: { get_param: [ net2_dp_vip ] }
-                    __net2_dp_lb__: { get_param: [ net2_dp_lb ] }
-                    __net2_node_details__: { get_param: [ net2_node_details ] }
-                    __net2DnsServer__: { get_param: net2_dns_server }
-    when: multinetwork
-
-  - name: add net2 parameters to bastion if required
+  - name: add net2 parameters to bastion_deployment if required
     blockinfile:
       dest: openshift.yaml
       insertbefore: "outputs:"
@@ -138,16 +133,18 @@
                 net2_dp_lb: { get_attr: [ data_plane_net2_lb, outputs, haproxy_list ] }
                 net2_node_details: { get_attr: [ net2_nodes_deployment, outputs, node_list ] }
                 net2_dns_server: { get_param: net2_dns_server }
+                net2_gateway: { get_attr: [ net2_gateway, outputs, gateway ] }
     when: multinetwork
 
-#  - name: add net2 vars to bastion setup playbook
-#    blockinfile:
-#      dest: openshift.yaml
-#      insertbefore: "tasks:"
-#      marker: "  # ANSIBLE MANAGED BLOCK - setup_bastion"
-#      block: |2
-#        net2DnsServer: __net2DnsServer__
-#        net2DpVip: __net2_dp_vip__
-#        net2DpLb: __net2_dp_lb__
-#        net2Nodes: __net2_node_details__
-#    when: multinetwork
+  - name: add net2 parameters to bastion host file if required
+    blockinfile:
+      dest: bastion.yaml
+      insertbefore: "template: { get_file: 'files/setup_bastion.yaml' }"
+      marker: "            # ANSIBLE MANAGED BLOCK - host file"
+      block: |2
+                    __net2_dp_vip__: { get_param: [ net2_dp_vip ] }
+                    __net2_dp_lb__: { get_param: [ net2_dp_lb ] }
+                    __net2_node_details__: { get_param: [ net2_node_details ] }
+                    __net2_dns_server__: { get_param: net2_dns_server }
+                    __net2_gateway__: { get_param: net2_gateway }
+    when: multinetwork

@@ -27,10 +27,11 @@
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
     multinetwork: __multinetwork__
-    net2DnsServer: __net2DnsServer__
+    net2DnsServer: __net2_dns_server__
     net2DpVip: __net2_dp_vip__
     net2DpLb: __net2_dp_lb__
     net2Nodes: __net2_node_details__
+    net2Gateway: __net2_gateway__
   tasks:
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
@@ -157,6 +158,7 @@
           {% if multinetwork %}
           net2_dns_server: {{ net2DnsServer }}
           net2_vip: {{ net2DpVip }}
+          net2_gateway: {{ net2Gateway }}
           {% endif %}
     - name: create ansible variables directory
       file:
