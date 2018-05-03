@@ -30,6 +30,10 @@
             type: string
             description: DNS server for net2
             default: "10.2.1.254"
+          net2_worker_scale:
+            type: number
+            description: Number of worker nodes to deploy
+            default: 2
     when: multinetwork
 
   - name: add net2 parameters to bastion file if required
@@ -87,7 +91,7 @@
                 node_type: worker
                 node_flavor: m1.medium
                 key_name: venv-mac
-                node_scale: 2
+                node_scale: { get_param: net2_worker_scale }
                 purpose_ident: janet
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
@@ -106,7 +110,7 @@
             properties:
               template: { get_file: loadbalancers.yaml }
               parameters:
-                haproxy_floating_ip: { get_param: net2_floating_ip }
+                haproxy_floating_ip: { get_resource: net2_floating_ip }
                 key_name: venv-mac
                 scale: 2
                 purpose_ident: janet
