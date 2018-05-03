@@ -90,7 +90,7 @@
               parameters:
                 node_type: worker
                 node_flavor: m1.medium
-                key_name: venv-mac
+                key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_scale }
                 purpose_ident: janet
                 local_domain_suffix: { get_param: local_domain_suffix }
@@ -111,7 +111,7 @@
               template: { get_file: loadbalancers.yaml }
               parameters:
                 haproxy_floating_ip: { get_resource: net2_floating_ip }
-                key_name: venv-mac
+                key_name: { get_param: key_name }
                 scale: 2
                 purpose_ident: janet
                 local_domain_suffix: { get_param: local_domain_suffix }
