@@ -25,7 +25,10 @@ retry() {
    done
 }
 # get and install katello package from our satellite server
-[[ "__satellite_deploy__" = True ]] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
+if [[ "__satellite_deploy__" = True ]] 
+then
+	rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
+fi
 
 # register with redhat
 retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
