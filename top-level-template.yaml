@@ -165,10 +165,12 @@ resources:
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, infra_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, infra_nodes_security_group ] }
           - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
 
   worker_nodes_deployment:
