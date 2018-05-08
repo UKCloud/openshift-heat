@@ -123,6 +123,7 @@
                   - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
                   - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
                   - { get_attr: [ security_groups, outputs, dns_net2_security_group ] }
+                  - { get_attr: [ security_groups, outputs, vrrp_net2_security_group ] }
     when: multinetwork
 
   - name: add net2 parameters to bastion_deployment if required

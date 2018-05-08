@@ -137,6 +137,33 @@ resources:
             port_range_min: <%port%>
             port_range_max: <%port%>
 
+  vrrp_controlplane_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: vrrp_controlplane_sg
+      rules:
+        - protocol: 112
+          direction: ingress
+          remote_mode: remote_group_id
+          
+  vrrp_dataplane_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: vrrp_controlplane_sg
+      rules:
+        - protocol: 112
+          direction: ingress
+          remote_mode: remote_group_id
+
+  vrrp_net2_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: vrrp_controlplane_sg
+      rules:
+        - protocol: 112
+          direction: ingress
+          remote_mode: remote_group_id
+
   data_plane_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -424,3 +451,12 @@ outputs:
   net2_router_security_group:
     description: Net2 Router security group
     value: { get_resource: net2_router_secgroup }
+  vrrp_controlplane_security_group:
+    description: Controlplane LB VRRP security group
+    value: { get_resource: vrrp_controlplane_secgroup }
+  vrrp_dataplane_security_group:
+    description: Dataplane LB VRRP security group
+    value: { get_resource: vrrp_dataplane_secgroup }
+  vrrp_net2_security_group:
+    description: Net2 LB VRRP security group
+    value: { get_resource: vrrp_net2_secgroup }

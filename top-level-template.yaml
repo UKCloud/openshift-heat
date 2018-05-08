@@ -126,6 +126,7 @@ resources:
           - { get_attr: [ security_groups, outputs, control_plane_security_group ] }
           - { get_attr: [ security_groups, outputs, dns_internet_security_group ] }
           - { get_attr: [ security_groups, outputs, dns_forwarder_security_group ] }
+          - { get_attr: [ security_groups, outputs, vrrp_controlplane_security_group ] }
 
   master_nodes_deployment:
     type: OS::Heat::Stack
@@ -213,6 +214,7 @@ resources:
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
+          - { get_attr: [ security_groups, outputs, vrrp_dataplane_security_group ] }
 
   bastion_deployment:
     type: OS::Heat::Stack
