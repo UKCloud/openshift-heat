@@ -26,13 +26,13 @@ function deployHeatStack() {
   openstack stack create -f yaml -t openshift.yaml openshift-$OS_TENANT_NAME \
     -e rhel_reg_creds.yaml \
     -e environment.yaml \
-    --parameter multinetwork=$multinetwork \
+    --parameter multinetwork="$multinetwork" \
     --parameter time="$(date)" \
-    --parameter os_auth_url=$OS_AUTH_URL \
-    --parameter os_tenant_id=$OS_TENANT_ID \
-    --parameter os_tenant_name=$OS_TENANT_NAME \
-    --parameter os_region=$OS_REGION_NAME \
-    --parameter openshift_openstack_password=$openshift_openstack_password \
+    --parameter os_auth_url="$OS_AUTH_URL" \
+    --parameter os_tenant_id="$OS_TENANT_ID" \
+    --parameter os_tenant_name="$OS_TENANT_NAME" \
+    --parameter os_region="$OS_REGION_NAME" \
+    --parameter openshift_openstack_password="$openshift_openstack_password" \
     --wait
 }
 
