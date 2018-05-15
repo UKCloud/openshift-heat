@@ -1,7 +1,7 @@
 #!/bin/bash
 
-multinetwork=$1
-openshift_openstack_password=$2
+multinetwork="$1"
+openshift_openstack_password="$2"
 
 function validateSetup() {
   if [[ -z $OS_TENANT_ID ]]; then
