@@ -1,0 +1,261 @@
+heat_template_version: 2016-04-08
+
+parameters:
+  key_name:
+    type: string
+    description: SSH Key Pair
+    default: "venv-mac"
+    constraints:
+      - custom_constraint: nova.keypair
+  openshift_openstack_username:
+    type: string
+    description: OpenShift username for cinder integration
+  openshift_openstack_password:
+    type: string
+    description: OpenShift password for cinder integration
+    hidden: true
+  os_auth_url:
+    type: string
+    description: OpenStack auth URL
+  os_tenant_id:
+    type: string
+    description: OpenStack tenant ID
+  os_tenant_name:
+    type: string
+    description: OpenStack tenant name
+  os_region:
+    type: string
+    description: OpenStack Region
+  time:
+    type: string
+    description: epoch time used to cause ansible to run on every update
+  domain_suffix:
+    type: string
+    description: domain suffix for OpenShift
+    default: customer1.openshift.ukcloud.com
+  local_domain_suffix:
+    type: string
+    description: domain suffix for local DNS for OpenShift
+    default: openstacklocal
+  controlplane_floating_ip:
+    type: string
+    description: floating ip for the control plane
+  dataplane_floating_ip:
+    type: string
+    description: floating ip for the internet facing data plane
+  s3_access_key:
+    type: string
+    description: s3 access key for registry backend
+  s3_secret_key:
+    type: string
+    description: s3 secret key for registry backend 
+  s3_region_endpoint:
+    type: string
+    description: s3 region end point for registry backend
+  s3_bucket_name:
+    type: string
+    description: s3 bucket for registry backend - must exist
+  openshift_version:
+    type: string
+    description: OpenShift version to deploy
+    default: 3.7
+  get_certificates:
+    type: boolean
+    description: download certificates with certbot during install
+    default: false
+  do_upgrades:
+    type: boolean
+    description: Whether to perform OS package upgrades as part of Ansible deployment
+    default: true
+  install_logging:
+    type: boolean
+    description: Whether to deploy the aggregated logging stack into the environment
+    default: false
+  logging_cluster_size:
+    type: number
+    description: Size of the ES cluster to deploy if logging deployed with install_logging
+    default: 1
+  worker_scale:
+    type: number
+    description: Number of worker nodes to deploy
+    default: 2
+  infra_scale:
+    type: number
+    description: Number of infra nodes to deploy
+    default: 2
+  multinetwork:
+    type: boolean
+    description: Whether to deploy a secondary external network
+
+resources:
+  internal_network:
+    type: OS::Heat::Stack
+    properties:
+      template: { get_file: network.yaml }
+      parameters:
+        allocation_pools: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
+        cidr: "10.2.1.0/24"
+        dns: [ "8.8.8.8" ]
+        gateway: "10.2.1.1"
+
+  security_groups:
+    type: OS::Heat::Stack
+    properties:
+      template: { get_file: security_groups.yaml }
+      parameters:
+        control_plane_ports: "80,443,8443"
+        data_plane_ports: "80,443"
+
+  control_plane_lb:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: loadbalancers.yaml }
+      parameters:
+        haproxy_floating_ip: { get_param: controlplane_floating_ip }
+        key_name: { get_param: key_name }
+        scale: 2
+        purpose_ident: cp
+        local_domain_suffix: { get_param: local_domain_suffix }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        security_groups:
+          - { get_attr: [ security_groups, outputs, control_plane_lb_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, control_plane_security_group ] }
+          - { get_attr: [ security_groups, outputs, dns_internet_security_group ] }
+          - { get_attr: [ security_groups, outputs, dns_forwarder_security_group ] }
+          - { get_attr: [ security_groups, outputs, vrrp_controlplane_security_group ] }
+
+  master_nodes_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: node_group.yaml }
+      parameters:
+        node_type: master
+        node_flavor: m1.medium
+        key_name: { get_param: key_name }
+        node_scale: 3
+        purpose_ident:
+        local_domain_suffix: { get_param: local_domain_suffix }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, masters_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, masters_security_group ] }
+
+  infra_nodes_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: node_group.yaml }
+      parameters:
+        node_type: worker
+        node_flavor: m1.medium
+        key_name: { get_param: key_name }
+        node_scale: { get_param: infra_scale }
+        purpose_ident: infra
+        local_domain_suffix: { get_param: local_domain_suffix }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, infra_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, infra_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+
+  worker_nodes_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: node_group.yaml }
+      parameters:
+        node_type: worker
+        node_flavor: m1.medium
+        key_name: { get_param: key_name }
+        node_scale: { get_param: worker_scale }
+        purpose_ident: tenant
+        local_domain_suffix: { get_param: local_domain_suffix }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+
+  data_plane_internet_lb:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: loadbalancers.yaml }
+      parameters:
+        haproxy_floating_ip: { get_param: dataplane_floating_ip }
+        key_name: { get_param: key_name }
+        scale: 2
+        purpose_ident: www
+        local_domain_suffix: { get_param: local_domain_suffix }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        security_groups:
+          - { get_attr: [ security_groups, outputs, internet_lb_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
+          - { get_attr: [ security_groups, outputs, vrrp_dataplane_security_group ] }
+
+  bastion_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ master_nodes_deployment, worker_nodes_deployment ]
+    properties:
+      template: { get_file: bastion.yaml }
+      parameters:
+        time: { get_param: time }
+        bastion_flavor: m1.small
+        key_name: { get_param: key_name }
+        domain_suffix: { get_param: domain_suffix }
+        local_domain_suffix: { get_param: local_domain_suffix }
+        openshift_openstack_username: { get_param: openshift_openstack_username }
+        openshift_openstack_password: { get_param: openshift_openstack_password }
+        os_auth_url: { get_param: os_auth_url }
+        os_tenant_id: { get_param: os_tenant_id }
+        os_tenant_name: { get_param: os_tenant_name }
+        os_region: { get_param: os_region }
+        s3_bucket_name: { get_param: s3_bucket_name }
+        openshift_version: { get_param: openshift_version }
+        get_certificates: { get_param: get_certificates } 
+        do_upgrades: { get_param: do_upgrades }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        bastion_fixed_ip: 10.2.1.101
+        server_security_groups: 
+          - { get_attr: [ security_groups, outputs, bastion_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_external_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+        multinetwork: { get_param: multinetwork }
+        # details of the master stack:
+        haproxy_vip: { get_attr: [ control_plane_lb, outputs, haproxy_internal_vip ] }
+        control_plane_lb: { get_attr: [ control_plane_lb, outputs, haproxy_list ] }
+        master_details: { get_attr: [ master_nodes_deployment, outputs, node_list ] }
+        # details of the internet facing node stack:
+        internet_dp_vip: { get_attr: [ data_plane_internet_lb, outputs, haproxy_internal_vip ] }
+        internet_dp_lb: { get_attr: [ data_plane_internet_lb, outputs, haproxy_list ] }
+        internet_node_details: { get_attr: [ worker_nodes_deployment, outputs, node_list ] }
+        infra_node_details: { get_attr: [ infra_nodes_deployment, outputs, node_list ] }
+outputs:
+  bastion_ip:
+    description: External IP for connection to jump box.
+    value: { get_attr: [ bastion_deployment, outputs, bastion_ip ] }

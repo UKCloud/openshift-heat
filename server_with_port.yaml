@@ -34,7 +34,14 @@ parameters:
     type: string
     label: RHN user password
     description: rhn activation key
-    hidden: true    
+    hidden: true
+  satellite_fqdn: 
+    type: string
+    description: FQDN of satellite server
+    default: notused
+  satellite_deploy:
+    type: boolean
+    default: false
   server_group:
     type: string
     label: group server belongs to
@@ -56,12 +63,20 @@ resources:
         str_replace:
           params:
             __rhn_orgid__: { get_param: rhn_orgid }
-            __rhn_activationkey__: { get_param: rhn_activationkey }      
+            __rhn_activationkey__: { get_param: rhn_activationkey }
+            __satellite_fqdn__: { get_param: satellite_fqdn }      
+            __satellite_deploy__: { get_param: satellite_deploy }      
           template: |
             #!/bin/bash -ex
+             [[ "__satellite_deploy__" = True ]] && rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
              subscription-manager register --org __rhn_orgid__ --activationkey __rhn_activationkey__
              subscription-manager repos --disable=*
-             subscription-manager repos --enable=rhel-7-server-rpms
+             subscription-manager repos --enable=rhel-7-server-rpms 
+             if [[ "__satellite_deploy__" = True ]] 
+             then
+             	subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
+             	yum install -y katello-agent
+             fi
              ln -sf /usr/share/zoneinfo/UTC /etc/localtime
              nmcli d connect eth1
 

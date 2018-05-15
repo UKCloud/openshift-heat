@@ -1,0 +1,154 @@
+- hosts: localhost
+  vars:
+    multinetwork: false
+  tasks:
+  - name: create deployment template
+    copy:
+      src: ./top-level-template.yaml
+      dest: ./openshift.yaml
+
+  - name: create deployment bastion template
+    copy:
+      src: ./bastion-template.yaml
+      dest: ./bastion.yaml
+
+  - name: add net2 parameters if required
+    blockinfile:
+      dest: openshift.yaml
+      backup: yes
+      insertbefore: "resources:"
+      marker: "  # ANSIBLE MANAGED BLOCK - parameters"
+      block: |2
+          net2_external_network:
+            type: string
+            description: Name of the external network net2 will attach to
+          net2_dns_server:
+            type: string
+            description: DNS server for net2
+            default: "8.8.8.8"
+          net2_gateway_internal_ip:
+            type: string
+            description: DNS server for net2
+            default: "10.2.1.254"
+          net2_worker_scale:
+            type: number
+            description: Number of worker nodes to deploy
+            default: 2
+    when: multinetwork
+
+  - name: add net2 parameters to bastion file if required
+    blockinfile:
+      dest: bastion.yaml
+      backup: yes
+      insertbefore: "resources:"
+      marker: "  # ANSIBLE MANAGED BLOCK - parameters"
+      block: |2
+          net2_dp_vip:
+            type: string
+            description: internal fixed IP of the haproxy vip serving net2 traffic
+          net2_dp_lb:
+            type: comma_delimited_list
+            description: Details of the data plane haproxy nodes for net2
+          net2_node_details:
+            type: comma_delimited_list
+            description: Details of the deployed net2 nodes in the cluster
+          net2_dns_server:
+            type: string
+            description: DNS server for net2
+          net2_gateway:
+            type: string
+            description: Gateway for the net2 connection
+    when: multinetwork
+
+  - name: add net2 resources if required
+    blockinfile:
+      dest: openshift.yaml
+      insertbefore: "bastion_deployment:"
+      marker: "  # ANSIBLE MANAGED BLOCK - resources"
+      block: |2
+          net2_floating_ip:
+            type: OS::Neutron::FloatingIP
+            properties:
+              floating_network: { get_param: net2_external_network }
+
+          net2_gateway:
+            type: OS::Heat::Stack
+            depends_on: [ internal_network ]
+            properties:
+              template: { get_file: extra_gateway.yaml }
+              parameters:
+                interface_network: { get_param: net2_external_network }
+                internal_network: { get_attr: [internal_network, outputs, network] }
+                internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                fixed_ip: { get_param: net2_gateway_internal_ip }
+
+          net2_nodes_deployment:
+            type: OS::Heat::Stack
+            depends_on: [ internal_network, security_groups ]
+            properties:
+              template: { get_file: node_group.yaml }
+              parameters:
+                node_type: worker
+                node_flavor: m1.medium
+                key_name: { get_param: key_name }
+                node_scale: { get_param: net2_worker_scale }
+                purpose_ident: janet
+                local_domain_suffix: { get_param: local_domain_suffix }
+                internal_network: { get_attr: [internal_network, outputs, network] }
+                internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                cluster_security_groups:
+                  - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+                  - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
+
+          data_plane_net2_lb:
+            type: OS::Heat::Stack
+            depends_on: [ internal_network, security_groups, net2_gateway ]
+            properties:
+              template: { get_file: loadbalancers.yaml }
+              parameters:
+                haproxy_floating_ip: { get_resource: net2_floating_ip }
+                key_name: { get_param: key_name }
+                scale: 2
+                purpose_ident: janet
+                local_domain_suffix: { get_param: local_domain_suffix }
+                internal_network: { get_attr: [internal_network, outputs, network] }
+                internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                security_groups:
+                  - { get_attr: [ security_groups, outputs, net2_lb_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+                  - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
+                  - { get_attr: [ security_groups, outputs, dns_net2_security_group ] }
+                  - { get_attr: [ security_groups, outputs, vrrp_net2_security_group ] }
+    when: multinetwork
+
+  - name: add net2 parameters to bastion_deployment if required
+    blockinfile:
+      dest: openshift.yaml
+      insertbefore: "outputs:"
+      marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment"
+      block: |2
+                # details of the net-x facing node stack:
+                net2_dp_vip: { get_attr: [ data_plane_net2_lb, outputs, haproxy_internal_vip ] }
+                net2_dp_lb: { get_attr: [ data_plane_net2_lb, outputs, haproxy_list ] }
+                net2_node_details: { get_attr: [ net2_nodes_deployment, outputs, node_list ] }
+                net2_dns_server: { get_param: net2_dns_server }
+                net2_gateway: { get_attr: [ net2_gateway, outputs, gateway ] }
+    when: multinetwork
+
+  - name: add net2 parameters to bastion host file if required
+    blockinfile:
+      dest: bastion.yaml
+      insertbefore: "template: { get_file: 'files/setup_bastion.yaml' }"
+      marker: "            # ANSIBLE MANAGED BLOCK - host file"
+      block: |2
+                    __net2_dp_vip__: { get_param: [ net2_dp_vip ] }
+                    __net2_dp_lb__: { get_param: [ net2_dp_lb ] }
+                    __net2_node_details__: { get_param: [ net2_node_details ] }
+                    __net2_dns_server__: { get_param: net2_dns_server }
+                    __net2_gateway__: { get_param: net2_gateway }
+    when: multinetwork

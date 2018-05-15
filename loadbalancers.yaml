@@ -1,0 +1,109 @@
+heat_template_version: 2016-04-08
+
+parameters:
+  haproxy_floating_ip:
+     type: string
+  haproxy_flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: t1.small
+    constraints:
+      - custom_constraint: nova.flavor
+  image:
+    type: string
+    description: Image ID or image name to use for the server
+    default: "rhel-7-LTS"
+    constraints:
+      - custom_constraint: glance.image
+  key_name:
+    type: string
+    description: SSH Key Pair
+    default: "venv-mac"
+    constraints:
+      - custom_constraint: nova.keypair
+  scale:
+    type: number
+    description: Number of HAProxy nodes to deploy
+    default: 2
+  rhn_orgid:
+    type: string
+    label: rhn activation org
+    description: Name of the rhn activation org
+  rhn_activationkey:
+    type: string
+    label: RHN activation key
+    description: rhn activation key
+    hidden: true
+  purpose_ident:
+    type: string
+    description: identifier to indicate node purpose
+    default: www
+  local_domain_suffix:
+    type: string
+    description: domain suffix for local DNS for OpenShift
+    default: openstacklocal
+  internal_network:
+    type: string
+    description: network on which to deploy the cluster
+  internal_network_subnet:
+    type: string
+    description: subnet of network to attach to
+  security_groups:
+    type: comma_delimited_list
+    description: Security groups for loadbalancer
+
+resources:
+  haproxy_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: internal_network }
+      fixed_ips:
+      - subnet_id: { get_param: internal_network_subnet }
+      security_groups: { get_param: security_groups }
+
+  haproxy_floating_ip_assoc:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_param: haproxy_floating_ip }
+      port_id: { get_resource: haproxy_port }
+
+  haproxy-servergroup:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: haproxy-servergroup
+      policies: [ 'anti-affinity' ]
+
+  haproxy_group:
+    type: OS::Heat::ResourceGroup
+    depends_on: [ haproxy_port ]
+    properties:
+      count: { get_param: scale }
+      resource_def:
+        type: server_with_port.yaml
+        properties:
+          server_name: 
+            str_replace:
+              template: haproxy-ident-%index%.suffix
+              params:
+                suffix: { get_param: local_domain_suffix }
+                ident: { get_param: purpose_ident }
+          flavor: { get_param: haproxy_flavor }
+          image: { get_param: image }
+          key_name: { get_param: key_name }
+          rhn_orgid: { get_param: rhn_orgid }
+          rhn_activationkey: { get_param: rhn_activationkey }
+          port_network: { get_param: internal_network }
+          internal_vip: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] } 
+          sec_groups: { get_param: security_groups }
+          server_group: { get_resource: haproxy-servergroup }
+
+outputs:
+  haproxy_external_ip:
+    description: External IP for haproxy..
+    value: { get_param: haproxy_floating_ip }
+  haproxy_internal_vip:
+    description: Internal IP for haproxy..
+    value: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] }
+  haproxy_list:
+    description: host file contents
+    value: { get_attr: [ haproxy_group, host_entry ] } 

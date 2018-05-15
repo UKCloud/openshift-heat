@@ -1,0 +1,42 @@
+
+heat_template_version: 2016-04-08
+
+parameters:
+  interface_network:
+    type: string
+    description: The external network to attach to.
+  internal_network:
+    type: string
+    description: network on which to deploy the cluster
+  internal_network_subnet:
+    type: string
+    description: subnet of network to attach to
+  fixed_ip:
+    type: string
+    description: fixed IP to use on the network
+    default: "10.2.1.254"
+
+resources:
+  router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: { get_param: interface_network } }
+      name: { get_param: interface_network }
+
+  router_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      port: { get_resource: router_port }
+
+  router_port:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_param: internal_network }
+      fixed_ips: [{ subnet: { get_param: internal_network_subnet  }, ip_address: { get_param: fixed_ip } }]
+      security_groups: []
+
+outputs:
+  gateway:
+    description: Internal address gateway is accessible on
+    value: { get_attr: [ router_port, fixed_ips, 0, ip_address  ] }

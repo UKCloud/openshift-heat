@@ -6,6 +6,10 @@ parameter_defaults:
   s3_access_key: <s3 secret to be used for the OpenShift registry>
   s3_secret_key: <s3 secret to be used for the OpenShift registry>
   s3_bucket_name: <existing s3 bucket to be used for the OpenShift registry>
-  #openshift_version: <major version number eg: 3.5 or 3.6>
+  get_certificates: <whether to get certificates with certbot playbooks>
+  do_upgrades: <whether to perform node patching prior to deployment>
+  #openshift_version: <major version number eg: 3.5 or 3.6 or 3.7 >
   #local_domain_suffix: <local internal domain name - defaults to openstacklocal if not specified>
-  #haproxy_floating_ip: <pre-provisioned floating ip>
+  #controlplane_floating_ip: <pre-provisioned floating ip>
+  #dataplane_floating_ip: <pre-provisioned floating ip>
+  #net2_external_network: <name of external network for net2 if required>
