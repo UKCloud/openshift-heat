@@ -37,7 +37,7 @@ function deployHeatStack() {
 }
 
 function showBastionIp() {
-  openstack stack output show openshift-$OS_TENANT_NAME
+  openstack stack output show openshift-$OS_TENANT_NAME --all
 }
 
 validateSetup
