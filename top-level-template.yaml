@@ -135,7 +135,7 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: master
-        node_flavor: m1.medium
+        node_flavor: ocp.m1.medium
         key_name: { get_param: key_name }
         node_scale: 3
         purpose_ident:
@@ -157,7 +157,7 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: m1.medium
+        node_flavor: ocp.t1.xxlarge
         key_name: { get_param: key_name }
         node_scale: { get_param: infra_scale }
         purpose_ident: infra
@@ -181,7 +181,7 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: m1.medium
+        node_flavor: ocp.t1.xxlarge
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_scale }
         purpose_ident: tenant
