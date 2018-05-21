@@ -135,10 +135,14 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: master
-        node_flavor: m1.medium
+        node_flavor: ocp.m1.medium
         key_name: { get_param: key_name }
         node_scale: 3
         purpose_ident:
+        storage_setup: |
+          GROWPART=true
+          ROOT_SIZE=50G
+          DATA_SIZE=40G
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -157,7 +161,7 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: m1.medium
+        node_flavor: ocp.t1.xxlarge
         key_name: { get_param: key_name }
         node_scale: { get_param: infra_scale }
         purpose_ident: infra
@@ -181,7 +185,7 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: m1.medium
+        node_flavor: ocp.t1.xxlarge
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_scale }
         purpose_ident: tenant
@@ -246,6 +250,8 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_external_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
         multinetwork: { get_param: multinetwork }
+        install_logging: { get_param: install_logging }
+        logging_cluster_size: { get_param: logging_cluster_size }
         # details of the master stack:
         haproxy_vip: { get_attr: [ control_plane_lb, outputs, haproxy_internal_vip ] }
         control_plane_lb: { get_attr: [ control_plane_lb, outputs, haproxy_list ] }

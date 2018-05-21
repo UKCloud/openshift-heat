@@ -56,6 +56,13 @@ parameters:
   cluster_security_groups:
     type: comma_delimited_list
     description: Security groups for cluster
+  storage_setup:
+    type: string
+    description: The contents for /etc/sysconfig/docker-storage-setup
+    default: |
+      GROWPART=true
+      ROOT_SIZE=20G
+      DATA_SIZE=70G
 
 resources:
 
@@ -91,10 +98,7 @@ resources:
           rhn_activationkey: { get_param: rhn_activationkey }
           port_network: { get_param: internal_network }
           sec_groups: { get_param: cluster_security_groups }
-          storage_setup: |
-            GROWPART=true
-            ROOT_SIZE=41G
-            DATA_SIZE=12G
+          storage_setup: { get_param: storage_setup }
           server_group: { get_resource: node-servergroup }
 
 outputs:

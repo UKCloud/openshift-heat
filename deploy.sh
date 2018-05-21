@@ -36,7 +36,12 @@ function deployHeatStack() {
     --wait
 }
 
+function showBastionIp() {
+  openstack stack output show openshift-$OS_TENANT_NAME --all
+}
+
 validateSetup
 getPassword
 setupHeatTemplate
 deployHeatStack
+showBastionIp
