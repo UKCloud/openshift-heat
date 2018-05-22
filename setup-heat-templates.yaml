@@ -89,7 +89,7 @@
               template: { get_file: node_group.yaml }
               parameters:
                 node_type: worker
-                node_flavor: m1.medium
+                node_flavor: ocp.m1.medium
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_scale }
                 purpose_ident: janet
