@@ -83,7 +83,7 @@ retry yum install -y \
         kexec-tools \
         sos \
         psacct \
-        atomic-openshift-utils-3.7.14-1.git.0.4b35b2d.el7.noarch \
+        atomic-openshift-utils \
         atomic-openshift-excluder \
         atomic-docker-excluder \
         atomic-openshift-clients
