@@ -5,6 +5,9 @@ parameters:
     type: json
     description: IP allocation pool for DHCP
     default: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
+  external_network:
+    type: string
+    description: The external network the control plane will use
   cidr:
     type: string
     description:  network cidr
@@ -22,7 +25,7 @@ resources:
   InternetGW:
     type: OS::Neutron::Router
     properties:
-      external_gateway_info: { network: Internet }
+      external_gateway_info: { network: { get_param: external_network } }
       name: InternetGW
 
   internet_gw:

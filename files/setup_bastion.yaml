@@ -7,7 +7,9 @@
     masterNodes: __master_details__
     internetDpVip: __internet_dp_vip__
     internetDpLb:  __internet_dp_lb__
-    internetNodes: __internet_node_details__
+    internetNodesSml: __internet_node_sml__
+    internetNodesMed: __internet_node_med__
+    internetNodesLge: __internet_node_lge__
     infraNodes: __infra_node_details__
     domainSuffix: __domain_suffix__
     localDomainSuffix: __local_domain_suffix__
@@ -43,7 +45,13 @@
           {% for item in masterNodes %}
           {{ item|replace('\"', "") }}
           {% endfor %}
-          {% for item in internetNodes %}
+          {% for item in internetNodesSml %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in internetNodesMed %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in internetNodesLge %}
           {{ item|replace('\"', "") }}
           {% endfor %}
           {% for item in infraNodes %}
@@ -90,7 +98,13 @@
           {% for item in infraNodes %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
-          {% for item in internetNodes %}
+          {% for item in internetNodesSml %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in internetNodesMed %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in internetNodesLge %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           {% if multinetwork %}
@@ -103,7 +117,13 @@
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           worker_details_internet:
-          {% for item in internetNodes %}
+          {% for item in internetNodesSml %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in internetNodesMed %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in internetNodesLge %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           worker_details_net2:

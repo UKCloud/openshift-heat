@@ -6,10 +6,17 @@ parameter_defaults:
   s3_access_key: <s3 secret to be used for the OpenShift registry>
   s3_secret_key: <s3 secret to be used for the OpenShift registry>
   s3_bucket_name: <existing s3 bucket to be used for the OpenShift registry>
-  get_certificates: <whether to get certificates with certbot playbooks>
+  get_certificates: <whether to get certificates from letsencrypt - requires external DNS setup>
   do_upgrades: <whether to perform node patching prior to deployment>
-  #openshift_version: <major version number eg: 3.5 or 3.6 or 3.7 >
-  #local_domain_suffix: <local internal domain name - defaults to openstacklocal if not specified>
-  #controlplane_floating_ip: <pre-provisioned floating ip>
-  #dataplane_floating_ip: <pre-provisioned floating ip>
+  openshift_version: <major version number eg: 3.5 or 3.6 or 3.7 >
+  local_domain_suffix: <local internal domain name - defaults to openstacklocal if not specified>
+  controlplane_floating_ip: <pre-provisioned floating ip>
+  dataplane_floating_ip: <pre-provisioned floating ip>
   #net2_external_network: <name of external network for net2 if required>
+  install_logging: <deploy EFK stack for aggregated logging>
+  logging_cluster_size: <ES scale in agg logging stack>
+  worker_small_scale: <no of small nodes to deploy>
+  worker_medium_scale: <no of medium nodes to deploy>
+  worker_large_scale: <no of large nodes to deploy>
+  external_network_cp: <external network to deploy to>
+  external_dns: <[ "external dns server 1", "external dns server 2" ] - example>

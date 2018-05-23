@@ -120,15 +120,24 @@ parameters:
   internet_dp_lb:
     type: comma_delimited_list
     description: Details of the data plane haproxy nodes for internet
-  internet_node_details:
+  internet_node_sml:
     type: comma_delimited_list
-    description: Details of the deployed internet nodes in the cluster
+    description: Details of the deployed small internet nodes in the cluster
+  internet_node_med:
+    type: comma_delimited_list
+    description: Details of the deployed medium internet nodes in the cluster
+  internet_node_lge:
+    type: comma_delimited_list
+    description: Details of the deployed large internet nodes in the cluster
   infra_node_details:
     type: comma_delimited_list
     description: Details of the deployed infrastructure nodes in the cluster
   multinetwork:
     type: boolean
     description: Test
+  external_network:
+    type: string
+    description: External network to attach floating IP to for SSH access
 
 resources:
   bastion_port:
@@ -141,7 +150,7 @@ resources:
   bastion_floating_ip:
     type: OS::Neutron::FloatingIP
     properties: 
-      floating_network: "Internet"
+      floating_network: { get_param: external_network }
 
   bastion_floating_ip_assoc:
     type: OS::Neutron::FloatingIPAssociation
@@ -214,7 +223,9 @@ resources:
             __master_details__: { get_param: [ master_details ] }
             __internet_dp_vip__: { get_param: [ internet_dp_vip ] }
             __internet_dp_lb__: { get_param: [ internet_dp_lb ] }
-            __internet_node_details__: { get_param: [ internet_node_details ] }
+            __internet_node_sml__: { get_param: [ internet_node_sml ] }
+            __internet_node_med__: { get_param: [ internet_node_med ] }
+            __internet_node_lge__: { get_param: [ internet_node_lge ] }
             __infra_node_details__: { get_param: [ infra_node_details ] }
             __time__: { get_param: time }
             __domain_suffix__: { get_param: domain_suffix }
