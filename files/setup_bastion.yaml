@@ -29,6 +29,7 @@
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
     multinetwork: __multinetwork__
+    externalDns: __external_dns__
     net2DnsServer: __net2_dns_server__
     net2DpVip: __net2_dp_vip__
     net2DpLb: __net2_dp_lb__
@@ -175,6 +176,10 @@
           installLogging: {{ installLogging }}
           loggingClusterSize: {{ loggingClusterSize }}
           multinetwork: {{ multinetwork }}
+          external_dns:
+          {% for item in externalDns %}
+            - {{ item }}
+          {% endfor %}
           {% if multinetwork %}
           net2_dns_server: {{ net2DnsServer }}
           net2_vip: {{ net2DpVip }}

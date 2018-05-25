@@ -138,6 +138,9 @@ parameters:
   external_network:
     type: string
     description: External network to attach floating IP to for SSH access
+  external_dns:
+    type: comma_delimited_list
+    description: External dns servers to use as upstream
 
 resources:
   bastion_port:
@@ -246,6 +249,7 @@ resources:
             __installLogging__: { get_param: install_logging }
             __loggingClusterSize__: { get_param: logging_cluster_size }
             __multinetwork__ : { get_param: multinetwork }
+            __external_dns__ : { get_param: external_dns }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result

@@ -306,6 +306,7 @@ resources:
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         bastion_fixed_ip: 10.2.1.101
         external_network: { get_param: external_network_cp }
+        external_dns: { get_param: external_dns }
         server_security_groups: 
           - { get_attr: [ security_groups, outputs, bastion_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
