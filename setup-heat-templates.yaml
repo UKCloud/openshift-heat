@@ -23,9 +23,9 @@
             type: string
             description: Name of the external network net2 will attach to
           net2_dns_server:
-            type: string
+            type: comma_delimited_list
             description: DNS server for net2
-            default: "8.8.8.8"
+            default: [ "8.8.8.8" ]
           net2_gateway_internal_ip:
             type: string
             description: DNS server for net2
@@ -53,7 +53,7 @@
             type: comma_delimited_list
             description: Details of the deployed net2 nodes in the cluster
           net2_dns_server:
-            type: string
+            type: comma_delimited_list
             description: DNS server for net2
           net2_gateway:
             type: string
@@ -89,7 +89,7 @@
               template: { get_file: node_group.yaml }
               parameters:
                 node_type: worker
-                node_flavor: m1.medium
+                node_flavor: ocp.t1.xxlarge
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_scale }
                 purpose_ident: janet

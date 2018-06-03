@@ -181,7 +181,10 @@
             - {{ item }}
           {% endfor %}
           {% if multinetwork %}
-          net2_dns_server: {{ net2DnsServer }}
+          net2_dns_server:
+          {% for item in net2DnsServer %}
+            - {{ item }}
+          {% endfor %}
           net2_vip: {{ net2DpVip }}
           net2_gateway: {{ net2Gateway }}
           {% endif %}
