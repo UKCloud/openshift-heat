@@ -34,6 +34,14 @@
             type: number
             description: Number of worker nodes to deploy
             default: 2
+          net2_node_routes:
+            type: comma_delimited_list
+            description: Extra routes we deploy for net2 to get back to ECS/OpenStack CP etc
+            default: [ "51.179.210.114/32","209.132.182.63/32","23.195.112.43/32","51.179.220.66/32" ]
+          net2_routes:
+            type: comma_delimited_list
+            description: Extra routes needed for all net2 servers (e.g. Satellite)
+            default: [ "51.179.217.20/32" ]
     when: multinetwork
 
   - name: add net2 parameters to bastion file if required
@@ -58,6 +66,12 @@
           net2_gateway:
             type: string
             description: Gateway for the net2 connection
+          net2_node_routes:
+            type: comma_delimited_list
+            description: Extra routes we deploy for net2 to get back to ECS/OpenStack CP etc
+          net2_routes:
+            type: comma_delimited_list
+            description: Extra routes needed for all net2 servers (e.g. Satellite)
     when: multinetwork
 
   - name: add net2 resources if required
@@ -138,6 +152,8 @@
                 net2_node_details: { get_attr: [ net2_nodes_deployment, outputs, node_list ] }
                 net2_dns_server: { get_param: net2_dns_server }
                 net2_gateway: { get_attr: [ net2_gateway, outputs, gateway ] }
+                net2_node_routes: { get_param: net2_node_routes }
+                net2_routes: { get_param: net2_routes }
     when: multinetwork
 
   - name: add net2 parameters to bastion host file if required
@@ -151,4 +167,6 @@
                     __net2_node_details__: { get_param: [ net2_node_details ] }
                     __net2_dns_server__: { get_param: net2_dns_server }
                     __net2_gateway__: { get_param: net2_gateway }
+                    __net2_node_routes__: { get_param: net2_node_routes }
+                    __net2_routes__: { get_param: net2_routes }
     when: multinetwork

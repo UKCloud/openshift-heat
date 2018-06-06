@@ -101,7 +101,15 @@ parameters:
   external_dns:
     type: comma_delimited_list
     description: The dns server for the control plane external network
-    default: [ "8.8.8.8" ] 
+    default: [ "8.8.8.8" ]
+  set_node_routes:
+    type: boolean
+    description: Whether to deploy extra static routes to all nodes
+    default: false
+  node_routes:
+    type: comma_delimited_list
+    description: The routes to deploy if set_node_routes is true
+    default: []
 
 resources:
   internal_network:
@@ -326,6 +334,8 @@ resources:
         internet_node_med: { get_attr: [ worker_medium_nodes_deployment, outputs, node_list ] }
         internet_node_lge: { get_attr: [ worker_large_nodes_deployment, outputs, node_list ] } 
         infra_node_details: { get_attr: [ infra_nodes_deployment, outputs, node_list ] }
+        set_node_routes: { get_param: set_node_routes }
+        node_routes: { get_param: node_routes }
 outputs:
   bastion_ip:
     description: External IP for connection to jump box.
