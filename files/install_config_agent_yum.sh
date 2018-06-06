@@ -56,6 +56,7 @@ retry subscription-manager repos \
         --enable=rhel-7-server-openstack-9-rpms \
         --enable=rhel-7-server-openstack-9-director-rpms \
         --enable=rhel-7-server-rh-common-rpms \
+        --enable=rhel-7-server-ansible-2.4-rpms \
         --enable=rhel-7-server-satellite-tools-6.3-rpms
 
 retry yum install -y \
@@ -82,7 +83,7 @@ retry yum install -y \
         kexec-tools \
         sos \
         psacct \
-        atomic-openshift-utils-3.7.14-1.git.0.4b35b2d.el7.noarch \
+        atomic-openshift-utils \
         atomic-openshift-excluder \
         atomic-docker-excluder \
         atomic-openshift-clients
