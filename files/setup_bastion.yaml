@@ -7,7 +7,9 @@
     masterNodes: __master_details__
     internetDpVip: __internet_dp_vip__
     internetDpLb:  __internet_dp_lb__
-    internetNodes: __internet_node_details__
+    internetNodesSml: __internet_node_sml__
+    internetNodesMed: __internet_node_med__
+    internetNodesLge: __internet_node_lge__
     infraNodes: __infra_node_details__
     domainSuffix: __domain_suffix__
     localDomainSuffix: __local_domain_suffix__
@@ -27,6 +29,7 @@
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
     multinetwork: __multinetwork__
+    externalDns: __external_dns__
     net2DnsServer: __net2_dns_server__
     net2DpVip: __net2_dp_vip__
     net2DpLb: __net2_dp_lb__
@@ -43,7 +46,13 @@
           {% for item in masterNodes %}
           {{ item|replace('\"', "") }}
           {% endfor %}
-          {% for item in internetNodes %}
+          {% for item in internetNodesSml %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in internetNodesMed %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in internetNodesLge %}
           {{ item|replace('\"', "") }}
           {% endfor %}
           {% for item in infraNodes %}
@@ -90,7 +99,13 @@
           {% for item in infraNodes %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
-          {% for item in internetNodes %}
+          {% for item in internetNodesSml %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in internetNodesMed %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in internetNodesLge %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           {% if multinetwork %}
@@ -103,7 +118,13 @@
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           worker_details_internet:
-          {% for item in internetNodes %}
+          {% for item in internetNodesSml %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in internetNodesMed %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in internetNodesLge %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           worker_details_net2:
@@ -155,8 +176,15 @@
           installLogging: {{ installLogging }}
           loggingClusterSize: {{ loggingClusterSize }}
           multinetwork: {{ multinetwork }}
+          external_dns:
+          {% for item in externalDns %}
+            - {{ item }}
+          {% endfor %}
           {% if multinetwork %}
-          net2_dns_server: {{ net2DnsServer }}
+          net2_dns_server:
+          {% for item in net2DnsServer %}
+            - {{ item }}
+          {% endfor %}
           net2_vip: {{ net2DpVip }}
           net2_gateway: {{ net2Gateway }}
           {% endif %}

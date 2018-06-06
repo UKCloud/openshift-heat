@@ -75,10 +75,18 @@ parameters:
     type: number
     description: Size of the ES cluster to deploy if logging deployed with install_logging
     default: 1
-  worker_scale:
+  worker_small_scale:
     type: number
     description: Number of worker nodes to deploy
-    default: 2
+    default: 0
+  worker_medium_scale:
+    type: number
+    description: Number of worker nodes to deploy
+    default: 0
+  worker_large_scale:
+    type: number
+    description: Number of worker nodes to deploy
+    default: 0
   infra_scale:
     type: number
     description: Number of infra nodes to deploy
@@ -86,6 +94,14 @@ parameters:
   multinetwork:
     type: boolean
     description: Whether to deploy a secondary external network
+  external_network_cp:
+    type: string
+    description: The external network the control plane will use
+    default: "Internet"
+  external_dns:
+    type: comma_delimited_list
+    description: The dns server for the control plane external network
+    default: [ "8.8.8.8" ] 
 
 resources:
   internal_network:
@@ -95,7 +111,8 @@ resources:
       parameters:
         allocation_pools: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
         cidr: "10.2.1.0/24"
-        dns: [ "8.8.8.8" ]
+        dns: { get_param: external_dns }
+        external_network: { get_param: external_network_cp } 
         gateway: "10.2.1.1"
 
   security_groups:
@@ -178,7 +195,7 @@ resources:
           - { get_attr: [ security_groups, outputs, infra_nodes_security_group ] }
           - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
 
-  worker_nodes_deployment:
+  worker_small_nodes_deployment:
     type: OS::Heat::Stack
     depends_on: [ internal_network, security_groups ]
     properties:
@@ -187,8 +204,52 @@ resources:
         node_type: worker
         node_flavor: ocp.t1.xxlarge
         key_name: { get_param: key_name }
-        node_scale: { get_param: worker_scale }
-        purpose_ident: tenant
+        node_scale: { get_param: worker_small_scale }
+        purpose_ident: tenant-s
+        local_domain_suffix: { get_param: local_domain_suffix }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+
+  worker_medium_nodes_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: node_group.yaml }
+      parameters:
+        node_type: worker
+        node_flavor: ocp.m1.large
+        key_name: { get_param: key_name }
+        node_scale: { get_param: worker_medium_scale }
+        purpose_ident: tenant-m
+        local_domain_suffix: { get_param: local_domain_suffix }
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        cluster_security_groups:
+          - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+          - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+
+  worker_large_nodes_deployment:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups ]
+    properties:
+      template: { get_file: node_group.yaml }
+      parameters:
+        node_type: worker
+        node_flavor: ocp.r1.large
+        key_name: { get_param: key_name }
+        node_scale: { get_param: worker_large_scale }
+        purpose_ident: tenant-l
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -222,7 +283,7 @@ resources:
 
   bastion_deployment:
     type: OS::Heat::Stack
-    depends_on: [ master_nodes_deployment, worker_nodes_deployment ]
+    depends_on: [ master_nodes_deployment, worker_small_nodes_deployment, worker_medium_nodes_deployment, worker_large_nodes_deployment ]
     properties:
       template: { get_file: bastion.yaml }
       parameters:
@@ -244,6 +305,8 @@ resources:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         bastion_fixed_ip: 10.2.1.101
+        external_network: { get_param: external_network_cp }
+        external_dns: { get_param: external_dns }
         server_security_groups: 
           - { get_attr: [ security_groups, outputs, bastion_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
@@ -259,7 +322,9 @@ resources:
         # details of the internet facing node stack:
         internet_dp_vip: { get_attr: [ data_plane_internet_lb, outputs, haproxy_internal_vip ] }
         internet_dp_lb: { get_attr: [ data_plane_internet_lb, outputs, haproxy_list ] }
-        internet_node_details: { get_attr: [ worker_nodes_deployment, outputs, node_list ] }
+        internet_node_sml: { get_attr: [ worker_small_nodes_deployment, outputs, node_list ] }
+        internet_node_med: { get_attr: [ worker_medium_nodes_deployment, outputs, node_list ] }
+        internet_node_lge: { get_attr: [ worker_large_nodes_deployment, outputs, node_list ] } 
         infra_node_details: { get_attr: [ infra_nodes_deployment, outputs, node_list ] }
 outputs:
   bastion_ip:
