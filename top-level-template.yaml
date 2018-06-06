@@ -101,7 +101,7 @@ parameters:
   external_dns:
     type: comma_delimited_list
     description: The dns server for the control plane external network
-    default: [ "8.8.8.8" ] 
+    default: [ { "8.8.8.8", "8.8.4.4" } ] 
 
 resources:
   internal_network:
