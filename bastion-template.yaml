@@ -141,6 +141,12 @@ parameters:
   external_dns:
     type: comma_delimited_list
     description: External dns servers to use as upstream
+  set_node_routes:
+    type: boolean
+    description: Whether to deploy extra static routes to all nodes
+  node_routes:
+    type: comma_delimited_list
+    description: The routes to deploy if set_node_routes is true
 
 resources:
   bastion_port:
@@ -250,6 +256,8 @@ resources:
             __loggingClusterSize__: { get_param: logging_cluster_size }
             __multinetwork__ : { get_param: multinetwork }
             __external_dns__ : { get_param: external_dns }
+            __set_node_routes__ : { get_param: set_node_routes }
+            __node_routes__ : { get_param: node_routes }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result

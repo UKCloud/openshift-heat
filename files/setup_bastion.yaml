@@ -30,11 +30,15 @@
     loggingClusterSize: __loggingClusterSize__
     multinetwork: __multinetwork__
     externalDns: __external_dns__
+    setNodeRoutes: __set_node_routes__
+    nodeRoutes: __node_routes__
     net2DnsServer: __net2_dns_server__
     net2DpVip: __net2_dp_vip__
     net2DpLb: __net2_dp_lb__
     net2Nodes: __net2_node_details__
     net2Gateway: __net2_gateway__
+    net2NodeRoutes: __net2_node_routes__
+    net2Routes: __net2_routes__
   tasks:
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
@@ -180,13 +184,26 @@
           {% for item in externalDns %}
             - {{ item }}
           {% endfor %}
+          set_node_routes: {{ setNodeRoutes }}
+          node_routes:
+          {% for item in nodeRoutes %}
+            - {{ item }}
+          {% endfor %}
+          net2_routes:
           {% if multinetwork %}
+          {% for item in net2Routes %}
+            - {{ item }}
+          {% endfor %}
           net2_dns_server:
           {% for item in net2DnsServer %}
             - {{ item }}
           {% endfor %}
           net2_vip: {{ net2DpVip }}
           net2_gateway: {{ net2Gateway }}
+          net2_node_routes:
+          {% for item in net2NodeRoutes %}
+            - {{ item }}
+          {% endfor %}
           {% endif %}
     - name: create ansible variables directory
       file:
