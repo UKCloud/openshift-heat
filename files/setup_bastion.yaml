@@ -189,7 +189,11 @@
           {% for item in nodeRoutes %}
             - {{ item }}
           {% endfor %}
+          net2_routes:
           {% if multinetwork %}
+          {% for item in net2Routes %}
+            - {{ item }}
+          {% endfor %}
           net2_dns_server:
           {% for item in net2DnsServer %}
             - {{ item }}
@@ -198,10 +202,6 @@
           net2_gateway: {{ net2Gateway }}
           net2_node_routes:
           {% for item in net2NodeRoutes %}
-            - {{ item }}
-          {% endfor %}
-          net2_routes:
-          {% for item in net2Routes %}
             - {{ item }}
           {% endfor %}
           {% endif %}
