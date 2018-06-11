@@ -26,6 +26,10 @@
             type: comma_delimited_list
             description: DNS server for net2
             default: [ "8.8.8.8" ]
+          net2_purpose:
+            type: string
+            description: names given to net2 nodes
+            default: "n3"
           net2_gateway_internal_ip:
             type: string
             description: DNS server for net2
@@ -106,7 +110,7 @@
                 node_flavor: ocp.t1.xxlarge
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_scale }
-                purpose_ident: janet
+                purpose_ident: { get_param: net2_purpose }
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -127,7 +131,7 @@
                 haproxy_floating_ip: { get_resource: net2_floating_ip }
                 key_name: { get_param: key_name }
                 scale: 2
-                purpose_ident: janet
+                purpose_ident: { get_param: net2_purpose }
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }

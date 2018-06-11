@@ -9,6 +9,12 @@ parameters:
     type: comma_delimited_list
     description: ports to open for external access to haproxy servers
     default: "80,443"
+  control_plane_sources:
+    type: comma_delimited_list
+    description: ip addresses that inbound connectivity can come from
+  data_plane_sources:
+    type: comma_delimited_list
+    description: ip addresses that inbound connectivity can come from
 
 resources:
   bastion_egress_secgroup:
@@ -130,10 +136,12 @@ resources:
       rules:
         repeat:
           for_each:
+            <%sourceip%>: { get_param: control_plane_sources }
             <%port%>: { get_param: control_plane_ports }
           template:
             protocol: tcp
             direction: ingress
+            remote_ip_prefix: <%sourceip%>
             port_range_min: <%port%>
             port_range_max: <%port%>
 
@@ -171,10 +179,12 @@ resources:
       rules:
         repeat:
           for_each:
+            <%sourceip%>: { get_param: data_plane_sources }
             <%port%>: { get_param: data_plane_ports }
           template:
             protocol: tcp
             direction: ingress
+            remote_ip_prefix: <%sourceip%>
             port_range_min: <%port%>
             port_range_max: <%port%>
 
