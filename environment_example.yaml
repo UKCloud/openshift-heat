@@ -2,21 +2,33 @@ parameter_defaults:
   key_name: <openstack key name>
   domain_suffix: <domain suffix to be used for the OpenShift deployment>
   openshift_openstack_username: <OpenStack username for the tenancy OpenShift will be deployed to>
-  s3_region_endpoint: <s3 endpoint to be used for the OpenShift registry>
-  s3_access_key: <s3 secret to be used for the OpenShift registry>
-  s3_secret_key: <s3 secret to be used for the OpenShift registry>
-  s3_bucket_name: <existing s3 bucket to be used for the OpenShift registry>
+  # S3 details for object storage account to back the container registry off to.
+  s3_region_endpoint: <s3 endpoint>
+  s3_access_key: <s3 access key/user id>
+  s3_secret_key: <s3 secret>
+  s3_bucket_name: <existing s3 bucket to use - note this must exist already!>
+  # Process specifics to run in the ansible deployment after heat has finished
   get_certificates: <whether to get certificates from letsencrypt - requires external DNS setup>
   do_upgrades: <whether to perform node patching prior to deployment>
-  openshift_version: <major version number eg: 3.5 or 3.6 or 3.7 >
-  local_domain_suffix: <local internal domain name - defaults to openstacklocal if not specified>
-  controlplane_floating_ip: <pre-provisioned floating ip>
-  dataplane_floating_ip: <pre-provisioned floating ip>
-  #net2_external_network: <name of external network for net2 if required>
+  openshift_version: <major version number default is 3.9, 3.9 is the minimum now>
+  local_domain_suffix: <local internal domain name - default: openstacklocal>
+  controlplane_floating_ip: <pre-provisioned floating ip ID>
+  dataplane_floating_ip: <pre-provisioned floating ip ID>
+  # Aggregated logging options
   install_logging: <deploy EFK stack for aggregated logging>
   logging_cluster_size: <ES scale in agg logging stack>
-  worker_small_scale: <no of small nodes to deploy>
-  worker_medium_scale: <no of medium nodes to deploy>
-  worker_large_scale: <no of large nodes to deploy>
-  external_network_cp: <external network to deploy to>
-  external_dns: <[ "external dns server 1", "external dns server 2" ] - example>
+  # Cluster scale options
+  worker_small_scale: <no of small nodes to deploy, default: 0>
+  worker_medium_scale: <no of medium nodes to deploy, default: 0>
+  worker_large_scale: <no of large nodes to deploy, default: 0>
+  infra_scale: <no of infrastructure nodes to deploy, default: 2>
+  external_network_cp: <external network to attach control plane to>
+  external_dns: <[ "external dns server 1", "external dns server 2" ] default: 8.8.8.8>
+  set_node_routes: <true or false - whether to deploy extra static routes to all nodes>
+  node_routes: <list of extra routes to add to all nodes>
+  control_plane_allowed_sources: <allowed cidr for inbound traffic to control plane default: 0.0.0.0/0 (any)>
+  data_plane_allowed_sources: <allowed cidr for inbound traffic to data plane default : 0.0.0.0/0 (any)>
+  # Secondary network options for multi-network deployments
+  #net2_external_network: <name of external network for net2>
+  #net2_node_routes: <routes needed only on net2 nodes>
+  #net2_routes: <routes needed on all net2 only servers (e.g. net2 lb's as well>
