@@ -86,4 +86,6 @@ retry yum install -y \
         atomic-openshift-utils \
         atomic-openshift-excluder \
         atomic-docker-excluder \
-        atomic-openshift-clients
+        atomic-openshift-clients \
+        vim \
+        tmux
