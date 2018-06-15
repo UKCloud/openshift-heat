@@ -185,25 +185,15 @@
             - {{ item }}
           {% endfor %}
           set_node_routes: {{ setNodeRoutes }}
-          node_routes:
-          {% for item in nodeRoutes %}
-            - {{ item }}
-          {% endfor %}
-          net2_routes:
-          {% if multinetwork %}
-          {% for item in net2Routes %}
-            - {{ item }}
-          {% endfor %}
+          node_routes: {{ nodeRoutes }}
+          net2_routes:{% if multinetwork %} {{ net2Routes %} }}
           net2_dns_server:
           {% for item in net2DnsServer %}
             - {{ item }}
           {% endfor %}
           net2_vip: {{ net2DpVip }}
           net2_gateway: {{ net2Gateway }}
-          net2_node_routes:
-          {% for item in net2NodeRoutes %}
-            - {{ item }}
-          {% endfor %}
+          net2_node_routes: {{ net2NodeRoutes }}
           {% endif %}
     - name: create ansible variables directory
       file:
