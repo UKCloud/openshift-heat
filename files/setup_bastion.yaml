@@ -186,7 +186,8 @@
           {% endfor %}
           set_node_routes: {{ setNodeRoutes }}
           node_routes: {{ nodeRoutes }}
-          net2_routes:{% if multinetwork %} {{ net2Routes %} }}
+          {% if multinetwork %}
+          net2_routes: {{ net2Routes }}
           net2_dns_server:
           {% for item in net2DnsServer %}
             - {{ item }}
