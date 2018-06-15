@@ -20,3 +20,5 @@ parameter_defaults:
   worker_large_scale: <no of large nodes to deploy>
   external_network_cp: <external network to deploy to>
   external_dns: <[ "external dns server 1", "external dns server 2" ] - example>
+  set_node_routes: <boolean - whether to deploy static routes>
+  node_routes: <[{"gateway":"value","route":"value"},{"gateway-n":"value","route-n":"value"}]>
