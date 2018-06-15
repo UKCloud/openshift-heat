@@ -41,7 +41,7 @@
           net2_node_routes:
             type: json
             description: Extra routes we deploy for net2 to get back to ECS/OpenStack CP etc
-            default: [{"gateway":"10.2.1.1","route":"51.179.210.114/32"},{"gateway":"10.2.1.1","route":"209.132.182.63/32"},{"gateway":"10.2.1.1","route":"23.195.112.43/32"}{"gateway":"10.2.1.1","route":"51.179.220.66/32"}]
+            default: [{"gateway":"10.2.1.1","route":"51.179.210.114/32"},{"gateway":"10.2.1.1","route":"209.132.182.63/32"},{"gateway":"10.2.1.1","route":"23.195.112.43/32"},{"gateway":"10.2.1.1","route":"51.179.220.66/32"}]
           net2_routes:
             type: json
             description: Extra routes needed for all net2 servers (e.g. Satellite)
