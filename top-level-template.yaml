@@ -107,7 +107,7 @@ parameters:
     description: Whether to deploy extra static routes to all nodes
     default: false
   node_routes:
-    type: comma_delimited_list
+    type: json
     description: The routes to deploy if set_node_routes is true
     default: []
   control_plane_allowed_sources:

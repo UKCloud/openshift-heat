@@ -145,7 +145,7 @@ parameters:
     type: boolean
     description: Whether to deploy extra static routes to all nodes
   node_routes:
-    type: comma_delimited_list
+    type: json
     description: The routes to deploy if set_node_routes is true
 
 resources:

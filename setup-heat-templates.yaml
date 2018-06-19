@@ -39,13 +39,25 @@
             description: Number of worker nodes to deploy
             default: 2
           net2_node_routes:
-            type: comma_delimited_list
+            type: json
             description: Extra routes we deploy for net2 to get back to ECS/OpenStack CP etc
-            default: [ "51.179.210.114/32","209.132.182.63/32","23.195.112.43/32","51.179.220.66/32" ]
+            default:
+              - gateway: 10.2.1.1
+                route: 51.179.210.114/32
+              - gateway: 10.2.1.1
+                route: 209.132.182.63/32
+              - gateway: 10.2.1.1
+                route: 23.195.112.43/32
+              - gateway: 10.2.1.1
+                route: 51.179.220.66/32
+              - gateway: 10.2.1.1
+                route: 51.179.217.10/32
           net2_routes:
-            type: comma_delimited_list
+            type: json
             description: Extra routes needed for all net2 servers (e.g. Satellite)
-            default: [ "51.179.217.20/32" ]
+            default:
+              - gateway: 10.2.1.1
+                route: 51.179.217.20/32
     when: multinetwork
 
   - name: add net2 parameters to bastion file if required
@@ -71,10 +83,10 @@
             type: string
             description: Gateway for the net2 connection
           net2_node_routes:
-            type: comma_delimited_list
+            type: json
             description: Extra routes we deploy for net2 to get back to ECS/OpenStack CP etc
           net2_routes:
-            type: comma_delimited_list
+            type: json
             description: Extra routes needed for all net2 servers (e.g. Satellite)
     when: multinetwork
 
