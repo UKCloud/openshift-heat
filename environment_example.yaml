@@ -21,6 +21,12 @@ parameter_defaults:
   external_network_cp: <external network to deploy to>
   external_dns: <[ "external dns server 1", "external dns server 2" ] - example>
   #set_node_routes: <boolean - whether to deploy static routes>
-  #node_routes: <[{"gateway":"value","route":"value"},{"gateway-n":"value","route-n":"value"}]>
+  #node_routes:
+  #  - gateway: <value>
+  #    route: <value>
   #net2_node_routes: <routes required by openshift net2 nodes e.g. openstack, red hat registry>
-  #net_routes: <routes required by all net2 instances e.g. satellite>
+  #  - gateway: <value>
+  #    route: <value>
+  #net_routes:
+  #  - gateway: <value>
+  #    route: <value>
