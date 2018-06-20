@@ -1,6 +1,7 @@
 - hosts: localhost
   vars:
     multinetwork: false
+    extra_gateway: false
   tasks:
   - name: create deployment template
     copy:
@@ -17,7 +18,7 @@
       dest: openshift.yaml
       backup: yes
       insertbefore: "resources:"
-      marker: "  # ANSIBLE MANAGED BLOCK - parameters"
+      marker: "  # ANSIBLE MANAGED BLOCK - net2_parameters"
       block: |2
           net2_external_network:
             type: string
@@ -65,7 +66,7 @@
       dest: bastion.yaml
       backup: yes
       insertbefore: "resources:"
-      marker: "  # ANSIBLE MANAGED BLOCK - parameters"
+      marker: "  # ANSIBLE MANAGED BLOCK - net2_parameters"
       block: |2
           net2_dp_vip:
             type: string
@@ -94,7 +95,7 @@
     blockinfile:
       dest: openshift.yaml
       insertbefore: "bastion_deployment:"
-      marker: "  # ANSIBLE MANAGED BLOCK - resources"
+      marker: "  # ANSIBLE MANAGED BLOCK - net2_resources"
       block: |2
           net2_floating_ip:
             type: OS::Neutron::FloatingIP
@@ -160,7 +161,7 @@
     blockinfile:
       dest: openshift.yaml
       insertbefore: "outputs:"
-      marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment"
+      marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment net2 details"
       block: |2
                 # details of the net-x facing node stack:
                 net2_dp_vip: { get_attr: [ data_plane_net2_lb, outputs, haproxy_internal_vip ] }
@@ -176,7 +177,7 @@
     blockinfile:
       dest: bastion.yaml
       insertbefore: "template: { get_file: 'files/setup_bastion.yaml' }"
-      marker: "            # ANSIBLE MANAGED BLOCK - host file"
+      marker: "            # ANSIBLE MANAGED BLOCK - host file net2 details"
       block: |2
                     __net2_dp_vip__: { get_param: [ net2_dp_vip ] }
                     __net2_dp_lb__: { get_param: [ net2_dp_lb ] }
@@ -186,3 +187,37 @@
                     __net2_node_routes__: { get_param: net2_node_routes }
                     __net2_routes__: { get_param: net2_routes }
     when: multinetwork
+
+  - name: add extra_gateway parameters if required
+    blockinfile:
+      dest: openshift.yaml
+      backup: yes
+      insertbefore: "resources:"
+      marker: "  # ANSIBLE MANAGED BLOCK - extra_gateway_parameters"
+      block: |2
+          extra_gateway_external_network:
+            type: string
+            description: Name of the external network net2 will attach to
+          extra_gateway_internal_ip:
+            type: string
+            description: Internal IP address for extra gateway
+            default: "10.2.1.253"
+    when: extra_gateway
+
+  - name: add net2 resources if required
+    blockinfile:
+      dest: openshift.yaml
+      insertbefore: "bastion_deployment:"
+      marker: "  # ANSIBLE MANAGED BLOCK - net2_resources"
+      block: |2
+          extra_gateway:
+            type: OS::Heat::Stack
+            depends_on: [ internal_network ]
+            properties:
+              template: { get_file: extra_gateway.yaml }
+              parameters:
+                interface_network: { get_param: extra_gateway_external_network }
+                internal_network: { get_attr: [internal_network, outputs, network] }
+                internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                fixed_ip: { get_param: extra_gateway_internal_ip }
+    when: extra_gateway
