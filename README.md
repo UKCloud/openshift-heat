@@ -24,18 +24,12 @@ openstack floating ip create <External Network ID>
 
 and add the ID returned to the keys 'controlplane_floating_ip' and 'dataplane_floating_ip' in environment.yaml.
 
+Whether to deploy with multiple networks (e.g. an extra external network and a data plane on it), and whether to deploy with just an extra external network router (access to which can be controlled by passing in static routes to the appropriate nodes) can be controlled through the ```multinetwork``` and ```deploy_extra_gateway``` parameters.
+
 Finally if a only a single network is required ensure multinetwork is set to false and deploy as follows: 
 
 # Deploy Stack
 Create stack with:
 ```
-./deploy.sh false
-```
-
-If you require 2 different external networks and data planes on both, you need to set the require net2 variables in the environment.yaml (in particular the net2_node_routes will be needed if the secondary network is not able to connect to the container registry you're deploying from) then deploy with multinetwork set to true, as follows:
-
-# Deploy Stack
-Create stack with:
-```
-./deploy.sh true
+./deploy.sh
 ```

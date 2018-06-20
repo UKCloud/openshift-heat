@@ -134,7 +134,10 @@ parameters:
     description: Details of the deployed infrastructure nodes in the cluster
   multinetwork:
     type: boolean
-    description: Test
+    description: Deployment is multi-network?
+  deploy_extra_gateway:
+    type: boolean
+    description: Deployment includes extra-gateway?
   external_network:
     type: string
     description: External network to attach floating IP to for SSH access
@@ -255,6 +258,7 @@ resources:
             __installLogging__: { get_param: install_logging }
             __loggingClusterSize__: { get_param: logging_cluster_size }
             __multinetwork__ : { get_param: multinetwork }
+            __deploy_extra_gateway__ : { get_param: deploy_extra_gateway }
             __external_dns__ : { get_param: external_dns }
             __set_node_routes__ : { get_param: set_node_routes }
             __node_routes__ : { get_param: node_routes }

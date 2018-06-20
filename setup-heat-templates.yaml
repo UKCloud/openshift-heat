@@ -204,11 +204,11 @@
             default: "10.2.1.253"
     when: extra_gateway
 
-  - name: add net2 resources if required
+  - name: add extra gateway if required
     blockinfile:
       dest: openshift.yaml
       insertbefore: "bastion_deployment:"
-      marker: "  # ANSIBLE MANAGED BLOCK - net2_resources"
+      marker: "  # ANSIBLE MANAGED BLOCK - extra gateway"
       block: |2
           extra_gateway:
             type: OS::Heat::Stack
@@ -220,4 +220,34 @@
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
                 fixed_ip: { get_param: extra_gateway_internal_ip }
+    when: extra_gateway
+
+  - name: add extra gateway parameters to bastion file if required
+    blockinfile:
+      dest: bastion.yaml
+      backup: yes
+      insertbefore: "resources:"
+      marker: "  # ANSIBLE MANAGED BLOCK - net2_parameters"
+      block: |2
+          extra_gateway:
+            type: string
+            description: Extra gateway as required for VRF or similar
+    when: extra_gateway
+
+  - name: add extra gateway parameters to bastion_deployment if required
+    blockinfile:
+      dest: openshift.yaml
+      insertbefore: "outputs:"
+      marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment extra gateway details"
+      block: |2
+                extra_gateway: { get_attr: [ extra_gateway, outputs, gateway ] }
+    when: extra_gateway
+
+  - name: add net2 parameters to bastion host file if required
+    blockinfile:
+      dest: bastion.yaml
+      insertbefore: "template: { get_file: 'files/setup_bastion.yaml' }"
+      marker: "            # ANSIBLE MANAGED BLOCK - host file extra gateway details"
+      block: |2
+                    __extra_gateway__: { get_param: extra_gateway }
     when: extra_gateway

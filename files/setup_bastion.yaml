@@ -29,6 +29,7 @@
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
     multinetwork: __multinetwork__
+    deployExtraGateway: __deploy_extra_gateway__
     externalDns: __external_dns__
     setNodeRoutes: __set_node_routes__
     nodeRoutes: __node_routes__
@@ -39,6 +40,7 @@
     net2Gateway: __net2_gateway__
     net2NodeRoutes: __net2_node_routes__
     net2Routes: __net2_routes__
+    extraGateway: __extra_gateway__
   tasks:
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
@@ -195,6 +197,9 @@
           net2_vip: {{ net2DpVip }}
           net2_gateway: {{ net2Gateway }}
           net2_node_routes: {{ net2NodeRoutes | to_json }}
+          {% endif %}
+          {% if deployExtraGateway %}
+          extra_gateway: {{ extraGateway }}
           {% endif %}
     - name: create ansible variables directory
       file:
