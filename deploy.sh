@@ -1,7 +1,8 @@
 #!/bin/bash
 
-multinetwork="$1"
-openshift_openstack_password="$2"
+multinetwork=$( grep multinetwork: environment.yaml | awk '{print $2}' )
+extra_gateway=$( grep extra_gateway: environment.yaml | awk '{print $2}' )
+openshift_openstack_password="$1"
 
 function validateSetup() {
   if [[ -z $OS_TENANT_ID ]]; then
@@ -19,7 +20,9 @@ function getPassword() {
 }
 
 function setupHeatTemplate() {
-  ansible-playbook ./setup-heat-templates.yaml  --extra-vars "multinetwork=$multinetwork"
+  ansible-playbook ./setup-heat-templates.yaml \
+    --extra-vars "multinetwork=$multinetwork" \
+    --extra-vars "extra_gateway=$extra_gateway"
 }
 
 function deployHeatStack() {
