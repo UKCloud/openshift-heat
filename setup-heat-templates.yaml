@@ -58,7 +58,7 @@
             description: Extra routes needed for all net2 servers (e.g. Satellite)
             default:
               - gateway: 10.2.1.1
-                route: 51.179.217.20/32
+                route: 51.179.219.220/32
     when: multinetwork
 
   - name: add net2 parameters to bastion file if required
