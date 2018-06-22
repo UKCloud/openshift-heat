@@ -82,6 +82,7 @@
           {{ haproxy_vip }} ocp.{{ domainSuffix }}
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
+      force: no
     - name: disable TTY for sudo on bastion
       lineinfile:
         path: /etc/sudoers
