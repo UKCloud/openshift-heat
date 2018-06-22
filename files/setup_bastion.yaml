@@ -40,6 +40,11 @@
     net2NodeRoutes: __net2_node_routes__
     net2Routes: __net2_routes__
   tasks:
+    - name: Check if stack update or create and register variable
+      shell: openstack stack show openshift-{{ osTenantName }} --os-auth-url {{ osAuthUrl }} --os-username {{ openstackOpenshiftUsername }} --os-project-name {{ osTenantName }} \
+             --os-password {{ openstackOpenshiftPassword }} | grep stack_status | grep -v stack_status_reason
+      register: stack_state  
+
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
         dest: hosts.j2
@@ -81,13 +86,9 @@
           {{ haproxy_vip }} console.{{ domainSuffix }}
           {{ haproxy_vip }} ocp.{{ domainSuffix }}
     
-    - name: Check if stack update or create and register variable
-      shell: openstack stack show openshift-{{ osTenantName }} --os-auth-url {{ osAuthUrl }} --os-username {{ openstackOpenshiftUsername }} --os-project-name {{ osTenantName }} \
-             --os-password {{ openstackOpenshiftPassword }} | grep stack_status | grep -v stack_status_reason
-      register: stack_state
-
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
+      when: '"CREATE" in stack_state.stdout'
 
     - name: disable TTY for sudo on bastion
       lineinfile:
@@ -204,7 +205,6 @@
           net2_gateway: {{ net2Gateway }}
           net2_node_routes: {{ net2NodeRoutes | to_json }}
           {% endif %}
-          stack_state: {{ stack_state }}
 
     - name: create ansible variables directory
       file:
@@ -224,6 +224,7 @@
         repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
         dest: /usr/share/ansible/openshift-deployment-ansible
         version: master
+      when: '"CREATE" in stack_state.stdout'    
 
     - name: Create variables symlink
       file:
