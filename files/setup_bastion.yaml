@@ -41,9 +41,11 @@
     net2Routes: __net2_routes__
   tasks:
     - name: Check if stack update or create and register variable
-      shell: openstack stack show openshift-{{ osTenantName }} --os-auth-url {{ osAuthUrl }} --os-username {{ openstackOpenshiftUsername }} --os-project-name {{ osTenantName }} \
-             --os-password {{ openstackOpenshiftPassword }} | grep stack_status | grep -v stack_status_reason
-      register: stack_state  
+      shell: if [[ $(openstack stack show openshift-{{ osTenantName }} -f value -c stack_status --os-auth-url {{ osAuthUrl }} --os-username {{ openstackOpenshiftUsername }} --os-project-name {{ osTenantName }} \
+             --os-password {{ openstackOpenshiftPassword }}) = *UPDATE* ]] ; then echo "True" ; else echo "False" ; fi
+      register: upgrade_value
+   
+    - set_fact: upgrade="{{ upgrade_value.stdout }}"
 
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
@@ -88,7 +90,7 @@
     
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
-      when: '"CREATE" in stack_state.stdout'
+      when: upgrade
 
     - name: disable TTY for sudo on bastion
       lineinfile:
@@ -224,7 +226,7 @@
         repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
         dest: /usr/share/ansible/openshift-deployment-ansible
         version: master
-      when: '"CREATE" in stack_state.stdout'    
+      when: upgrade   
 
     - name: Create variables symlink
       file:
