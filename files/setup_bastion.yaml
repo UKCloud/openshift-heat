@@ -80,9 +80,15 @@
           {% endif %}
           {{ haproxy_vip }} console.{{ domainSuffix }}
           {{ haproxy_vip }} ocp.{{ domainSuffix }}
+    
+    - name: Check if stack update or create and register variable
+      shell: openstack stack show openshift-{{ osTenantName }} --os-auth-url {{ osAuthUrl }} --os-username {{ openstackOpenshiftUsername }} --os-project-name {{ osTenantName }} \
+             --os-password {{ openstackOpenshiftPassword }} | grep stack_status | grep -v stack_status_reason
+      register: stack_state
+
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
-      force: no
+
     - name: disable TTY for sudo on bastion
       lineinfile:
         path: /etc/sudoers
@@ -91,6 +97,7 @@
         backup: yes
       become: yes
       become_method: sudo
+
     - name: create ansible variables template
       blockinfile:
         dest: ansible_vars.j2
@@ -197,10 +204,13 @@
           net2_gateway: {{ net2Gateway }}
           net2_node_routes: {{ net2NodeRoutes | to_json }}
           {% endif %}
+          stack_state: {{ stack_state }}
+
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/
         state: directory
+
     - name: create ansible variables file
       file:
         path: /etc/ansible/group_vars/all.yml
@@ -222,6 +232,7 @@
         owner: cloud-user
         group: cloud-user
         state: link
+
     - name: Update repo permissions
       file:
         path: /usr/share/ansible/openshift-deployment-ansible
