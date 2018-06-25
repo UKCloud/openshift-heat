@@ -94,6 +94,9 @@ parameters:
   multinetwork:
     type: boolean
     description: Whether to deploy a secondary external network
+  deploy_extra_gateway:
+    type: boolean
+    description: Whether to deploy an extra gateway for a VRF for example
   external_network_cp:
     type: string
     description: The external network the control plane will use
@@ -279,7 +282,7 @@ resources:
           - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
           - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
 
-  data_plane_internet_lb:
+  data_plane_lb:
     type: OS::Heat::Stack
     depends_on: [ internal_network, security_groups ]
     properties:
@@ -331,6 +334,7 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_external_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
         multinetwork: { get_param: multinetwork }
+        deploy_extra_gateway: { get_param: deploy_extra_gateway }
         install_logging: { get_param: install_logging }
         logging_cluster_size: { get_param: logging_cluster_size }
         # details of the master stack:
@@ -338,8 +342,8 @@ resources:
         control_plane_lb: { get_attr: [ control_plane_lb, outputs, haproxy_list ] }
         master_details: { get_attr: [ master_nodes_deployment, outputs, node_list ] }
         # details of the internet facing node stack:
-        internet_dp_vip: { get_attr: [ data_plane_internet_lb, outputs, haproxy_internal_vip ] }
-        internet_dp_lb: { get_attr: [ data_plane_internet_lb, outputs, haproxy_list ] }
+        internet_dp_vip: { get_attr: [ data_plane_lb, outputs, haproxy_internal_vip ] }
+        internet_dp_lb: { get_attr: [ data_plane_lb, outputs, haproxy_list ] }
         internet_node_sml: { get_attr: [ worker_small_nodes_deployment, outputs, node_list ] }
         internet_node_med: { get_attr: [ worker_medium_nodes_deployment, outputs, node_list ] }
         internet_node_lge: { get_attr: [ worker_large_nodes_deployment, outputs, node_list ] } 

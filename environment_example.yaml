@@ -32,6 +32,8 @@ parameter_defaults:
   # Security group options
   control_plane_allowed_sources: <allowed cidr for inbound traffic to control plane default: 0.0.0.0/0 (any)>
   data_plane_allowed_sources: <allowed cidr for inbound traffic to data plane default : 0.0.0.0/0 (any)>
+  #multinetwork: <whether to deploy a secondary network and data plane default: false> 
+  #deploy_extra_gateway: <whether to deploy an extra gateway e.g. VRF default: false>
   # Secondary network options for multi-network deployments
   #net2_external_network: <name of external network for net2>
   #net2_node_routes: <routes required by openshift net2 nodes e.g. openstack, red hat registry>
