@@ -207,6 +207,7 @@
           net2_gateway: {{ net2Gateway }}
           net2_node_routes: {{ net2NodeRoutes | to_json }}
           {% endif %}
+          create_debug: {{ create }}
 
     - name: create ansible variables directory
       file:
