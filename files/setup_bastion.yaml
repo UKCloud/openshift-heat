@@ -43,9 +43,9 @@
     - name: Check if stack update or create and register variable
       shell: if [[ $(openstack stack show openshift-{{ osTenantName }} -f value -c stack_status --os-auth-url {{ osAuthUrl }} --os-username {{ openstackOpenshiftUsername }} --os-project-name {{ osTenantName }} \
              --os-password {{ openstackOpenshiftPassword }}) = *CREATE* ]] ; then echo "True" ; else echo "False" ; fi
-      register: upgrade_value
+      register: create_value
    
-    - set_fact: upgrade="{{ upgrade_value.stdout }}"
+    - set_fact: create="{{ create_value.stdout }}"
 
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
@@ -90,7 +90,7 @@
     
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
-      when: upgrade
+      when: create
 
     - name: disable TTY for sudo on bastion
       lineinfile:
@@ -226,7 +226,7 @@
         repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
         dest: /usr/share/ansible/openshift-deployment-ansible
         version: master
-      when: upgrade   
+      when: create   
 
     - name: Create variables symlink
       file:
