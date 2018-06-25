@@ -90,7 +90,7 @@
     
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
-      when: create == "True"
+      when: create == True
 
     - name: disable TTY for sudo on bastion
       lineinfile:
@@ -226,7 +226,7 @@
         repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
         dest: /usr/share/ansible/openshift-deployment-ansible
         version: master
-      when: create == "True"
+      when: create == True
 
     - name: Create variables symlink
       file:
