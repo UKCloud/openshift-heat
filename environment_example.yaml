@@ -35,6 +35,9 @@ parameter_defaults:
   #multinetwork: <whether to deploy a secondary network and data plane default: false> 
   #deploy_extra_gateway: <whether to deploy an extra gateway e.g. VRF default: false>
   # Secondary network options for multi-network deployments
+  #net2_worker_small_scale: <no of small net2 nodes to deploy, default: 2>
+  #net2_worker_medium_scale: <no of medium net2 nodes to deploy, default: 0>
+  #net2_worker_large_scale: <no of large net2 nodes to deploy, default: 0>
   #net2_external_network: <name of external network for net2>
   #net2_node_routes: <routes required by openshift net2 nodes e.g. openstack, red hat registry>
   #  - gateway: <value>
