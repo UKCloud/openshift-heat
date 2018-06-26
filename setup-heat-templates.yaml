@@ -35,10 +35,18 @@
             type: string
             description: DNS server for net2
             default: "10.2.1.254"
-          net2_worker_scale:
+          net2_worker_small_scale:
             type: number
-            description: Number of worker nodes to deploy
+            description: Number of small net2 worker nodes to deploy
             default: 2
+          net2_worker_medium_scale:
+            type: number
+            description: Number of medium net2 worker nodes to deploy
+            default: 0
+          net2_worker_large_scale:
+            type: number
+            description: Number of large net2 worker nodes to deploy
+            default: 0
           net2_node_routes:
             type: json
             description: Extra routes we deploy for net2 to get back to ECS/OpenStack CP etc
@@ -74,7 +82,13 @@
           net2_dp_lb:
             type: comma_delimited_list
             description: Details of the data plane haproxy nodes for net2
-          net2_node_details:
+          net2_node_sml:
+            type: comma_delimited_list
+            description: Details of the deployed net2 nodes in the cluster
+          net2_node_med:
+            type: comma_delimited_list
+            description: Details of the deployed net2 nodes in the cluster
+          net2_node_lge:
             type: comma_delimited_list
             description: Details of the deployed net2 nodes in the cluster
           net2_dns_server:
@@ -113,7 +127,7 @@
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
                 fixed_ip: { get_param: net2_gateway_internal_ip }
 
-          net2_nodes_deployment:
+          net2_nodes_small_deployment:
             type: OS::Heat::Stack
             depends_on: [ internal_network, security_groups ]
             properties:
@@ -122,8 +136,52 @@
                 node_type: worker
                 node_flavor: ocp.t1.xxlarge
                 key_name: { get_param: key_name }
-                node_scale: { get_param: net2_worker_scale }
-                purpose_ident: { get_param: net2_purpose }
+                node_scale: { get_param: net2_worker_small_scale }
+                purpose_ident: { get_param: net2_purpose }-s
+                local_domain_suffix: { get_param: local_domain_suffix }
+                internal_network: { get_attr: [internal_network, outputs, network] }
+                internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                cluster_security_groups:
+                  - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+                  - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
+
+          net2_nodes_medium_deployment:
+            type: OS::Heat::Stack
+            depends_on: [ internal_network, security_groups ]
+            properties:
+              template: { get_file: node_group.yaml }
+              parameters:
+                node_type: worker
+                node_flavor: ocp.m1.large
+                key_name: { get_param: key_name }
+                node_scale: { get_param: net2_worker_medium_scale }
+                purpose_ident: { get_param: net2_purpose }-m
+                local_domain_suffix: { get_param: local_domain_suffix }
+                internal_network: { get_attr: [internal_network, outputs, network] }
+                internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                cluster_security_groups:
+                  - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
+                  - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+                  - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
+                  - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
+
+          net2_nodes_large_deployment:
+            type: OS::Heat::Stack
+            depends_on: [ internal_network, security_groups ]
+            properties:
+              template: { get_file: node_group.yaml }
+              parameters:
+                node_type: worker
+                node_flavor: ocp.r1.large
+                key_name: { get_param: key_name }
+                node_scale: { get_param: net2_worker_large_scale }
+                purpose_ident: { get_param: net2_purpose }-l
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -166,7 +224,9 @@
                 # details of the net-x facing node stack:
                 net2_dp_vip: { get_attr: [ data_plane_net2_lb, outputs, haproxy_internal_vip ] }
                 net2_dp_lb: { get_attr: [ data_plane_net2_lb, outputs, haproxy_list ] }
-                net2_node_details: { get_attr: [ net2_nodes_deployment, outputs, node_list ] }
+                net2_node_sml: { get_attr: [ net2_nodes_small_deployment, outputs, node_list ] }
+                net2_node_med: { get_attr: [ net2_nodes_medium_deployment, outputs, node_list ] }
+                net2_node_lge: { get_attr: [ net2_nodes_large_deployment, outputs, node_list ] }
                 net2_dns_server: { get_param: net2_dns_server }
                 net2_gateway: { get_attr: [ net2_gateway, outputs, gateway ] }
                 net2_node_routes: { get_param: net2_node_routes }
@@ -181,7 +241,9 @@
       block: |2
                     __net2_dp_vip__: { get_param: [ net2_dp_vip ] }
                     __net2_dp_lb__: { get_param: [ net2_dp_lb ] }
-                    __net2_node_details__: { get_param: [ net2_node_details ] }
+                    __net2_node_sml__: { get_param: [ net2_node_sml ] }
+                    __net2_node_med__: { get_param: [ net2_node_med ] }
+                    __net2_node_lge__: { get_param: [ net2_node_lge ] }
                     __net2_dns_server__: { get_param: net2_dns_server }
                     __net2_gateway__: { get_param: net2_gateway }
                     __net2_node_routes__: { get_param: net2_node_routes }
