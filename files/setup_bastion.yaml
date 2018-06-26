@@ -41,8 +41,8 @@
     net2Routes: __net2_routes__
   tasks:
     - name: Check if stack update or create and register variable
-      shell: if [[ $(openstack stack show openshift-{{ osTenantName }} -f value -c stack_status --os-auth-url {{ osAuthUrl }} --os-username {{ openstackOpenshiftUsername }} --os-project-name {{ osTenantName }} \
-             --os-password {{ openstackOpenshiftPassword }}) = *CREATE* ]] ; then echo "True" ; else echo "False" ; fi
+      shell: if [[ $(openstack stack show "openshift-{{ osTenantName }}" -f value -c stack_status --os-auth-url "{{ osAuthUrl }}" --os-username "{{ openstackOpenshiftUsername }}" --os-project-name "{{ osTenantName }}" \
+             --os-password "{{ openstackOpenshiftPassword }}") = *CREATE* ]] ; then echo "True" ; else echo "False" ; fi
       register: create_value
    
     - set_fact: create="{{ create_value.stdout }}"
