@@ -2,6 +2,7 @@
   vars:
     multinetwork: false
     extra_gateway: false
+    purpose_ident: "unspecified"
   tasks:
   - name: create deployment template
     copy:
@@ -27,10 +28,6 @@
             type: comma_delimited_list
             description: DNS server for net2
             default: [ "8.8.8.8" ]
-          net2_purpose:
-            type: string
-            description: names given to net2 nodes
-            default: "n3"
           net2_gateway_internal_ip:
             type: string
             description: DNS server for net2
@@ -137,7 +134,7 @@
                 node_flavor: ocp.t1.xxlarge
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_small_scale }
-                purpose_ident: { get_param: net2_purpose }-s
+                purpose_ident: {{ purpose_ident }}-s
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -159,7 +156,7 @@
                 node_flavor: ocp.m1.large
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_medium_scale }
-                purpose_ident: { get_param: net2_purpose }-m
+                purpose_ident: {{ purpose_ident }}-m
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -181,7 +178,7 @@
                 node_flavor: ocp.r1.large
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_large_scale }
-                purpose_ident: { get_param: net2_purpose }-l
+                purpose_ident: {{ purpose_ident }}-l
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -202,7 +199,7 @@
                 haproxy_floating_ip: { get_resource: net2_floating_ip }
                 key_name: { get_param: key_name }
                 scale: 2
-                purpose_ident: { get_param: net2_purpose }
+                purpose_ident: {{ purpose_ident }}
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
