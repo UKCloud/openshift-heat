@@ -51,7 +51,7 @@
                 --os-password "{{ openstackOpenshiftPassword }}") = *CREATE* ]] ; then echo "True" ; else echo "False" ; fi
       register: create_value
 
-    - set_fact: create="{{ create_value.stdout }}"
+    - set_fact: stack_create="{{ create_value.stdout }}"
 
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
@@ -96,7 +96,7 @@
 
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
-      when: create == True
+      when: stack_create == True
 
     - name: disable TTY for sudo on bastion
       lineinfile:
@@ -236,7 +236,7 @@
         repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
         dest: /usr/share/ansible/openshift-deployment-ansible
         version: master
-      when: create == True
+      when: stack_create == True
 
     - name: Create variables symlink
       file:
