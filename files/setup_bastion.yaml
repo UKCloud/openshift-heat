@@ -42,6 +42,17 @@
     net2Routes: __net2_routes__
     extraGateway: __extra_gateway__
   tasks:
+
+    - name: Check if stack update or create and register variable
+      shell: if [[ $(openstack stack show "openshift-{{ osTenantName }}" -f value -c stack_status \
+                --os-auth-url "{{ osAuthUrl }}" \
+                --os-username "{{ openstackOpenshiftUsername }}" \
+                --os-project-name "{{ osTenantName }}" \
+                --os-password "{{ openstackOpenshiftPassword }}") = *CREATE* ]] ; then echo "True" ; else echo "False" ; fi
+      register: create_value
+
+    - set_fact: create="{{ create_value.stdout }}"
+
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
         dest: hosts.j2
@@ -82,8 +93,11 @@
           {% endif %}
           {{ haproxy_vip }} console.{{ domainSuffix }}
           {{ haproxy_vip }} ocp.{{ domainSuffix }}
+
     - name: update hosts file
       template: src=hosts.j2 dest=/etc/hosts
+      when: create == True
+
     - name: disable TTY for sudo on bastion
       lineinfile:
         path: /etc/sudoers
@@ -92,6 +106,7 @@
         backup: yes
       become: yes
       become_method: sudo
+
     - name: create ansible variables template
       blockinfile:
         dest: ansible_vars.j2
@@ -201,14 +216,17 @@
           {% if deployExtraGateway %}
           extra_gateway: {{ extraGateway }}
           {% endif %}
+
     - name: create ansible variables directory
       file:
         path: /etc/ansible/group_vars/
         state: directory
+
     - name: create ansible variables file
       file:
         path: /etc/ansible/group_vars/all.yml
         state: touch
+
     - name: place ansible vars file
       template: src=ansible_vars.j2 dest=/etc/ansible/group_vars/all.yml
 
@@ -218,6 +236,7 @@
         repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
         dest: /usr/share/ansible/openshift-deployment-ansible
         version: master
+      when: create == True
 
     - name: Create variables symlink
       file:
@@ -226,6 +245,7 @@
         owner: cloud-user
         group: cloud-user
         state: link
+
     - name: Update repo permissions
       file:
         path: /usr/share/ansible/openshift-deployment-ansible
