@@ -17,6 +17,11 @@ multinetwork=$(python -c "import yaml;d=yaml.load(open('environment.yaml'));prin
 extra_gateway=$(python -c "import yaml;d=yaml.load(open('environment.yaml'));print(d['parameter_defaults']['deploy_extra_gateway'])" |
    tr '[:upper:]' '[:lower:]')
 
+if [[ multinetwork == true ]]; then
+  purpose_ident=$(python -c "import yaml;d=yaml.load(open('environment.yaml'));print(d['parameter_defaults']['net2_external_network'])" |
+     tr '[:upper:]' '[:lower:]')
+fi
+
 
 function validateSetup() {
   if [[ -z ${OS_TENANT_ID} ]]; then
@@ -36,7 +41,8 @@ function getPassword() {
 function setupHeatTemplate() {
   ansible-playbook ./setup-heat-templates.yaml \
     --extra-vars "multinetwork=${multinetwork}" \
-    --extra-vars "extra_gateway=${extra_gateway}"
+    --extra-vars "extra_gateway=${extra_gateway}" \
+    --extra-vars "purpose_ident=${purpose_ident}"
 }
 
 function deployHeatStack() {

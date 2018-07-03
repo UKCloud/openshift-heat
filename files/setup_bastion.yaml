@@ -36,7 +36,9 @@
     net2DnsServer: __net2_dns_server__
     net2DpVip: __net2_dp_vip__
     net2DpLb: __net2_dp_lb__
-    net2Nodes: __net2_node_details__
+    net2NodesSml: __net2_node_sml__
+    net2NodesMed: __net2_node_med__
+    net2NodesLge: __net2_node_lge__
     net2Gateway: __net2_gateway__
     net2NodeRoutes: __net2_node_routes__
     net2Routes: __net2_routes__
@@ -65,7 +67,13 @@
           {{ item|replace('\"', "") }}
           {% endfor %}
           {% if multinetwork %}
-          {% for item in net2Nodes %}
+          {% for item in net2NodesSml %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in net2NodesMed %}
+          {{ item|replace('\"', "") }}
+          {% endfor %}
+          {% for item in net2NodesLge %}
           {{ item|replace('\"', "") }}
           {% endfor %}
           {% endif %}
@@ -115,7 +123,13 @@
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           {% if multinetwork %}
-          {% for item in net2Nodes %}
+          {% for item in net2NodesSml %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in net2NodesMed %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in net2NodesLge %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           {% endif %}
@@ -135,7 +149,13 @@
           {% endfor %}
           worker_details_net2:
           {% if multinetwork %}
-          {% for item in net2Nodes %}
+          {% for item in net2NodesSml %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in net2NodesMed %}
+            {{ item|replace(' ', ': ') }}
+          {% endfor %}
+          {% for item in net2NodesLge %}
             {{ item|replace(' ', ': ') }}
           {% endfor %}
           {% endif %}
