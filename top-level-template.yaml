@@ -121,6 +121,16 @@ parameters:
     type: comma_delimited_list
     description: ip addresses that inbound connectivity can come from
     default: [ "0.0.0.0/0" ]
+  network_config:
+    type: json
+    description: Network configuration for internal network
+    default: 
+      allocation_pool: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
+      cidr: "10.2.1.0/24"
+      dns: [ "8.8.4.4" ]
+      gateway: "10.2.1.102"
+      bastion_ip: "10.2.1.101"
+
 
 resources:
   internal_network:
@@ -128,11 +138,11 @@ resources:
     properties:
       template: { get_file: network.yaml }
       parameters:
-        allocation_pools: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
-        cidr: "10.2.1.0/24"
-        dns: { get_param: external_dns }
-        external_network: { get_param: external_network_cp } 
-        gateway: "10.2.1.1"
+        allocation_pools: { get_param: [ network_config, allocation_pool ] }
+        cidr: { get_param: [ network_config, cidr ] }
+        dns: { get_param: [ network_config, dns ] }
+        external_network: { get_param: external_network_cp }
+        gateway: { get_param: [ network_config, gateway ] }
 
   security_groups:
     type: OS::Heat::Stack
@@ -325,7 +335,7 @@ resources:
         do_upgrades: { get_param: do_upgrades }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        bastion_fixed_ip: 10.2.1.101
+        bastion_fixed_ip: { get_param: [ network_config, bastion_ip ] }
         external_network: { get_param: external_network_cp }
         external_dns: { get_param: external_dns }
         server_security_groups: 
