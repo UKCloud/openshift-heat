@@ -17,7 +17,7 @@ multinetwork=$(python -c "import yaml;d=yaml.load(open('environment.yaml'));prin
 extra_gateway=$(python -c "import yaml;d=yaml.load(open('environment.yaml'));print(d['parameter_defaults']['deploy_extra_gateway'])" |
    tr '[:upper:]' '[:lower:]')
 
-if [[ multinetwork == true ]]; then
+if [[ $multinetwork == true ]]; then
   purpose_ident=$(python -c "import yaml;d=yaml.load(open('environment.yaml'));print(d['parameter_defaults']['net2_external_network'])" |
      tr '[:upper:]' '[:lower:]')
 fi
