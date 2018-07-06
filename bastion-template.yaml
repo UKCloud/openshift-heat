@@ -262,6 +262,7 @@ resources:
             __external_dns__ : { get_param: external_dns }
             __set_node_routes__ : { get_param: set_node_routes }
             __node_routes__ : { get_param: node_routes }
+            __bastion_ip__ : { get_param: bastion_fixed_ip }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
