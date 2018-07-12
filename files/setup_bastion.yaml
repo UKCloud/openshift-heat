@@ -51,7 +51,7 @@
                 --os-auth-url "{{ osAuthUrl }}" \
                 --os-username "{{ openstackOpenshiftUsername }}" \
                 --os-project-name "{{ osTenantName }}" \
-                --os-password "{{ openstackOpenshiftPassword }}") = *CREATE* ]] ; then echo True ; else echo False ; fi
+                --os-password "{{ openstackOpenshiftPassword }}") = *UPDATE* ]] ; then echo False ; else echo True ; fi
       register: stack_status
 
     - set_fact: stack_create="{{ stack_status.stdout }}"
@@ -267,6 +267,7 @@
         owner: cloud-user
         group: cloud-user
         state: link
+      when: stack_create
 
     - name: Update repo permissions
       file:
@@ -274,3 +275,4 @@
         owner: cloud-user
         group: cloud-user
         recurse: yes
+      when: stack_create
