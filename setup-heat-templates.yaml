@@ -48,21 +48,23 @@
             type: json
             description: Extra routes we deploy for net2 to get back to ECS/OpenStack CP etc
             default:
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
+                route: 51.179.210.2/32
+              - gateway: 10.2.1.254
                 route: 51.179.210.114/32
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 209.132.182.63/32
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 23.195.112.43/32
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 51.179.220.66/32
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 51.179.217.10/32
           net2_routes:
             type: json
             description: Extra routes needed for all net2 servers (e.g. Satellite)
             default:
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 51.179.219.220/32
     when: multinetwork
 
