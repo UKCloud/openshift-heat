@@ -31,7 +31,7 @@
           net2_gateway_internal_ip:
             type: string
             description: DNS server for net2
-            default: "10.2.1.254"
+            default: "10.2.1.253"
           net2_worker_small_scale:
             type: number
             description: Number of small net2 worker nodes to deploy
