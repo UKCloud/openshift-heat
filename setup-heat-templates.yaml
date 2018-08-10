@@ -58,6 +58,8 @@
                 route: 51.179.220.66/32
               - gateway: 10.2.1.1
                 route: 51.179.217.10/32
+              - gateway: 10.2.1.1
+                route: 104.82.86.120
           net2_routes:
             type: json
             description: Extra routes needed for all net2 servers (e.g. Satellite)
