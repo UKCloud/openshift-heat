@@ -9,12 +9,28 @@ parameters:
     type: comma_delimited_list
     description: ports to open for external access to haproxy servers
     default: "80,443"
+  net2_data_plane_ports:
+    type: comma_delimited_list
+    description: ports to open for external access to haproxy servers
+    default: "80,443"
+  extra_data_plane_ports:
+    type: comma_delimited_list
+    description: ports to open for external access to haproxy servers
+    default: "80,443"
   control_plane_sources:
     type: comma_delimited_list
     description: ip addresses that inbound connectivity can come from
   data_plane_sources:
     type: comma_delimited_list
     description: ip addresses that inbound connectivity can come from
+  net2_data_plane_sources:
+    type: comma_delimited_list
+    description: ip addresses that inbound connectivity can come from
+    default: [ "0.0.0.0/0" ]
+  extra_data_plane_sources:
+    type: comma_delimited_list
+    description: ip addresses that inbound connectivity can come from
+    default: [ "0.0.0.0/0" ]
 
 resources:
   bastion_egress_secgroup:
@@ -181,6 +197,38 @@ resources:
           for_each:
             <%sourceip%>: { get_param: data_plane_sources }
             <%port%>: { get_param: data_plane_ports }
+          template:
+            protocol: tcp
+            direction: ingress
+            remote_ip_prefix: <%sourceip%>
+            port_range_min: <%port%>
+            port_range_max: <%port%>
+
+  net2_data_plane_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: dataplane_sg
+      rules:
+        repeat:
+          for_each:
+            <%sourceip%>: { get_param: net2_data_plane_sources }
+            <%port%>: { get_param: net2_data_plane_ports }
+          template:
+            protocol: tcp
+            direction: ingress
+            remote_ip_prefix: <%sourceip%>
+            port_range_min: <%port%>
+            port_range_max: <%port%>
+
+  extra_data_plane_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: dataplane_sg
+      rules:
+        repeat:
+          for_each:
+            <%sourceip%>: { get_param: extra_data_plane_sources }
+            <%port%>: { get_param: extra_data_plane_ports }
           template:
             protocol: tcp
             direction: ingress
@@ -434,6 +482,12 @@ outputs:
   data_plane_security_group:
     description: Security group controlling access to the data plane
     value: { get_resource: data_plane_secgroup }
+  net2_data_plane_security_group:
+    description: Security group controlling access to the data plane
+    value: { get_resource: net2_data_plane_secgroup }
+  extra_data_plane_security_group:
+    description: Security group controlling access to the data plane
+    value: { get_resource: extra_data_plane_secgroup }
   all_nodes_security_group:
     description: Security group controlling access to all openshift nodes
     value: { get_resource: all_nodes_secgroup }

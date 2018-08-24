@@ -2,6 +2,7 @@
   vars:
     multinetwork: false
     extra_gateway: false
+    extra_gateway_dataplane: false
     purpose_ident: "unspecified"
   tasks:
   - name: create deployment template
@@ -209,7 +210,7 @@
                   - { get_attr: [ security_groups, outputs, net2_lb_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
-                  - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
+                  - { get_attr: [ security_groups, outputs, net2_data_plane_security_group ] }
                   - { get_attr: [ security_groups, outputs, dns_net2_security_group ] }
                   - { get_attr: [ security_groups, outputs, vrrp_net2_security_group ] }
     when: multinetwork
@@ -281,6 +282,42 @@
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
                 fixed_ip: { get_param: extra_gateway_internal_ip }
+
+          extra_gateway_floating_ip:
+            type: OS::Neutron::FloatingIP
+            properties:
+              floating_network: { get_param: extra_gateway_external_network }
+
+          extra_gateway_dataplane:
+            type: OS::Heat::Stack
+            depends_on: [ extra_gateway ]
+            properties:
+              template: { get_file: floatingip.yaml }
+              parameters:
+                floatingip_id: { get_resource: extra_gateway_floating_ip }
+                internal_network: { get_attr: [internal_network, outputs, network] }
+                internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                security_groups:
+                  - { get_attr: [ security_groups, outputs, extra_data_plane_security_group ] }
+    when: extra_gateway
+
+  - name: add extra gateway dataplane floating ip to the internet dataplane 
+    blockinfile:
+      dest: openshift.yaml
+      insertbefore: "haproxy_floating_ip: { get_param: dataplane_floating_ip }"
+      marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment extra gateway floating ip"
+      block: |2
+                floating_ip_internal_vips: { get_attr: [ extra_gateway_dataplane, outputs, floatingip_internal_vip ] }
+    when: extra_gateway
+
+  - name: add extra gateway parameters to bastion_deployment if required
+    blockinfile:
+      dest: openshift.yaml
+      insertbefore: "outputs:"
+      marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment extra gateway details"
+      block: |2
+                extra_gateway: { get_attr: [ extra_gateway, outputs, gateway ] }
+                extra_gateway_dataplane_vip: { get_attr: [ extra_gateway_dataplane, outputs, floatingip_internal_vip ] }
     when: extra_gateway
 
   - name: add extra gateway parameters to bastion file if required
@@ -293,22 +330,17 @@
           extra_gateway:
             type: string
             description: Extra gateway as required for VRF or similar
+          extra_gateway_dataplane_vip:
+            type: string
+            description: Extra gateway dataplane vip as required for VRF or similar
     when: extra_gateway
 
-  - name: add extra gateway parameters to bastion_deployment if required
-    blockinfile:
-      dest: openshift.yaml
-      insertbefore: "outputs:"
-      marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment extra gateway details"
-      block: |2
-                extra_gateway: { get_attr: [ extra_gateway, outputs, gateway ] }
-    when: extra_gateway
-
-  - name: add net2 parameters to bastion host file if required
+  - name: add extra_gateway parameters to bastion host file if required
     blockinfile:
       dest: bastion.yaml
       insertbefore: "template: { get_file: 'files/setup_bastion.yaml' }"
       marker: "            # ANSIBLE MANAGED BLOCK - host file extra gateway details"
       block: |2
                     __extra_gateway__: { get_param: extra_gateway }
+                    __extra_gateway_dataplane_vip__: { get_param: extra_gateway_dataplane_vip }
     when: extra_gateway
