@@ -9,9 +9,6 @@ set -x
 # Log all output to file.
 exec > >(tee -a /var/log/bash_script.log) 2>&1
 
-# connect eth1 and use dhcp to get address from neutron network
-nmcli d connect eth1
-
 # set UK timezone
 ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 
@@ -27,7 +24,7 @@ retry() {
 # get and install katello package from our satellite server
 if [[ "__satellite_deploy__" = True ]] 
 then
-	rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
+	retry rpm -Uvh http://__satellite_fqdn__/pub/katello-ca-consumer-latest.noarch.rpm
 fi
 
 # register with redhat
