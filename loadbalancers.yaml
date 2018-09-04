@@ -103,13 +103,6 @@ resources:
           server_group: { get_resource: haproxy-servergroup }
 
 outputs:
-  max_elem:
-    value:
-      yaql:
-        expression: $.data.vips.append($.data.internal_vip)
-        data:
-          vips: { get_param: floating_ip_internal_vips }
-          internal_vip: { get_attr: [ floating_ip, outputs, floatingip_internal_vip ] }
   haproxy_external_ip:
     description: External IP for haproxy..
     value: { get_param: haproxy_floating_ip }
