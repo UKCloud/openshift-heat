@@ -2,7 +2,6 @@
   vars:
     multinetwork: false
     extra_gateway: false
-    extra_gateway_dataplane: false
     purpose_ident: "unspecified"
   tasks:
   - name: create deployment template
