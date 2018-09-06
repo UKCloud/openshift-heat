@@ -207,7 +207,7 @@ resources:
   net2_data_plane_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: dataplane_sg
+      name: dataplane_net2_sg
       rules:
         repeat:
           for_each:
@@ -223,7 +223,7 @@ resources:
   extra_data_plane_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: dataplane_sg
+      name: dataplane_extra_sg
       rules:
         repeat:
           for_each:
