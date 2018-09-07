@@ -22,7 +22,7 @@ parameters:
   port_network:
     type: string
   internal_vip:
-    type: string
+    type: comma_delimited_list
   sec_groups:
     type: json
     default: { default }
@@ -90,7 +90,11 @@ resources:
             servername: { get_param: server_name }
       network: { get_param: port_network }
       allowed_address_pairs:
-        - ip_address: { get_param: internal_vip } 
+        repeat:
+          for_each:
+            <%ipaddr%>: {get_param: internal_vip}
+          template:
+            ip_address: <%ipaddr%>
       security_groups: { get_param: sec_groups }
 
 outputs:

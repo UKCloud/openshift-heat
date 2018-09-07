@@ -44,6 +44,7 @@
     net2NodeRoutes: __net2_node_routes__
     net2Routes: __net2_routes__
     extraGateway: __extra_gateway__
+    extraGatewayVip: __extra_gateway_dataplane_vip__
   tasks:
 
     - name: Check if stack update or create and register variable
@@ -237,6 +238,7 @@
           {% endif %}
           {% if deployExtraGateway %}
           extra_gateway: {{ extraGateway }}
+          extra_gateway_vip: {{ extraGatewayVip }}
           {% endif %}
 
     - name: create ansible variables directory

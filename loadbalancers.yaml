@@ -1,4 +1,4 @@
-heat_template_version: 2016-04-08
+heat_template_version: 2016-10-14
 
 parameters:
   haproxy_floating_ip:
@@ -51,21 +51,21 @@ parameters:
   security_groups:
     type: comma_delimited_list
     description: Security groups for loadbalancer
+  floating_ip_internal_vips:
+    type: comma_delimited_list
+    description: Security groups for loadbalancer
+    default: ""
 
 resources:
-  haproxy_port:
-    type: OS::Neutron::Port
+  floating_ip:
+    type: OS::Heat::Stack
     properties:
-      network: { get_param: internal_network }
-      fixed_ips:
-      - subnet_id: { get_param: internal_network_subnet }
-      security_groups: { get_param: security_groups }
-
-  haproxy_floating_ip_assoc:
-    type: OS::Neutron::FloatingIPAssociation
-    properties:
-      floatingip_id: { get_param: haproxy_floating_ip }
-      port_id: { get_resource: haproxy_port }
+      template: { get_file: floatingip.yaml }
+      parameters:
+        floatingip_id: { get_param: haproxy_floating_ip }
+        internal_network: { get_param: internal_network }
+        internal_network_subnet: { get_param: internal_network_subnet }
+        security_groups: { get_param: security_groups }
 
   haproxy-servergroup:
     type: OS::Nova::ServerGroup
@@ -75,7 +75,7 @@ resources:
 
   haproxy_group:
     type: OS::Heat::ResourceGroup
-    depends_on: [ haproxy_port ]
+    depends_on: [ floating_ip ]
     properties:
       count: { get_param: scale }
       resource_def:
@@ -93,7 +93,12 @@ resources:
           rhn_orgid: { get_param: rhn_orgid }
           rhn_activationkey: { get_param: rhn_activationkey }
           port_network: { get_param: internal_network }
-          internal_vip: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] } 
+          internal_vip: 
+            yaql:
+              expression: $.data.vips.append($.data.internal_vip)
+              data:
+                vips: { get_param: floating_ip_internal_vips }
+                internal_vip: { get_attr: [ floating_ip, outputs, floatingip_internal_vip ] }
           sec_groups: { get_param: security_groups }
           server_group: { get_resource: haproxy-servergroup }
 
@@ -103,7 +108,7 @@ outputs:
     value: { get_param: haproxy_floating_ip }
   haproxy_internal_vip:
     description: Internal IP for haproxy..
-    value: { get_attr: [ haproxy_port, fixed_ips, 0, ip_address ] }
+    value: { get_attr: [ floating_ip, outputs, floatingip_internal_vip ] }
   haproxy_list:
     description: host file contents
     value: { get_attr: [ haproxy_group, host_entry ] } 
