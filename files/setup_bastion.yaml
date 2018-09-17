@@ -33,7 +33,8 @@
     externalDns: __external_dns__
     setNodeRoutes: __set_node_routes__
     nodeRoutes: __node_routes__
-    bastionIp: __bastion_ip__
+    bastionIp: __bastion_ip_
+    net2NTPServer: __net2_ntp_server__
     net2DnsServer: __net2_dns_server__
     net2DpVip: __net2_dp_vip__
     net2DpLb: __net2_dp_lb__
@@ -228,6 +229,7 @@
           bastion_ip: {{ bastionIp }}
           {% if multinetwork %}
           net2_routes: {{ net2Routes | to_json }}
+          net2_ntp_server: {{ net2NTPServer }}
           net2_dns_server:
           {% for item in net2DnsServer %}
             - {{ item }}
