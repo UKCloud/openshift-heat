@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This is a simple change.
+
 # Usage:
 #  deploy.sh [password]
 #
