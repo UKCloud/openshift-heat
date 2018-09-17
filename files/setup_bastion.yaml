@@ -33,7 +33,7 @@
     externalDns: __external_dns__
     setNodeRoutes: __set_node_routes__
     nodeRoutes: __node_routes__
-    bastionIp: __bastion_ip_
+    bastionIp: __bastion_ip__
     net2NTPServer: __net2_ntp_server__
     net2DnsServer: __net2_dns_server__
     net2DpVip: __net2_dp_vip__
