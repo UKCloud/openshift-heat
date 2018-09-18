@@ -24,6 +24,9 @@
           net2_external_network:
             type: string
             description: Name of the external network net2 will attach to
+          net2_ntp_server:
+            type: string
+            description: NTP server for chronyd to use on net2 nodes
           net2_dns_server:
             type: comma_delimited_list
             description: DNS server for net2
@@ -93,6 +96,9 @@
           net2_dns_server:
             type: comma_delimited_list
             description: DNS server for net2
+          net2_ntp_server:
+            type: string
+            description: NTP server for chronyd to use on net2 nodes
           net2_gateway:
             type: string
             description: Gateway for the net2 connection
@@ -221,6 +227,7 @@
       marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment net2 details"
       block: |2
                 # details of the net-x facing node stack:
+                net2_ntp_server: { get_param: net2_ntp_server }
                 net2_dp_vip: { get_attr: [ data_plane_net2_lb, outputs, haproxy_internal_vip ] }
                 net2_dp_lb: { get_attr: [ data_plane_net2_lb, outputs, haproxy_list ] }
                 net2_node_sml: { get_attr: [ net2_nodes_small_deployment, outputs, node_list ] }
@@ -238,6 +245,7 @@
       insertbefore: "template: { get_file: 'files/setup_bastion.yaml' }"
       marker: "            # ANSIBLE MANAGED BLOCK - host file net2 details"
       block: |2
+                    __net2_ntp_server__: { get_param: net2_ntp_server }
                     __net2_dp_vip__: { get_param: [ net2_dp_vip ] }
                     __net2_dp_lb__: { get_param: [ net2_dp_lb ] }
                     __net2_node_sml__: { get_param: [ net2_node_sml ] }
