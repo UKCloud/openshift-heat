@@ -25,7 +25,7 @@
             type: string
             description: Name of the external network net2 will attach to
           net2_ntp_server:
-            type: string
+            type: comma_delimited_list
             description: NTP server for chronyd to use on net2 nodes
           net2_dns_server:
             type: comma_delimited_list
@@ -97,7 +97,7 @@
             type: comma_delimited_list
             description: DNS server for net2
           net2_ntp_server:
-            type: string
+            type: comma_delimited_list
             description: NTP server for chronyd to use on net2 nodes
           net2_gateway:
             type: string
