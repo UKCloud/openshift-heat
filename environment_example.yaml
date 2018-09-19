@@ -39,7 +39,7 @@ parameter_defaults:
   # Secondary network options for multi-network deployments
   #multinetwork: <whether to deploy a secondary network and data plane default: false>
   #net2_dns_server: <["external dns server 1", "external dns server 2" ]>
-  #net2_ntp_server: <server used by chronyd for NTP on community networks>
+  #net2_ntp_server: <["server1", "server2"] used by chronyd for NTP on community networks>
   #net2_gateway_internal_ip: <net2 router IP on internal network>
   #net2_worker_small_scale: <no of small net2 nodes to deploy, default: 2>
   #net2_worker_medium_scale: <no of medium net2 nodes to deploy, default: 0>
