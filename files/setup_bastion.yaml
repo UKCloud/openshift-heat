@@ -23,7 +23,7 @@
     s3secretkey: __s3secretkey__
     s3regionendpoint: __s3regionendpoint__
     s3bucketname: __s3bucketname__
-    openshiftVersion: __openshiftVersion__
+    openshiftVersion: "__openshiftVersion__"
     getCertificates: __getCertificates__
     doUpgrades: __doUpgrades__
     installLogging: __installLogging__
