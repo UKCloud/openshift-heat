@@ -80,9 +80,8 @@ retry yum install -y \
         kexec-tools \
         sos \
         psacct \
-        atomic-openshift-utils \
+        openshift-ansible \
         atomic-openshift-excluder \
-        atomic-docker-excluder \
         atomic-openshift-clients \
         vim \
         tmux
