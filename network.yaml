@@ -19,7 +19,7 @@ parameters:
   gateway:
     type: string
     description: gateway of the network
-    default: "10.2.1.1"
+    default: "10.2.1.254"
 
 resources:
   InternetGW:
