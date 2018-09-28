@@ -213,7 +213,7 @@
           s3regionendpoint: {{ s3regionendpoint }}
           s3bucketname: {{ s3bucketname }}
           localDomainSuffix: {{ localDomainSuffix }}
-          openshiftVersion: {{ openshiftVersion }}
+          openshiftVersion: "{{ openshiftVersion }}"
           getCertificates: {{ getCertificates }}
           doUpgrades: {{ doUpgrades }}
           installLogging: {{ installLogging }}
