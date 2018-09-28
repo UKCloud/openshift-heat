@@ -2,6 +2,11 @@ parameter_defaults:
   key_name: <openstack key name>
   domain_suffix: <domain suffix to be used for the OpenShift deployment>
   openshift_openstack_username: <OpenStack username for the tenancy OpenShift will be deployed to>
+  local_domain_suffix: <local internal domain name - default: openstacklocal>
+  controlplane_floating_ip: <pre-provisioned floating ip ID>
+  dataplane_floating_ip: <pre-provisioned floating ip ID>
+  external_network_cp: <external network to attach control plane to>
+  external_dns: <[ "external dns server 1", "external dns server 2" ] default: 8.8.8.8>
   # S3 details for object storage account to back the container registry off to.
   s3_region_endpoint: <s3 endpoint>
   s3_access_key: <s3 access key/user id>
@@ -11,9 +16,6 @@ parameter_defaults:
   get_certificates: <whether to get certificates from letsencrypt - requires external DNS setup>
   do_upgrades: <whether to perform node patching prior to deployment>
   openshift_version: <major version number default is 3.9, 3.9 is the minimum now>
-  local_domain_suffix: <local internal domain name - default: openstacklocal>
-  controlplane_floating_ip: <pre-provisioned floating ip ID>
-  dataplane_floating_ip: <pre-provisioned floating ip ID>
   # Aggregated logging options
   install_logging: <deploy EFK stack for aggregated logging>
   logging_cluster_size: <ES scale in agg logging stack>
@@ -27,14 +29,18 @@ parameter_defaults:
   worker_medium_scale: <no of medium nodes to deploy, default: 0>
   worker_large_scale: <no of large nodes to deploy, default: 0>
   infra_scale: <no of infrastructure nodes to deploy, default: 2>
-  external_network_cp: <external network to attach control plane to>
-  external_dns: <[ "external dns server 1", "external dns server 2" ] default: 8.8.8.8>
   # Security group options
   control_plane_allowed_sources: <allowed cidr for inbound traffic to control plane default: 0.0.0.0/0 (any)>
   data_plane_allowed_sources: <allowed cidr for inbound traffic to data plane default : 0.0.0.0/0 (any)>
-  #multinetwork: <whether to deploy a secondary network and data plane default: false> 
+  # Extra gateway options
   #deploy_extra_gateway: <whether to deploy an extra gateway e.g. VRF default: false>
+  #extra_gateway_external_network: <external network extra gateway connects to>
+  #extra_gateway_internal_ip: <EG router IP on internal network>
   # Secondary network options for multi-network deployments
+  #multinetwork: <whether to deploy a secondary network and data plane default: false>
+  #net2_dns_server: <["external dns server 1", "external dns server 2" ]>
+  #net2_ntp_servers: <["server1", "server2"] used by chronyd for NTP on community networks>
+  #net2_gateway_internal_ip: <net2 router IP on internal network>
   #net2_worker_small_scale: <no of small net2 nodes to deploy, default: 2>
   #net2_worker_medium_scale: <no of medium net2 nodes to deploy, default: 0>
   #net2_worker_large_scale: <no of large net2 nodes to deploy, default: 0>
