@@ -128,7 +128,7 @@ parameters:
       allocation_pool: [{"start": "10.2.1.2", "end": "10.2.1.100"}]
       cidr: "10.2.1.0/24"
       dns: [ "8.8.4.4" ]
-      gateway: "10.2.1.102"
+      gateway: "10.2.1.254"
       bastion_ip: "10.2.1.101"
   sso_config:
     type: json
