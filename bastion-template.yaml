@@ -150,6 +150,10 @@ parameters:
   node_routes:
     type: json
     description: The routes to deploy if set_node_routes is true
+  sso_config:
+    type: json
+    description: Configuration needed for SSO integration
+    hidden: true
 
 resources:
   bastion_port:
@@ -263,6 +267,9 @@ resources:
             __set_node_routes__ : { get_param: set_node_routes }
             __node_routes__ : { get_param: node_routes }
             __bastion_ip__ : { get_param: bastion_fixed_ip }
+            __sso_client_id__ : { get_param: [ sso_config, client_id ] }
+            __sso_client_secret__: { get_param: [ sso_config, client_secret ] }
+            __sso_urls__ : { get_param: [ sso_config, urls ] }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
