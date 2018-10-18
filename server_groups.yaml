@@ -1,0 +1,43 @@
+heat_template_version: 2016-04-08
+
+parameters:
+
+resources:
+
+  masters-sg:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: masters-servergroup
+      policies: [ 'anti-affinity' ]
+
+  infra-sg:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: infra-servergroup 
+      policies: [ 'anti-affinity' ]
+
+  nodes-sg:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: nodes-servergroup 
+      policies: [ 'anti-affinity' ]
+
+  loadbalancers-sg:
+    type: OS::Nova::ServerGroup
+    properties:
+      name: loadbalancers-servergroup
+      policies: [ 'anti-affinity' ]
+
+outputs:
+  masters-servergroup:
+    description: servergroup for master nodes
+    value: { get_resource: masters-sg }
+  infra-servergroup:
+    description: servergroup for master nodes
+    value: { get_resource: infra-sg }
+  nodes-servergroup:
+    description: servergroup for master nodes
+    value: { get_resource: nodes-sg }
+  loadbalancers-servergroup:
+    description: servergroup for master nodes
+    value: { get_resource: loadbalancers-sg }
