@@ -63,3 +63,11 @@ parameter_defaults:
   #  client_id: <client ID>
   #  client_secret: <client secret>
   #  urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>"}'
+  #external_services_config:
+  #  - proto: tcp or udp
+  #    port: port to expose e.g. 3306
+  #    service_ip: Neutron network IP for service. Must be within the external_service_subnet.
+  #    floating_network: External network to expose the service on e.g. Internet
+  #    allowed_sources: Sources to allow to the exposed service e.g. "0.0.0.0/0"
+  #external_service_subnet: Slice of the neutron network to use for external services. e.g. 10.3.1.120/27
+  # Move above to network config?

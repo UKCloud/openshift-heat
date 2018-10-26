@@ -1,4 +1,4 @@
-heat_template_version: 2016-04-08
+heat_template_version: 2016-10-14
 
 parameters:
   key_name:
@@ -137,8 +137,28 @@ parameters:
       client_id: "<client ID>"
       client_secret: "<client secret>"
       urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>"}'
+  external_services_config:
+    type: json
+    description: config to be used for external service deployment. See environment example for syntax.
+
 
 resources:
+  external_services:
+    type: OS::Heat::ResourceGroup
+    depends_on: []
+    properties:
+      index_var: index_num
+      count:
+        yaql:
+          expression: $.data.array.len()
+          data:
+            array: { get_param: [ external_services_config ] }
+    resource_def:
+        type: external_services.yaml
+        properties:
+          external_services_json: { get_param: [ external_services_config ] }
+          index: index_num
+
   internal_network:
     type: OS::Heat::Stack
     properties:
