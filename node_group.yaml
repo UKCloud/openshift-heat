@@ -56,6 +56,9 @@ parameters:
   cluster_security_groups:
     type: comma_delimited_list
     description: Security groups for cluster
+  server_group:
+    type: string
+    description: server group to associate nodes with
   storage_setup:
     type: string
     description: The contents for /etc/sysconfig/docker-storage-setup
@@ -65,16 +68,6 @@ parameters:
       DATA_SIZE=70G
 
 resources:
-
-  node-servergroup:
-    type: OS::Nova::ServerGroup
-    properties:
-      name: 
-        str_replace:
-          template: nodetype-servergroup
-          params:
-            nodetype: { get_param: node_type }
-      policies: [ 'anti-affinity' ]
 
   node_group:
     type: OS::Heat::ResourceGroup
@@ -99,7 +92,7 @@ resources:
           port_network: { get_param: internal_network }
           sec_groups: { get_param: cluster_security_groups }
           storage_setup: { get_param: storage_setup }
-          server_group: { get_resource: node-servergroup }
+          server_group: { get_param: server_group }
 
 outputs:
   node_list:

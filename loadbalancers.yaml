@@ -51,6 +51,9 @@ parameters:
   security_groups:
     type: comma_delimited_list
     description: Security groups for loadbalancer
+  server_group:
+    type: string
+    description: Server group for loadbalancers
   floating_ip_internal_vips:
     type: comma_delimited_list
     description: Security groups for loadbalancer
@@ -66,12 +69,6 @@ resources:
         internal_network: { get_param: internal_network }
         internal_network_subnet: { get_param: internal_network_subnet }
         security_groups: { get_param: security_groups }
-
-  haproxy-servergroup:
-    type: OS::Nova::ServerGroup
-    properties:
-      name: haproxy-servergroup
-      policies: [ 'anti-affinity' ]
 
   haproxy_group:
     type: OS::Heat::ResourceGroup
@@ -100,7 +97,7 @@ resources:
                 vips: { get_param: floating_ip_internal_vips }
                 internal_vip: { get_attr: [ floating_ip, outputs, floatingip_internal_vip ] }
           sec_groups: { get_param: security_groups }
-          server_group: { get_resource: haproxy-servergroup }
+          server_group: { get_param: server_group }
 
 outputs:
   haproxy_external_ip:
