@@ -278,6 +278,7 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
           - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+          - { get_attr: [ external_services, external_service_security_groups ] }
 
   worker_medium_nodes_deployment:
     type: OS::Heat::Stack
@@ -300,6 +301,7 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
           - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+          - { get_attr: [ external_services, external_service_security_groups ] }
 
   worker_large_nodes_deployment:
     type: OS::Heat::Stack
@@ -322,6 +324,7 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
           - { get_attr: [ security_groups, outputs, internet_nodes_security_group ] }
+          - { get_attr: [ external_services, external_service_security_groups ] }
 
   data_plane_lb:
     type: OS::Heat::Stack
@@ -399,5 +402,3 @@ outputs:
   service_floating_ips:
     description: Floating IPs for external services
     value: { get_attr: [ external_services, service_floating_ip ] }
-  external_service_security_groups:
-    value: { get_attr: [ external_services, external_service_security_groups ] }
