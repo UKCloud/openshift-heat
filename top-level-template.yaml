@@ -144,7 +144,7 @@ parameters:
   external_service_subnet:
     type: string
     description: slice of neutron network to be used as our external service range
-    default: ""
+    default: "1.1.1.1/32"
 
 
 resources:
