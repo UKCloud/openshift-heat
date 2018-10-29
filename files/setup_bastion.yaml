@@ -49,8 +49,11 @@
     ssoClientId: __sso_client_id__
     ssoClientSecret: __sso_client_secret__
     ssoUrls: __sso_urls__
-  tasks:
+    externalServiceFloatingIps: __external_service_floating_ips__
+    externalServiceSubnet: __external_service_subnet__
+    externalServiceConfig: __external_service_config__
 
+  tasks:
     - name: Check if stack update or create and register variable
       shell: if [[ $(openstack stack show "openshift-{{ osTenantName }}" -f value -c stack_status \
                 --os-auth-url "{{ osAuthUrl }}" \
@@ -248,6 +251,9 @@
           sso_client_id: {{ ssoClientId }}
           sso_client_secret: {{ ssoClientSecret }}
           sso_urls: '{{ ssoUrls | to_json }}'
+          external_service_floating_ip: {{ externalServiceFloatingIps }}
+          external_service_subnet: {{ externalServiceSubnet }}
+          external_service_configP: {{ externalServiceConfig }}
 
     - name: create ansible variables directory
       file:
@@ -285,4 +291,4 @@
         owner: cloud-user
         group: cloud-user
         recurse: yes
-      when: stack_create
+      when: stack_create 
