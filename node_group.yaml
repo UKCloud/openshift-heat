@@ -56,6 +56,9 @@ parameters:
   cluster_security_groups:
     type: comma_delimited_list
     description: Security groups for cluster
+  external_service_subnet:
+    type: string
+    description: subnet to be used when deploying external services
   storage_setup:
     type: string
     description: The contents for /etc/sysconfig/docker-storage-setup
@@ -100,6 +103,7 @@ resources:
           sec_groups: { get_param: cluster_security_groups }
           storage_setup: { get_param: storage_setup }
           server_group: { get_resource: node-servergroup }
+          external_service_subnet: { get_param: external_service_subnet }
 
 outputs:
   node_list:

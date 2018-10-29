@@ -155,7 +155,6 @@
                   - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
                   - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
-                  - { get_attr: [ external_services, external_service_security_groups ] }
 
           net2_nodes_medium_deployment:
             type: OS::Heat::Stack
@@ -178,7 +177,6 @@
                   - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
                   - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
-                  - { get_attr: [ external_services, external_service_security_groups ] }
 
           net2_nodes_large_deployment:
             type: OS::Heat::Stack
@@ -201,7 +199,6 @@
                   - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
                   - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
-                  - { get_attr: [ external_services, external_service_security_groups ] }
 
           data_plane_net2_lb:
             type: OS::Heat::Stack
