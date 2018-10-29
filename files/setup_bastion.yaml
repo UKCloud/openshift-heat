@@ -253,7 +253,7 @@
           sso_urls: '{{ ssoUrls | to_json }}'
           external_service_floating_ip: {{ externalServiceFloatingIps }}
           external_service_subnet: {{ externalServiceSubnet }}
-          external_service_configP: {{ externalServiceConfig }}
+          external_service_config: {{ externalServiceConfig | to_json }}
 
     - name: create ansible variables directory
       file:
