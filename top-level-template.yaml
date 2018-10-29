@@ -395,7 +395,6 @@ resources:
         set_node_routes: { get_param: set_node_routes }
         node_routes: { get_param: node_routes }
         sso_config: { get_param: sso_config }
-        external_service_floating_ips: { get_attr: [ external_services, service_floating_ip ] }
         external_service_subnet: { get_param: external_service_subnet }
         external_service_config: { get_param: external_services_config }
 
