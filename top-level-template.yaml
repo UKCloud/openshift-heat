@@ -410,3 +410,7 @@ outputs:
   bastion_ip:
     description: External IP for connection to jump box.
     value: { get_attr: [ bastion_deployment, outputs, bastion_ip ] }
+  external_service_floating_ips:
+    condition: external_service
+    description: List of floating IPs assigned to external services
+    value: { get_attr: [ external_services, service_floating_ip ] }

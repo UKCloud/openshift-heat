@@ -49,7 +49,6 @@
     ssoClientId: __sso_client_id__
     ssoClientSecret: __sso_client_secret__
     ssoUrls: __sso_urls__
-    externalServiceFloatingIps: __external_service_floating_ips__
     externalServiceSubnet: __external_service_subnet__
     externalServiceConfig: __external_service_config__
 

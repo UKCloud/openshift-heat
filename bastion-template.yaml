@@ -154,9 +154,6 @@ parameters:
     type: json
     description: Configuration needed for SSO integration
     hidden: true
-  external_service_floating_ips:
-    type: comma_delimited_list
-    description: floating IPs mapped to external services
   external_service_subnet:
    type: string
    description: Internal subnet reserved for external service IPs
@@ -281,7 +278,6 @@ resources:
             __sso_client_id__: { get_param: [ sso_config, client_id ] }
             __sso_client_secret__: { get_param: [ sso_config, client_secret ] }
             __sso_urls__: { get_param: [ sso_config, urls ] }
-            __external_service_floating_ips__: { get_param: external_service_floating_ips }
             __external_service_subnet__: { get_param: external_service_subnet }
             __external_service_config__: { get_param: external_service_config } 
           template: { get_file: 'files/setup_bastion.yaml' }
