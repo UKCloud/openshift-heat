@@ -140,15 +140,18 @@ parameters:
   external_services_config:
     type: json
     description: config to be used for external service deployment. See environment example for syntax.
+    default: ""
   external_service_subnet:
     type: string
     description: slice of neutron network to be used as our external service range
+    default: ""
 
 
 resources:
   external_services:
     type: OS::Heat::ResourceGroup
     depends_on: [ internal_network, security_groups ]
+    condition: external_service
     properties:
       index_var: index_num
       count:
@@ -395,6 +398,14 @@ resources:
         external_service_floating_ips: { get_attr: [ external_services, service_floating_ip ] }
         external_service_subnet: { get_param: external_service_subnet }
         external_service_config: { get_param: external_services_config }
+
+conditions:
+  external_service:
+    not:
+      equals:
+      - get_param: external_services_config
+      - ""
+
 outputs:
   bastion_ip:
     description: External IP for connection to jump box.
