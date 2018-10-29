@@ -228,6 +228,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        external_service_subnet: { get_param: external_service_subnet }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, masters_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -250,6 +251,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        external_service_subnet: { get_param: external_service_subnet }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, infra_nodes_egress_security_group ] }
@@ -274,6 +276,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        external_service_subnet: { get_param: external_service_subnet }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -296,6 +299,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        external_service_subnet: { get_param: external_service_subnet }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -318,6 +322,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        external_service_subnet: { get_param: external_service_subnet }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }

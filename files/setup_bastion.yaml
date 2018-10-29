@@ -250,7 +250,6 @@
           sso_client_id: {{ ssoClientId }}
           sso_client_secret: {{ ssoClientSecret }}
           sso_urls: '{{ ssoUrls | to_json }}'
-          external_service_floating_ip: {{ externalServiceFloatingIps | to_json }}
           external_service_subnet: {{ externalServiceSubnet }}
           external_service_config: {{ externalServiceConfig | to_json }}
 
