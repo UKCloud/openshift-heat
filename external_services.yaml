@@ -1,0 +1,58 @@
+heat_template_version: 2016-10-14
+
+parameters:
+  external_services_json:
+    type: json
+    description: Configuration values for external services in a json array
+  index:
+    type: string
+  internal_network:
+    type: string
+    description: neutron network name to attach port to
+
+resources:
+  service_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: { get_param: [ external_services_json, { get_param: index }, floating_network ] }
+
+  service_floating_ip_association:
+    type: OS::Neutron::FloatingIPAssociation
+    depends_on: [ service_floating_ip, service_port ]
+    properties:
+      floatingip_id: { get_resource: service_floating_ip }
+      port_id: { get_resource: service_port }
+
+  service_port:
+    type: OS::Neutron::Port
+    properties:
+      name: 
+        str_replace:
+          template: external_service_port_index
+          params:
+            index: { get_param: index }
+      network: { get_param: internal_network }
+      fixed_ips:
+        [ip_address: { get_param: [ external_services_json, { get_param: index }, service_ip ] }]
+
+  security_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: 
+        str_replace:
+          template: external_service_sg_index
+          params:
+            index: { get_param: index }
+      rules:
+        - direction: ingress
+          ethertype: IPv4
+          remote_ip_prefix: { get_param: [ external_services_json, { get_param: index }, allowed_sources ] }
+          protocol: { get_param: [ external_services_json, { get_param: index }, proto ] } 
+          port_range_min: { get_param: [ external_services_json, { get_param: index }, port ] }
+          port_range_max: { get_param: [ external_services_json, { get_param: index }, port ] }
+
+outputs:
+  service_floating_ip:
+    value: { get_attr: [ service_floating_ip, floating_ip_address ] }
+  fixed_ip_address:
+    value: { get_attr: [ service_port, fixed_ips, 0, ip_address ] }  
