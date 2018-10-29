@@ -398,7 +398,6 @@ outputs:
     value: { get_attr: [ bastion_deployment, outputs, bastion_ip ] }
   service_floating_ips:
     description: Floating IPs for external services
-    value: { get_attr: [ external_services, outputs, service_floating_ip ] }
-  service_fixed_ips:
-    description: Neutron addresses of service ports
-    value: { get_attr: [ external_services, outputs, fixed_ip_address ] } 
+    value: { get_attr: [ external_services, service_floating_ip ] }
+  external_service_security_groups:
+    value: { get_attr: [ external_services, external_service_security_groups ] }

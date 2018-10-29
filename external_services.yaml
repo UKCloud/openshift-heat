@@ -35,7 +35,7 @@ resources:
       fixed_ips:
         [ip_address: { get_param: [ external_services_json, { get_param: index }, service_ip ] }]
 
-  security_group:
+  external_service_security_group:
     type: OS::Neutron::SecurityGroup
     properties:
       name: 
@@ -55,4 +55,6 @@ outputs:
   service_floating_ip:
     value: { get_attr: [ service_floating_ip, floating_ip_address ] }
   fixed_ip_address:
-    value: { get_attr: [ service_port, fixed_ips, 0, ip_address ] }  
+    value: { get_attr: [ service_port, fixed_ips, 0, ip_address ] }
+  external_service_security_groups:
+    value: { get_resource: external_service_security_group }
