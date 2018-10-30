@@ -143,7 +143,6 @@ parameters:
     description: config to be used for external service deployment. See environment example for syntax.
     default: ""
 
-
 resources:
   external_services:
     type: OS::Heat::ResourceGroup
