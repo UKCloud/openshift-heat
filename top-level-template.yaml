@@ -130,6 +130,7 @@ parameters:
       dns: [ "8.8.4.4" ]
       gateway: "10.2.1.254"
       bastion_ip: "10.2.1.101"
+      service_subnet: "10.2.1.240/29"
   sso_config:
     type: json
     description: SSO configuration for OpenID integration
@@ -140,10 +141,6 @@ parameters:
   external_services_config:
     type: json
     description: config to be used for external service deployment. See environment example for syntax.
-    default: ""
-  external_service_subnet:
-    type: string
-    description: slice of neutron network to be used as our external service range
     default: ""
 
 
@@ -228,7 +225,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        external_service_subnet: { get_param: external_service_subnet }
+        external_service_subnet: { get_param: [ network_config, service_subnet ] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, masters_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -251,7 +248,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        external_service_subnet: { get_param: external_service_subnet }
+        external_service_subnet: { get_param: [ network_config, service_subnet ] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, infra_nodes_egress_security_group ] }
@@ -276,7 +273,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        external_service_subnet: { get_param: external_service_subnet }
+        external_service_subnet: { get_param: [ network_config, service_subnet ] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -299,7 +296,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        external_service_subnet: { get_param: external_service_subnet }
+        external_service_subnet: { get_param: [ network_config, service_subnet ] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -322,7 +319,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
-        external_service_subnet: { get_param: external_service_subnet }
+        external_service_subnet: { get_param: [ network_config, service_subnet ] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -400,7 +397,7 @@ resources:
         set_node_routes: { get_param: set_node_routes }
         node_routes: { get_param: node_routes }
         sso_config: { get_param: sso_config }
-        external_service_subnet: { get_param: external_service_subnet }
+        external_service_subnet: { get_param: [ network_config, service_subnet ] }
         external_service_config: { get_param: external_services_config }
 
 conditions:
