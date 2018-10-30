@@ -46,6 +46,15 @@ resources:
       direction: ingress
       port_range_max: { get_param: [ external_services_json, { get_param: index}, port ] }
       port_range_min: { get_param: [ external_services_json, { get_param: index}, port ] }
+
+  all_nodes_sg_sec_rule:
+    type: OS::Neutron::SecurityGroupRule
+    properties:
+      security_group: all_nodes_sg
+      direction: ingress
+      protocol: vrrp
+      remote_group: all_nodes_sg
+      
    
 
 outputs:
