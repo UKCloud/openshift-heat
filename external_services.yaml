@@ -38,6 +38,7 @@ resources:
 
   external_service_security_group_rule:
     type: OS::Neutron::SecurityGroupRule
+    condition: sec_rule_create
     properties:
       security_group: all_nodes_sg
       protocol: { get_param: [ external_services_json, { get_param: index}, proto ]}
@@ -47,6 +48,12 @@ resources:
       port_range_max: { get_param: [ external_services_json, { get_param: index}, port ] }
       port_range_min: { get_param: [ external_services_json, { get_param: index}, port ] }
 
+conditions:
+  sec_rule_create:
+    not:
+      equals:
+      - get_param: [ external_services_json, { get_param: index}, port ]
+      - ""
 
 outputs:
   service_floating_ip:
