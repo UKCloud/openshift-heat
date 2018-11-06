@@ -24,6 +24,9 @@
           net2_external_network:
             type: string
             description: Name of the external network net2 will attach to
+          net2_ntp_servers:
+            type: comma_delimited_list
+            description: NTP server for chronyd to use on net2 nodes
           net2_dns_server:
             type: comma_delimited_list
             description: DNS server for net2
@@ -31,7 +34,7 @@
           net2_gateway_internal_ip:
             type: string
             description: DNS server for net2
-            default: "10.2.1.254"
+            default: "10.2.1.253"
           net2_worker_small_scale:
             type: number
             description: Number of small net2 worker nodes to deploy
@@ -48,15 +51,17 @@
             type: json
             description: Extra routes we deploy for net2 to get back to ECS/OpenStack CP etc
             default:
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
+                route: 51.179.210.2/32
+              - gateway: 10.2.1.254
                 route: 51.179.210.114/32
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 209.132.182.63/32
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 23.195.112.43/32
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 51.179.220.66/32
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 51.179.217.10/32
               - gateway: 10.2.1.1
                 route: 104.82.86.120/32
@@ -64,7 +69,7 @@
             type: json
             description: Extra routes needed for all net2 servers (e.g. Satellite)
             default:
-              - gateway: 10.2.1.1
+              - gateway: 10.2.1.254
                 route: 51.179.219.220/32
     when: multinetwork
 
@@ -93,6 +98,9 @@
           net2_dns_server:
             type: comma_delimited_list
             description: DNS server for net2
+          net2_ntp_servers:
+            type: comma_delimited_list
+            description: NTP server for chronyd to use on net2 nodes
           net2_gateway:
             type: string
             description: Gateway for the net2 connection
@@ -128,7 +136,7 @@
 
           net2_nodes_small_deployment:
             type: OS::Heat::Stack
-            depends_on: [ internal_network, security_groups ]
+            depends_on: [ internal_network, security_groups, server_groups ]
             properties:
               template: { get_file: node_group.yaml }
               parameters:
@@ -140,6 +148,7 @@
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
                 cluster_security_groups:
                   - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -150,7 +159,7 @@
 
           net2_nodes_medium_deployment:
             type: OS::Heat::Stack
-            depends_on: [ internal_network, security_groups ]
+            depends_on: [ internal_network, security_groups, server_groups ]
             properties:
               template: { get_file: node_group.yaml }
               parameters:
@@ -162,6 +171,7 @@
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
                 cluster_security_groups:
                   - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -172,7 +182,7 @@
 
           net2_nodes_large_deployment:
             type: OS::Heat::Stack
-            depends_on: [ internal_network, security_groups ]
+            depends_on: [ internal_network, security_groups, server_groups ]
             properties:
               template: { get_file: node_group.yaml }
               parameters:
@@ -184,6 +194,7 @@
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
                 cluster_security_groups:
                   - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -194,7 +205,7 @@
 
           data_plane_net2_lb:
             type: OS::Heat::Stack
-            depends_on: [ internal_network, security_groups, net2_gateway ]
+            depends_on: [ internal_network, security_groups, server_groups, net2_gateway ]
             properties:
               template: { get_file: loadbalancers.yaml }
               parameters:
@@ -205,6 +216,7 @@
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                server_group: { get_attr: [server_groups, outputs, loadbalancers-servergroup] }
                 security_groups:
                   - { get_attr: [ security_groups, outputs, net2_lb_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
@@ -221,6 +233,7 @@
       marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment net2 details"
       block: |2
                 # details of the net-x facing node stack:
+                net2_ntp_servers: { get_param: net2_ntp_servers }
                 net2_dp_vip: { get_attr: [ data_plane_net2_lb, outputs, haproxy_internal_vip ] }
                 net2_dp_lb: { get_attr: [ data_plane_net2_lb, outputs, haproxy_list ] }
                 net2_node_sml: { get_attr: [ net2_nodes_small_deployment, outputs, node_list ] }
@@ -238,6 +251,7 @@
       insertbefore: "template: { get_file: 'files/setup_bastion.yaml' }"
       marker: "            # ANSIBLE MANAGED BLOCK - host file net2 details"
       block: |2
+                    __net2_ntp_servers__: { get_param: net2_ntp_servers }
                     __net2_dp_vip__: { get_param: [ net2_dp_vip ] }
                     __net2_dp_lb__: { get_param: [ net2_dp_lb ] }
                     __net2_node_sml__: { get_param: [ net2_node_sml ] }
