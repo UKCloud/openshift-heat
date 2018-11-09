@@ -13,11 +13,13 @@ parameters:
 resources:
   service_floating_ip:
     type: OS::Neutron::FloatingIP
+    condition: floating_ip_create
     properties:
       floating_network: { get_param: [ external_services_json, { get_param: index }, floating_network ] }
 
   service_floating_ip_association:
     type: OS::Neutron::FloatingIPAssociation
+    condition: associate_ip
     depends_on: [ service_floating_ip, service_port ]
     properties:
       floatingip_id: { get_resource: service_floating_ip }
@@ -25,6 +27,7 @@ resources:
 
   service_port:
     type: OS::Neutron::Port
+    condition: port_create
     properties:
       name: 
         str_replace:
@@ -54,6 +57,30 @@ conditions:
       equals:
       - get_param: [ external_services_json, { get_param: index}, port ]
       - ""
+
+  floating_ip_create:
+    not:
+      equals:
+      - get_param: [ external_services_json, { get_param: index }, floating_network ]
+      - ""
+
+  port_create:
+    not:
+      equals:
+      - get_param: [ external_services_json, { get_param: index }, service_ip ] 
+
+  associate_ip:
+    or:
+      not:
+        equals:
+        - get_param: [ external_services_json, { get_param: index }, service_ip ]
+        - ""
+        equals:
+        - get_param: [ external_services_json, { get_param: index }, floating_network ]
+        - ""
+
+  
+  
 
 outputs:
   service_floating_ip:
