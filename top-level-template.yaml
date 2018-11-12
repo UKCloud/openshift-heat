@@ -142,6 +142,11 @@ parameters:
     type: json
     description: config to be used for external service deployment. See environment example for syntax.
     default: ""
+  external_services_security:
+    type: json
+    description: parameter to define sec rules for external services
+    default: ""
+    
 
 resources:
   external_services:
@@ -159,6 +164,7 @@ resources:
         type: external_services.yaml
         properties:
           external_services_json: { get_param: [ external_services_config ] }
+          external_services_sec_rules: { get_param: [ external_services_security ] }
           index: index_num
           internal_network: { get_attr: [ internal_network, outputs, network ] }
 
