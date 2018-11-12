@@ -32,7 +32,7 @@ resources:
         properties:
           external_services_service_ip: { get_param: [ external_services_json, { get_param: index }, service_ip ] }
           index: index_num
-          internal_network: { get_param: internal_network )
+          internal_network: { get_param: internal_network }
           floating_ip: { get_resource: service_floating_ip }
 
 outputs:
