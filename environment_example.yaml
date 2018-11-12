@@ -65,7 +65,7 @@ parameter_defaults:
   #  client_secret: <client secret>
   #  urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>"}'
   #external_services_config:
-  #  - service_ip: Neutron network IP for service. Must be within the external_service_subnet.
+  #  - service_ip: Neutron network IP for service. Must be within the external_service_subnet. Comma Delimited List type
   #    floating_network: External network to expose the service on e.g. Internet
   #external_services_sec_rules:
   #  - proto: tcp or udp
