@@ -66,7 +66,7 @@ parameter_defaults:
   #  urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>"}'
   #external_services_config:
   #  - service_ip: Neutron network IP for service. Must be within the external_service_subnet.
-  #    floating_network: External network to expose the service on e.g. Internet
+  #    floating_network: External network to expose the service on e.g. [ "Internet" ], must be a comma delimited list
   #external_services_security:
   #  - proto: tcp or udp
   #    port: port to expose e.g. 3306
