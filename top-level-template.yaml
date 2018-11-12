@@ -433,4 +433,4 @@ outputs:
   external_service_floating_ips:
     condition: external_service
     description: List of floating IPs assigned to external services
-    value: { get_attr: [ external_services, service_floating_ip ] }
+    value: { get_attr: [ external_services_infra, service_floating_ip ] }
