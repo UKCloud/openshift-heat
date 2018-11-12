@@ -28,7 +28,7 @@ resources:
           data:
             array: { get_param: [ external_services_json, { get_param: index }, service_ip ] }
       resource_def:
-        type: external_services/external_services_infra.yaml
+        type: external_services_infra.yaml
         properties:
           external_services_service_ip: { get_param: [ external_services_json, { get_param: index }, service_ip ] }
           index: index_num
