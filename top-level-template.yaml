@@ -149,7 +149,7 @@ parameters:
     
 
 resources:
-  external_services:
+  external_services_infra:
     type: OS::Heat::ResourceGroup
     depends_on: [ internal_network, security_groups ]
     condition: external_service
@@ -161,13 +161,28 @@ resources:
           data:
             array: { get_param: [ external_services_config ] }
       resource_def:
-        type: external_services.yaml
+        type: external_services/external_services.yaml
         properties:
           external_services_json: { get_param: [ external_services_config ] }
-          external_services_sec_rules: { get_param: [ external_services_security ] }
           index: index_num
           internal_network: { get_attr: [ internal_network, outputs, network ] }
 
+  external_services_security:
+    type: OS::Heat::ResourceGroup
+    depends_on: [ external_services_infra ]
+    condition: external_service
+    properties:
+      index_var: index_num
+      count:
+        yaql:
+          expression: $.data.array.len()
+          data:
+            array: { get_param: [ external_services_security ] }
+      resource_def:
+        type: external_services/external_services_security.yaml
+        properties:
+          external_services_sec_rules: { get_param: [ external_services_security ] }
+          index: index_num  
 
   internal_network:
     type: OS::Heat::Stack

@@ -1,0 +1,42 @@
+heat_template_version: 2016-10-14
+
+parameters:
+  external_services_json:
+    type: json
+    description: Configuration values for external services in a json array
+  index:
+    type: string
+  internal_network:
+    type: string
+    description: neutron network name to attach port on
+
+resources:
+  service_floating_ip:
+    type: OS::Neutron::FloatingIP
+    condition: floating_ip_create
+    properties:
+      floating_network: { get_param: [ external_services_json, { get_param: index }, floating_network ] }
+  
+  service_association_and_port_group:
+    type: OS::Heat::ResourceGroup
+    depends_on: service_floating_ip
+    properties:
+      index_var: index_num
+      count:
+        yaql:
+          expression: $.data.array.len()
+          data:
+            array: { get_param: [ external_services_json, { get_param: index }, service_ip ] }
+      resource_def:
+        type: external_services/external_services_infra.yaml
+        properties:
+          external_services_service_ip: { get_param: [ external_services_json, { get_param: index }, service_ip ] }
+          index: index_num
+          internal_network: { get_param: internal_network )
+          floating_ip: { get_resource: service_floating_ip }
+
+outputs:
+  service_floating_ip:
+    value: { get_attr: [ service_floating_ip, floating_ip_address ] }
+  fixed_ip_address:
+    value: { get_attr: [ service_association_and_port_group, fixed_ip_address ] }
