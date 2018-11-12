@@ -11,8 +11,13 @@ parameters:
     description: neutron network name to attach port on
 
 resources:
+<<<<<<< HEAD
   service_port:
     type: OS::Neutron::Port
+=======
+  service_floating_ip:
+    type: OS::Neutron::FloatingIP
+>>>>>>> f49364088e986708cc5476fbf2a6a71525a41348
     properties:
       name:
         str_replace:
@@ -34,11 +39,15 @@ resources:
           data:
             array: { get_param: [ external_services_json, { get_param: index }, floating_network  ] }
       resource_def:
+<<<<<<< HEAD
         type: external_services/external_services_fip.yaml
+=======
+        type: external_services_infra.yaml
+>>>>>>> f49364088e986708cc5476fbf2a6a71525a41348
         properties:
           external_services_floating_network: { get_param: [ external_services_json, { get_param: index }, floating_network ] }
           index: index_num
-          internal_network: { get_param: internal_network )
+          internal_network: { get_param: internal_network }
           floating_ip: { get_resource: service_floating_ip }
 
 outputs:

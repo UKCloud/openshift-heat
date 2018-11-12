@@ -142,11 +142,10 @@ parameters:
     type: json
     description: config to be used for external service deployment. See environment example for syntax.
     default: ""
-  external_services_security:
+  external_services_sec_rules:
     type: json
     description: parameter to define sec rules for external services
     default: ""
-    
 
 resources:
   external_services_infra:
@@ -177,11 +176,11 @@ resources:
         yaql:
           expression: $.data.array.len()
           data:
-            array: { get_param: [ external_services_security ] }
+            array: { get_param: [ external_services_sec_rules ] }
       resource_def:
         type: external_services/external_services_security.yaml
         properties:
-          external_services_sec_rules: { get_param: [ external_services_security ] }
+          external_services_sec_rules: { get_param: [ external_services_sec_rules ] }
           index: index_num  
 
   internal_network:
@@ -434,4 +433,4 @@ outputs:
   external_service_floating_ips:
     condition: external_service
     description: List of floating IPs assigned to external services
-    value: { get_attr: [ external_services, service_floating_ip ] }
+    value: { get_attr: [ external_services_infra, service_floating_ip ] }
