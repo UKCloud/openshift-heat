@@ -48,7 +48,7 @@ resources:
     properties:
       security_group: all_nodes_sg
       protocol: { get_param: [ external_services_sec_rules, { get_param: index}, proto ]}
-      remote_ip_prefix: { get_param: [ external_sec_rules, { get_param: index}, allowed_sources ] }
+      remote_ip_prefix: { get_param: [ external_services_sec_rules, { get_param: index}, allowed_sources ] }
       ethertype: IPv4
       direction: ingress
       port_range_max: { get_param: [ external_services_sec_rules, { get_param: index}, port ] }
