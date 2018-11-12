@@ -14,7 +14,7 @@ resources:
   service_floating_ip_association:
     type: OS::Neutron::FloatingIPAssociation
     properties:
-      floatingip_id: { get_resource: service_floating_ip }
+      floatingip_id: { get_param: floating_ip }
       port_id: { get_resource: service_port }
 
   service_port:
