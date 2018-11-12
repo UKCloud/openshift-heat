@@ -2,7 +2,7 @@ heat_template_version: 2016-10-14
 
 parameters:
   external_services_service_ip:
-    type: json
+    type: comma_delimited_list
   index:
     type: string
   internal_network:
