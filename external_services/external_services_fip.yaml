@@ -20,7 +20,6 @@ resources:
   
   service_floating_ip:
     type: OS::Neutron::FloatingIP
-    condition: floating_ip_create
     properties:
       floating_network: { get_param: [ external_services_json, { get_param: index }, floating_network ] }
 
