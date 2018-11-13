@@ -65,15 +65,9 @@ parameter_defaults:
   #  client_secret: <client secret>
   #  urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>"}'
   #external_services_config:
-<<<<<<< HEAD
   #  - service_ip: Neutron network IP for service. Must be within the external_service_subnet.
   #    floating_network: External network to expose the service on e.g. [ "Internet" ], must be a comma delimited list
-  #external_services_security:
-=======
-  #  - service_ip: Neutron network IP for service. Must be within the external_service_subnet. Comma Delimited List type
-  #    floating_network: External network to expose the service on e.g. Internet
   #external_services_sec_rules:
->>>>>>> f49364088e986708cc5476fbf2a6a71525a41348
   #  - proto: tcp or udp
   #    port: port to expose e.g. 3306
   #    allowed_sources: sources allowed to hit service e.g. 0.0.0.0/0
