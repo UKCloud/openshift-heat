@@ -21,7 +21,7 @@ resources:
             index: { get_param: index }
       network: { get_param: internal_network }
       fixed_ips:
-        [ip_address: { get_param: [ external_services_json, { get_param: index } ] }]
+        [ip_address: { get_param: [ external_services_json, { get_param: index }, service_ip ] }]
   
   service_association_and_fip:
     type: OS::Heat::ResourceGroup
@@ -38,6 +38,7 @@ resources:
           external_services_floating_network: { get_param: [ external_services_json, { get_param: index }, floating_network ] }
           index: index_num
           internal_network: { get_param: internal_network }
+          floating_port: { get_resource: service_port }
 
 outputs:
   service_floating_ip:

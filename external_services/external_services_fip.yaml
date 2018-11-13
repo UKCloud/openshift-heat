@@ -7,7 +7,7 @@ parameters:
     type: string
   internal_network:
     type: string
-  floating_ip:
+  floating_port:
     type: string
 
 resources:
@@ -16,12 +16,12 @@ resources:
     depends_on: [ service_floating_ip ]
     properties:
       floatingip_id: { get_resource: service_floating_ip }
-      port_id: { get_resource: service_port }
+      port_id: { get_param: floating_port }
   
   service_floating_ip:
     type: OS::Neutron::FloatingIP
     properties:
-      floating_network: { get_param: [ external_services_json, { get_param: index }, floating_network ] }
+      floating_network: { get_param: [ external_services_floating_network, { get_param: index } ] }
 
 outputs:
   floating_ip:
