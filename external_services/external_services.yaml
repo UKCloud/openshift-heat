@@ -55,4 +55,4 @@ outputs:
   service_floating_ip:
     value: { get_attr: [ service_floating_ip, floating_ip_address ] }
   service_internal_ip:
-    value: { get_attr: [ service_port, [ fixed_ips, 0, ip_address ] ] 
+    value: { get_attr: [ service_port, fixed_ips, [0, ip_address]] }
