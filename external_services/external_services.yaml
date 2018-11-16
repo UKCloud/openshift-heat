@@ -11,8 +11,23 @@ parameters:
     description: neutron network name to attach port on
 
 resources:
+  service_floating_ip_association:
+    type: OS::Neutron::FloatingIPAssociation
+    condition: ip_create
+    depends_on: [ service_floating_ip, service_port ]
+    properties:
+      floatingip_id: { get_resource: service_floating_ip }
+      port_id: { get_resource: service_port }
+
+  service_floating_ip:
+    type: OS::Neutron::FloatingIP
+    condition: ip_create
+    properties:
+      floating_network: { get_param: [ external_services_floating_network, { get_param: index } ] }
+
   service_port:
     type: OS::Neutron::Port
+    condition: port_create
     properties:
       name:
         str_replace:
@@ -22,24 +37,22 @@ resources:
       network: { get_param: internal_network }
       fixed_ips:
         [ip_address: { get_param: [ external_services_json, { get_param: index }, service_ip ] }]
-  
-  service_association_and_fip:
-    type: OS::Heat::ResourceGroup
-    properties:
-      index_var: index_num
-      count:
-        yaql:
-          expression: $.data.array.len()
-          data:
-            array: { get_param: [ external_services_json, { get_param: index }, floating_network  ] }
-      resource_def:
-        type: external_services_fip.yaml
-        properties:
-          external_services_floating_network: { get_param: [ external_services_json, { get_param: index }, floating_network ] }
-          index: index_num
-          internal_network: { get_param: internal_network }
-          floating_port: { get_resource: service_port }
 
+conditions:
+  ip_create:
+    not:
+     equals:
+     - get_param: [ external_services_json, { get_param: index }, floating_network ]
+     - ""
+
+  port_create:
+    not:
+      equals:
+      - get_param: [ external_services_json, { get_param: index }, service_ip ]
+      - ""
+  
 outputs:
   service_floating_ip:
-    value: { get_attr: [ service_association_and_fip, floating_ip ] }
+    value: { get_attr: [ service_floating_ip, floating_ip_address ] }
+  service_internal_ip:
+    value: { get_attr: [ service_port, [ fixed_ips, 0, ip_address ] ] 
