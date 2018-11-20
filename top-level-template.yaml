@@ -143,9 +143,9 @@ parameters:
     description: config to be used for external service deployment. See environment example for syntax.
     default: ""
   external_services_sec_rules:
-    type: comma_delimited_list
+    type: json
     description: parameter to define sec rules for external services
-    default: [""]
+    default: ""
 
 resources:
   external_services_infra:
