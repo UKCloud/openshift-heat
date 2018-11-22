@@ -9,16 +9,12 @@ parameters:
 
 resources:
   external_service_security_group_rule:
-  type: OS::Neutron::SecurityGroupRule
-  condition: sec_rule_create
-  properties:
-  repeat:
-    for_each:
-      <%sourceip%>: { get_param: [ external_services_sec_rules, { get_param: index}, allowed_sources ] }
-    template:
+    type: OS::Neutron::SecurityGroupRule
+    condition: sec_rule_create
+    properties:
       security_group: all_nodes_sg
       protocol: { get_param: [ external_services_sec_rules, { get_param: index}, proto ]}
-      remote_ip_prefix:
+      remote_ip_prefix: { get_param: [ external_services_sec_rules, { get_param: index}, allowed_sources ] }
       ethertype: IPv4
       direction: ingress
       port_range_max: { get_param: [ external_services_sec_rules, { get_param: index}, port ] }
