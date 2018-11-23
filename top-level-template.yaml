@@ -142,10 +142,6 @@ parameters:
     type: json
     description: config to be used for external service deployment. See environment example for syntax.
     default: ""
-  external_services_sec_rules:
-    type: json
-    description: parameter to define sec rules for external services
-    default: ""
 
 resources:
   internal_network:
