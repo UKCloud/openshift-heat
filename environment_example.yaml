@@ -67,8 +67,7 @@ parameter_defaults:
   #external_services_config:
   #  - service_ip: Neutron network IP for service. Must be within the external_service_subnet.
   #    floating_network: External network to expose the service on e.g. [ "Internet" ], must be a comma delimited list
-  #external_services_sec_rules:
-  #  - proto: tcp or udp
+  #    proto: tcp or udp
   #    port: port to expose e.g. 3306
   #    allowed_sources: sources allowed to hit service e.g. 0.0.0.0/0
   

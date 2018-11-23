@@ -11,13 +11,17 @@ parameters:
     description: neutron network name to attach port on
 
 resources:
-  service_floating_ip_association:
-    type: OS::Neutron::FloatingIPAssociation
-    condition: ip_create
-    depends_on: [ service_floating_ip, service_port ]
+  external_service_security_group_rule:
+    type: OS::Neutron::SecurityGroupRule
+    condition: sec_rule_create
     properties:
-      floatingip_id: { get_resource: service_floating_ip }
-      port_id: { get_resource: service_port }
+      security_group: external_service_sg
+      protocol: { get_param: [ external_services_json, { get_param: index}, proto ]}
+      remote_ip_prefix: { get_param: [ external_services_json, { get_param: index}, allowed_sources ] }
+      ethertype: IPv4
+      direction: ingress
+      port_range_max: { get_param: [ external_services_json, { get_param: index}, port ] }
+      port_range_min: { get_param: [ external_services_json, { get_param: index}, port ] }
 
   service_floating_ip:
     type: OS::Neutron::FloatingIP
@@ -38,6 +42,14 @@ resources:
       fixed_ips:
         [ip_address: { get_param: [ external_services_json, { get_param: index }, service_ip ] }]
 
+  service_floating_ip_association:
+    type: OS::Neutron::FloatingIPAssociation
+    condition: ip_create
+    depends_on: [ service_floating_ip, service_port ]
+    properties:
+      floatingip_id: { get_resource: service_floating_ip }
+      port_id: { get_resource: service_port }
+
 conditions:
   ip_create:
     not:
@@ -50,6 +62,19 @@ conditions:
       equals:
       - get_param: [ external_services_json, { get_param: index }, service_ip ]
       - ""
+
+  sec_rule_create:
+    not:
+      or:
+      - equals:
+        - get_param: [ external_services_json, { get_param: index }, port ]
+        - ""
+      - equals:
+        - get_param: [ external_services_json, { get_param: index }, proto ]
+        - ""
+      - equals:
+        - get_param: [ external_services_json, { get_param: index }, allowed_sources ]
+        - ""
   
 outputs:
   service_floating_ip:
