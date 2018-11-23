@@ -50,7 +50,6 @@
     ssoClientSecret: __sso_client_secret__
     ssoUrls: __sso_urls__
     externalServiceSubnet: __external_service_subnet__
-    externalServiceConfig: __external_service_config__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -251,7 +250,6 @@
           sso_client_secret: {{ ssoClientSecret }}
           sso_urls: '{{ ssoUrls | to_json }}'
           external_service_subnet: {{ externalServiceSubnet }}
-          external_service_config: {{ externalServiceConfig | to_json }}
 
     - name: create ansible variables directory
       file:

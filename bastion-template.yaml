@@ -157,9 +157,6 @@ parameters:
   external_service_subnet:
    type: string
    description: Internal subnet reserved for external service IPs
-  external_service_config:
-    type: json
-    description: config for external services
   
   
 
@@ -279,7 +276,6 @@ resources:
             __sso_client_secret__: { get_param: [ sso_config, client_secret ] }
             __sso_urls__: { get_param: [ sso_config, urls ] }
             __external_service_subnet__: { get_param: external_service_subnet }
-            __external_service_config__: { get_param: external_service_config } 
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
