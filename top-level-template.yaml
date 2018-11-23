@@ -137,6 +137,13 @@ parameters:
       client_id: "<client ID>"
       client_secret: "<client secret>"
       urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>"}'
+  registry_details:
+    type: json
+    description: Registry url, user and password for authenticated registry
+    default:
+      registry_url: "<registry_url>"
+      registry_user: "<registry_user>"
+      registry_password: "<registry_password>"
 
 resources:
   internal_network:
@@ -379,6 +386,7 @@ resources:
         set_node_routes: { get_param: set_node_routes }
         node_routes: { get_param: node_routes }
         sso_config: { get_param: sso_config }
+        registry_details: { get_param: registry_details }
 outputs:
   bastion_ip:
     description: External IP for connection to jump box.

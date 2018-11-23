@@ -49,6 +49,9 @@
     ssoClientId: __sso_client_id__
     ssoClientSecret: __sso_client_secret__
     ssoUrls: __sso_urls__
+    registryUrl: __registry_url__
+    registryUser: __registry_user__
+    registryPassword: __registry_password__
   tasks:
 
     - name: Check if stack update or create and register variable
@@ -248,6 +251,9 @@
           sso_client_id: {{ ssoClientId }}
           sso_client_secret: {{ ssoClientSecret }}
           sso_urls: '{{ ssoUrls | to_json }}'
+          registryUrl: {{ registryUrl }}
+          registryUser: {{ registryUser }}
+          registryPassword: {{ registryPassword }}
 
     - name: create ansible variables directory
       file:

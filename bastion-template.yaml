@@ -154,6 +154,10 @@ parameters:
     type: json
     description: Configuration needed for SSO integration
     hidden: true
+  registry_details:
+    type: json
+    description: Configuration needed for authenticated container registry
+    hidden: true
 
 resources:
   bastion_port:
@@ -270,6 +274,9 @@ resources:
             __sso_client_id__ : { get_param: [ sso_config, client_id ] }
             __sso_client_secret__: { get_param: [ sso_config, client_secret ] }
             __sso_urls__ : { get_param: [ sso_config, urls ] }
+            __registry_url__ : { get_param: [ registry_details, registry_url ] }
+            __registry_user__: { get_param: [ registry_details, registry_user ] }
+            __registry_password__ : { get_param: [ registry_details, registry_password ] }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
