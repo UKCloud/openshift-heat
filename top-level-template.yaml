@@ -417,9 +417,5 @@ outputs:
     value: { get_attr: [ bastion_deployment, outputs, bastion_ip ] }
   external_service_floating_ips:
     condition: external_service
-    description: List of floating IPs assigned to external services
-    value: { get_attr: [ external_services_infra, service_floating_ip ] }
-  internal_service_ips:
-    condition: external_service
-    description: List of internal IPs assigned to neutron ports for external services
-    value: { get_attr: [ external_services_infra, service_internal_ip ] }
+    description: External service floating IP and internal IP pairs
+    value: { get_attr: [ external_services_infra, external_service_ip_pair ]}

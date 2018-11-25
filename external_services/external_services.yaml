@@ -64,9 +64,6 @@ conditions:
       - false
 
 outputs:
-  service_floating_ip:
+  external_service_ip_pair:
     condition: port_ip_create
-    value: { get_attr: [ service_floating_ip, floating_ip_address ] }
-  service_internal_ip:
-    condition: port_ip_create
-    value: { get_attr: [ service_port, fixed_ips, 0, ip_address ] }
+    value: [{ get_attr: [ service_floating_ip, floating_ip_address ] }, { get_attr: [ service_port, fixed_ips, 0, ip_address ] }]
