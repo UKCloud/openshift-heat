@@ -25,13 +25,13 @@ resources:
 
   service_floating_ip:
     type: OS::Neutron::FloatingIP
-    condition: ip_create
+    condition: port_ip_create
     properties:
       floating_network: { get_param: [ external_services_json, { get_param: index }, floating_network ] }
 
   service_port:
     type: OS::Neutron::Port
-    condition: port_create
+    condition: port_ip_create
     properties:
       name:
         str_replace:
@@ -44,42 +44,26 @@ resources:
 
   service_floating_ip_association:
     type: OS::Neutron::FloatingIPAssociation
-    condition: ip_create
+    condition: port_ip_create
     depends_on: [ service_floating_ip, service_port ]
     properties:
       floatingip_id: { get_resource: service_floating_ip }
       port_id: { get_resource: service_port }
 
 conditions:
-  ip_create:
-    not:
-     equals:
-     - get_param: [ external_services_json, { get_param: index }, floating_network ]
-     - ""
-
-  port_create:
+  port_ip_create:
     not:
       equals:
-      - get_param: [ external_services_json, { get_param: index }, service_ip ]
-      - ""
+      - get_param: [ external_services_json, { get_param: index }, port_ip_deploy ]
+      - false
 
   sec_rule_create:
     not:
-      or:
-      - equals:
-        - get_param: [ external_services_json, { get_param: index }, port ]
-        - ""
-      - equals:
-        - get_param: [ external_services_json, { get_param: index }, proto ]
-        - ""
-      - equals:
-        - get_param: [ external_services_json, { get_param: index }, allowed_sources ]
-        - ""
-  
+      equals:
+      - get_param: [ external_services_json, { get_param: index }, sec_rule_deploy ]
+      - false
+
 outputs:
-  service_floating_ip:
-    condition: ip_create
-    value: { get_attr: [ service_floating_ip, floating_ip_address ] }
-  service_internal_ip:
-    condition: port_create
-    value: { get_attr: [ service_port, fixed_ips, 0, ip_address ] }
+  external_service_ip_pair:
+    condition: port_ip_create
+    value: [{ get_attr: [ service_floating_ip, floating_ip_address ] }, { get_attr: [ service_port, fixed_ips, 0, ip_address ] }]
