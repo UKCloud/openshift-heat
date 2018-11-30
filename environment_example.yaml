@@ -62,7 +62,7 @@ parameter_defaults:
   #sso_config:
   #  client_id: <client ID>
   #  client_secret: <client secret>
-  #  urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>"}'
+  #  urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>","logout": "<logout_url>"}'
   # Example of passing in configuration for authenticated RH registry
   # This is required as of v3.11 of OpenShift
   #registry_details:
