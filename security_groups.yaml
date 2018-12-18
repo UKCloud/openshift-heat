@@ -168,7 +168,7 @@ resources:
       rules:
         - direction: ingress
           remote_mode: remote_group_id
-          remote_group_id: { get_resource: net2_nodes_secgroup }
+          remote_group_id: { get_resource: all_nodes_egress_secgroup }
           protocol: tcp
           port_range_min: 3128
           port_range_max: 3128
