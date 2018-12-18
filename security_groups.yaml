@@ -161,6 +161,18 @@ resources:
             port_range_min: <%port%>
             port_range_max: <%port%>
 
+  proxy_controlplane_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: proxy_controlplane_sg
+      rules:
+        - direction: ingress
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: net2_nodes_secgroup }
+          protocol: tcp
+          port_range_min: 3128
+          port_range_max: 3128
+
   vrrp_controlplane_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -544,3 +556,6 @@ outputs:
   vrrp_net2_security_group:
     description: Net2 LB VRRP security group
     value: { get_resource: vrrp_net2_secgroup }
+  proxy_security_group:
+    description: Net2 LB VRRP security group
+    value: { get_resource: proxy_controlplane_secgroup }
