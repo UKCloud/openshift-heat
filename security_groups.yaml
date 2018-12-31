@@ -300,15 +300,15 @@ resources:
           remote_mode: remote_group_id
           remote_group_id: { get_resource: net2_lb_egress_secgroup }
           protocol: tcp
-          port_range_min: 6080
-          port_range_max: 6080
+          port_range_min: 5080
+          port_range_max: 5080
         - direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
           remote_group_id: { get_resource: net2_lb_egress_secgroup }
           protocol: tcp
-          port_range_min: 6443
-          port_range_max: 6443
+          port_range_min: 5443
+          port_range_max: 5443
           
 
   internet_nodes_secgroup:
