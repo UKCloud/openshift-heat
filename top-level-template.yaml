@@ -137,7 +137,7 @@ parameters:
     default:
       client_id: "<client ID>"
       client_secret: "<client secret>"
-      urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>"}'
+      urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>","logout": "<logout_url>"}'
   external_services_config:
     type: json
     description: config to be used for external service deployment. See environment example for syntax.
@@ -183,10 +183,14 @@ resources:
           index: index_num
           internal_network: { get_attr: [ internal_network, outputs, network ] }
 
+  server_groups:
+    type: OS::Heat::Stack
+    properties:
+      template: { get_file: server_groups.yaml }
 
   control_plane_lb:
     type: OS::Heat::Stack
-    depends_on: [ internal_network, security_groups ]
+    depends_on: [ internal_network, security_groups, server_groups ]
     properties:
       template: { get_file: loadbalancers.yaml }
       parameters:
@@ -197,6 +201,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        server_group: { get_attr: [server_groups, outputs, loadbalancers-servergroup] }
         security_groups:
           - { get_attr: [ security_groups, outputs, control_plane_lb_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
@@ -208,7 +213,7 @@ resources:
 
   master_nodes_deployment:
     type: OS::Heat::Stack
-    depends_on: [ internal_network, security_groups ]
+    depends_on: [ internal_network, security_groups, server_groups ]
     properties:
       template: { get_file: node_group.yaml }
       parameters:
@@ -225,6 +230,7 @@ resources:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         external_service_subnet: { get_param: [ network_config, service_subnet ] }
+        server_group: { get_attr: [server_groups, outputs, masters-servergroup] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, masters_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -235,7 +241,7 @@ resources:
 
   infra_nodes_deployment:
     type: OS::Heat::Stack
-    depends_on: [ internal_network, security_groups ]
+    depends_on: [ internal_network, security_groups, server_groups ]
     properties:
       template: { get_file: node_group.yaml }
       parameters:
@@ -248,6 +254,7 @@ resources:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         external_service_subnet: { get_param: [ network_config, service_subnet ] }
+        server_group: { get_attr: [server_groups, outputs, infra-servergroup] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, infra_nodes_egress_security_group ] }
@@ -260,7 +267,7 @@ resources:
 
   worker_small_nodes_deployment:
     type: OS::Heat::Stack
-    depends_on: [ internal_network, security_groups ]
+    depends_on: [ internal_network, security_groups, server_groups ]
     properties:
       template: { get_file: node_group.yaml }
       parameters:
@@ -273,6 +280,7 @@ resources:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         external_service_subnet: { get_param: [ network_config, service_subnet ] }
+        server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -285,7 +293,7 @@ resources:
 
   worker_medium_nodes_deployment:
     type: OS::Heat::Stack
-    depends_on: [ internal_network, security_groups ]
+    depends_on: [ internal_network, security_groups, server_groups ]
     properties:
       template: { get_file: node_group.yaml }
       parameters:
@@ -298,6 +306,7 @@ resources:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         external_service_subnet: { get_param: [ network_config, service_subnet ] }
+        server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -310,7 +319,7 @@ resources:
 
   worker_large_nodes_deployment:
     type: OS::Heat::Stack
-    depends_on: [ internal_network, security_groups ]
+    depends_on: [ internal_network, security_groups, server_groups ]
     properties:
       template: { get_file: node_group.yaml }
       parameters:
@@ -323,6 +332,7 @@ resources:
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
         external_service_subnet: { get_param: [ network_config, service_subnet ] }
+        server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
         cluster_security_groups:
           - { get_attr: [ security_groups, outputs, internet_nodes_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -335,7 +345,7 @@ resources:
 
   data_plane_lb:
     type: OS::Heat::Stack
-    depends_on: [ internal_network, security_groups ]
+    depends_on: [ internal_network, security_groups, server_groups ]
     properties:
       template: { get_file: loadbalancers.yaml }
       parameters:
@@ -346,6 +356,7 @@ resources:
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        server_group: { get_attr: [server_groups, outputs, loadbalancers-servergroup] }
         security_groups:
           - { get_attr: [ security_groups, outputs, internet_lb_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }

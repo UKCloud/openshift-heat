@@ -17,7 +17,7 @@ parameters:
   image:
     type: string
     description: Image ID or image name to use for the server
-    default: "rhel-atomic-cloud-7.4.2-8"
+    default: "rhel-atomic-cloud-7.5.4"
     constraints:
       - custom_constraint: glance.image
   key_name:
@@ -59,6 +59,9 @@ parameters:
   external_service_subnet:
     type: string
     description: subnet to be used when deploying external services
+  server_group:
+    type: string
+    description: server group to associate nodes with
   storage_setup:
     type: string
     description: The contents for /etc/sysconfig/docker-storage-setup
@@ -68,16 +71,6 @@ parameters:
       DATA_SIZE=70G
 
 resources:
-
-  node-servergroup:
-    type: OS::Nova::ServerGroup
-    properties:
-      name: 
-        str_replace:
-          template: nodetype-servergroup
-          params:
-            nodetype: { get_param: node_type }
-      policies: [ 'anti-affinity' ]
 
   node_group:
     type: OS::Heat::ResourceGroup

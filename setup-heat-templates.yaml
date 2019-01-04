@@ -136,7 +136,7 @@
 
           net2_nodes_small_deployment:
             type: OS::Heat::Stack
-            depends_on: [ internal_network, security_groups ]
+            depends_on: [ internal_network, security_groups, server_groups ]
             properties:
               template: { get_file: node_group.yaml }
               parameters:
@@ -149,6 +149,7 @@
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
                 external_service_subnet: { get_param: [ network_config, service_subnet ] }
+                server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
                 cluster_security_groups:
                   - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -161,7 +162,7 @@
 
           net2_nodes_medium_deployment:
             type: OS::Heat::Stack
-            depends_on: [ internal_network, security_groups ]
+            depends_on: [ internal_network, security_groups, server_groups ]
             properties:
               template: { get_file: node_group.yaml }
               parameters:
@@ -174,6 +175,7 @@
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
                 external_service_subnet: { get_param: [ network_config, service_subnet ] }
+                server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
                 cluster_security_groups:
                   - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -186,7 +188,7 @@
 
           net2_nodes_large_deployment:
             type: OS::Heat::Stack
-            depends_on: [ internal_network, security_groups ]
+            depends_on: [ internal_network, security_groups, server_groups ]
             properties:
               template: { get_file: node_group.yaml }
               parameters:
@@ -199,6 +201,7 @@
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
                 external_service_subnet: { get_param: [ network_config, service_subnet ] }
+                server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
                 cluster_security_groups:
                   - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_egress_security_group ] }
@@ -211,7 +214,7 @@
 
           data_plane_net2_lb:
             type: OS::Heat::Stack
-            depends_on: [ internal_network, security_groups, net2_gateway ]
+            depends_on: [ internal_network, security_groups, server_groups, net2_gateway ]
             properties:
               template: { get_file: loadbalancers.yaml }
               parameters:
@@ -222,6 +225,7 @@
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                server_group: { get_attr: [server_groups, outputs, loadbalancers-servergroup] }
                 security_groups:
                   - { get_attr: [ security_groups, outputs, net2_lb_egress_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_net2_egress_security_group ] }
