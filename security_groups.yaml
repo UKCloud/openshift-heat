@@ -37,9 +37,6 @@ resources:
     type: OS::Neutron::SecurityGroup
     properties:
       name: external_service_sg
-      rules:
-        - direction: egress
-          ethertype: IPv4
 
   bastion_egress_secgroup:
     type: OS::Neutron::SecurityGroup
@@ -469,7 +466,7 @@ resources:
 
 outputs:
   external_service_security_group:
-    description: Externally exposed service se\curity group
+    description: Externally exposed service security group
     value: { get_resource: external_service_secgroup }
   bastion_egress_security_group:
     description: Bastion egress security group
