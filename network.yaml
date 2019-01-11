@@ -55,3 +55,5 @@ outputs:
     value: { get_resource: network }
   subnet:
     value: { get_attr: [ subnet, name ] }
+  gateway_snat:
+    value: { get_attr: [ InternetGW, external_gateway_info, external_fixed_ips, 0, ip_address] }   

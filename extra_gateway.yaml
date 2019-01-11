@@ -40,3 +40,5 @@ outputs:
   gateway:
     description: Internal address gateway is accessible on
     value: { get_attr: [ router_port, fixed_ips, 0, ip_address  ] }
+  gateway_snat:
+    value: { get_attr: [ router, external_gateway_info, external_fixed_ips, 0, ip_address] }   

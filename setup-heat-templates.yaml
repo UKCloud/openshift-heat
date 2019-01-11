@@ -229,7 +229,7 @@
   - name: add net2 parameters to bastion_deployment if required
     blockinfile:
       dest: openshift.yaml
-      insertbefore: "outputs:"
+      insertbefore: "registry_details: { get_param: registry_details }"
       marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment net2 details"
       block: |2
                 # details of the net-x facing node stack:
@@ -326,7 +326,7 @@
   - name: add extra gateway parameters to bastion_deployment if required
     blockinfile:
       dest: openshift.yaml
-      insertbefore: "outputs:"
+      insertbefore: "registry_details: { get_param: registry_details }"
       marker: "        # ANSIBLE MANAGED BLOCK - bastion_deployment extra gateway details"
       block: |2
                 extra_gateway: { get_attr: [ extra_gateway, outputs, gateway ] }
