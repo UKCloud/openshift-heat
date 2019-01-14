@@ -95,8 +95,8 @@ resources:
           port_network: { get_param: internal_network }
           sec_groups: { get_param: cluster_security_groups }
           storage_setup: { get_param: storage_setup }
-          server_group: { get_resource: node-servergroup }
           external_service_subnet: { get_param: external_service_subnet }
+          server_group: { get_param: server_group }
 
 outputs:
   node_list:

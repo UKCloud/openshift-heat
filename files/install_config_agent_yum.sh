@@ -53,7 +53,7 @@ retry subscription-manager repos \
         --enable=rhel-7-server-openstack-9-rpms \
         --enable=rhel-7-server-openstack-9-director-rpms \
         --enable=rhel-7-server-rh-common-rpms \
-        --enable=rhel-7-server-ansible-2.4-rpms \
+        --enable=rhel-7-server-ansible-2.6-rpms \
         --enable=rhel-7-server-satellite-tools-6.3-rpms
 
 retry yum install -y \

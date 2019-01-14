@@ -50,6 +50,9 @@
     ssoClientSecret: __sso_client_secret__
     ssoUrls: __sso_urls__
     externalServiceSubnet: __external_service_subnet__
+    registryUrl: __registry_url__
+    registryUser: __registry_user__
+    registryPassword: __registry_password__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -64,7 +67,7 @@
 
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:
-        dest: hosts.j2
+        dest: /tmp/hosts.j2
         create: yes
         block: |
           127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
@@ -110,7 +113,7 @@
           {{ haproxy_vip }} ocp.{{ domainSuffix }}
 
     - name: update hosts file
-      template: src=hosts.j2 dest=/etc/hosts
+      template: src=/tmp/hosts.j2 dest=/etc/hosts
       when: stack_create
 
     - name: disable TTY for sudo on bastion
@@ -124,7 +127,7 @@
 
     - name: create ansible variables template
       blockinfile:
-        dest: ansible_vars.j2
+        dest: /tmp/ansible_vars.j2
         create: yes
         block: |
           master_details:
@@ -250,6 +253,9 @@
           sso_client_secret: {{ ssoClientSecret }}
           sso_urls: '{{ ssoUrls | to_json }}'
           external_service_subnet: {{ externalServiceSubnet }}
+          registryUrl: {{ registryUrl }}
+          registryUser: {{ registryUser }}
+          registryPassword: {{ registryPassword }}
 
     - name: create ansible variables directory
       file:
@@ -262,7 +268,7 @@
         state: touch
 
     - name: place ansible vars file
-      template: src=ansible_vars.j2 dest=/etc/ansible/group_vars/all.yml
+      template: src=/tmp/ansible_vars.j2 dest=/etc/ansible/group_vars/all.yml
 
     # Change the branch name by changing 'version', below
     - name: Pull UKCloud openshift code

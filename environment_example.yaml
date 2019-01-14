@@ -60,13 +60,19 @@ parameter_defaults:
   #  bastion_ip: "10.3.1.101"
   #  service_subnet: This should be a /29 starting at .240 unless more addresses are required. .249-.254 will be left for routers "10.3.1.240/29"
   # Example of passing in configuration for SSO
-  #sso_config:
-  #  client_id: <client ID>
-  #  client_secret: <client secret>
-  #  urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>","logout": "<logout_url>"}'
   #external_services_config:
   #  - service_ip: Neutron network IP for service. Must be within the external_service_subnet.
   #    floating_network: External network to expose the service on e.g. [ "Internet" ], must be a comma delimited list
   #    proto: tcp or udp
   #    port: port to expose e.g. 3306
   #    allowed_sources: sources allowed to hit service e.g. 0.0.0.0/0
+  #sso_config:
+  #  client_id: <client ID>
+  #  client_secret: <client secret>
+  #  urls: '{"authorize": "<authorize_url>","token": "<token_url>","userInfo": "<userinfo_url>","logout": "<logout_url>"}'
+  # Example of passing in configuration for authenticated RH registry
+  # This is required as of v3.11 of OpenShift
+  #registry_details:
+  #  registry_url: "<registry_url>"
+  #  registry_user: "<registry_user>"
+  #  registry_password: "<registry_password>"

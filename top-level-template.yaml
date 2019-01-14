@@ -142,6 +142,14 @@ parameters:
     type: json
     description: config to be used for external service deployment. See environment example for syntax.
     default: ""
+  registry_details:
+    type: json
+    description: Registry url, user and password for authenticated registry
+    default:
+      registry_url: "<registry_url>"
+      registry_user: "<registry_user>"
+      registry_password: "<registry_password>"
+
 
 resources:
   internal_network:
@@ -210,6 +218,7 @@ resources:
           - { get_attr: [ security_groups, outputs, dns_internet_security_group ] }
           - { get_attr: [ security_groups, outputs, dns_forwarder_security_group ] }
           - { get_attr: [ security_groups, outputs, vrrp_controlplane_security_group ] }
+          - { get_attr: [ security_groups, outputs, proxy_security_group ] }
 
   master_nodes_deployment:
     type: OS::Heat::Stack
@@ -414,8 +423,14 @@ resources:
         node_routes: { get_param: node_routes }
         sso_config: { get_param: sso_config }
         external_service_subnet: { get_param: [ network_config, service_subnet ] }
+        registry_details: { get_param: registry_details }
+
 
 conditions:
+  multinetwork:
+    get_param: multinetwork
+  extra_gateway:
+    get_param: deploy_extra_gateway
   external_service:
     not:
       equals:
@@ -430,3 +445,39 @@ outputs:
     condition: external_service
     description: External service floating IP and internal IP pairs
     value: { get_attr: [ external_services_infra, external_service_ip_pair ]}
+  url:
+    description: URL for control plane of cluster.
+    value:
+      str_replace:
+        template: https://ocp.domain:8443
+        params:
+          domain: { get_param: domain_suffix }
+#  internet_dataplane:
+  internet_snat:
+    description: egress IP for outbound connectivity on internet
+    value: { get_attr: [ internal_network, outputs, gateway_snat ] }
+  net2_dataplane:
+    description: dataplane IP on net2 network
+    value: { get_attr: [ net2_floating_ip, floating_ip_address ] }
+    condition: multinetwork
+  net2_gateway_snat:
+    description: egress IP for outbound connectivity on net2 network
+    value: { get_attr: [ net2_gateway, outputs, gateway_snat ] }
+    condition: multinetwork
+  extra_gateway_dataplane:
+    description: dataplane IP on extra_gateway network
+    value: { get_attr: [ extra_gateway_floating_ip, floating_ip_address ] }
+    condition: extra_gateway
+  extra_gateway_snat:
+    description: egress IP for outbound connectivity on extra_gateway network
+    value: { get_attr: [ net2_gateway, outputs, gateway_snat ] }
+    condition: extra_gateway
+  internal_subnet:
+    description: subnet used for internal network
+    value: { get_param: [ network_config, cidr ] }
+  control_plane_whitelist:
+    description: whitelisted addresses for control plane access
+    value: { get_param: control_plane_allowed_sources }
+  data_plane_whitelist:
+    description: whitelisted addresses for data plane access
+    value: { get_param: data_plane_allowed_sources }
