@@ -90,13 +90,15 @@ parameters:
   internal_network_subnet:
     type: string
     description: subnet of network to attach to
+  internal_network_cidr:
+    type: string
+    description: cidr of internal network
   bastion_fixed_ip:
     type: string
     description: fixed IP of the bastion in this stack
   server_security_groups:
     type: comma_delimited_list
     description: Security groups for server
-
   install_logging:
     type: boolean
     description: Whether to deploy the aggregated logging stack into the environment
@@ -270,7 +272,7 @@ resources:
             __external_dns__ : { get_param: external_dns }
             __set_node_routes__ : { get_param: set_node_routes }
             __node_routes__ : { get_param: node_routes }
-            __internal_network_subnet__ : { get_param: internal_network_subnet }
+            __internal_network_cidr__ : { get_param: internal_network_cidr }
             __bastion_ip__ : { get_param: bastion_fixed_ip }
             __sso_client_id__ : { get_param: [ sso_config, client_id ] }
             __sso_client_secret__: { get_param: [ sso_config, client_secret ] }
