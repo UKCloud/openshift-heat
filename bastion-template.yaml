@@ -270,7 +270,7 @@ resources:
             __external_dns__ : { get_param: external_dns }
             __set_node_routes__ : { get_param: set_node_routes }
             __node_routes__ : { get_param: node_routes }
-            __internal_network_subnet__: { get param: internal_network_subnet}
+            __internal_network_subnet__ : { get_param: internal_network_subnet }
             __bastion_ip__ : { get_param: bastion_fixed_ip }
             __sso_client_id__ : { get_param: [ sso_config, client_id ] }
             __sso_client_secret__: { get_param: [ sso_config, client_secret ] }
