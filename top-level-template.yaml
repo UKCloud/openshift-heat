@@ -396,6 +396,7 @@ resources:
         do_upgrades: { get_param: do_upgrades }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        internal_network_cidr: { get_param: [ network_config, cidr ] }
         bastion_fixed_ip: { get_param: [ network_config, bastion_ip ] }
         external_network: { get_param: external_network_cp }
         external_dns: { get_param: external_dns }
