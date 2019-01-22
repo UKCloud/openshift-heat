@@ -428,7 +428,7 @@ outputs:
     condition: extra_gateway
   extra_gateway_snat:
     description: egress IP for outbound connectivity on extra_gateway network
-    value: { get_attr: [ net2_gateway, outputs, gateway_snat ] }
+    value: { get_attr: [ extra_gateway, outputs, gateway_snat ] }
     condition: extra_gateway
   internal_subnet:
     description: subnet used for internal network
