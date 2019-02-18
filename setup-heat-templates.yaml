@@ -303,7 +303,7 @@
 
           extra_gateway_dataplane:
             type: OS::Heat::Stack
-            depends_on: [ extra_gateway ]
+            depends_on: [ extra_gateway, extra_gateway_floating_ip ]
             properties:
               template: { get_file: floatingip.yaml }
               parameters:
