@@ -79,6 +79,7 @@ resources:
              fi
              ln -sf /usr/share/zoneinfo/UTC /etc/localtime
              nmcli d connect eth1
+             systemctl enable rhsmcertd --now
 
   port:
     type: OS::Neutron::Port
