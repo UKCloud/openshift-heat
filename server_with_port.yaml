@@ -77,9 +77,9 @@ resources:
              	subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
              	yum install -y katello-agent
              fi
-             ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-             nmcli d connect eth1
              systemctl enable rhsmcertd --now
+             ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+             nmcli d connect eth1           
 
   port:
     type: OS::Neutron::Port
