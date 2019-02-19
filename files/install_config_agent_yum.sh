@@ -84,3 +84,5 @@ retry yum install -y \
         atomic-openshift-clients \
         vim \
         tmux
+
+retry systemctl enable rhsmcertd --now
