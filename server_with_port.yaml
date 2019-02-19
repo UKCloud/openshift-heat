@@ -78,8 +78,7 @@ resources:
              	yum install -y katello-agent
              fi
              systemctl enable rhsmcertd --now
-             ln -sf /usr/share/zoneinfo/UTC /etc/localtime
-             nmcli d connect eth1           
+             ln -sf /usr/share/zoneinfo/UTC /etc/localtime          
 
   port:
     type: OS::Neutron::Port
