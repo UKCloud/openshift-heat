@@ -106,4 +106,6 @@ Final update is run re-creating the resources.
 
 Finally, the best way to go about updating these parameters is to create your own yaml file containing the block (in this example it's service-update.yml) and running the following:
 
+'''
 openstack stack update <stack> --existing -e service-update.yml
+'''
