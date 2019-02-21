@@ -1,4 +1,4 @@
-his readme intends to give you the information required to run stack updates that deploy the necessary infrastructure to allow nonhttp services to be exposed outside our clusters. The following parameter addition is required to deploy even if you are not exposing any services:
+This readme intends to give you the information required to run stack updates that deploy the necessary infrastructure to allow nonhttp services to be exposed outside our clusters. The following parameter addition is required to deploy even if you are not exposing any services:
 
 ```
  network_config:
