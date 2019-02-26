@@ -50,11 +50,12 @@
     ssoClientId: __sso_client_id__
     ssoClientSecret: __sso_client_secret__
     ssoUrls: __sso_urls__
+    externalServiceSubnet: __external_service_subnet__
     registryUrl: __registry_url__
     registryUser: __registry_user__
     registryPassword: __registry_password__
-  tasks:
 
+  tasks:
     - name: Check if stack update or create and register variable
       shell: if [[ $(openstack stack show "openshift-{{ osTenantName }}" -f value -c stack_status \
                 --os-auth-url "{{ osAuthUrl }}" \
@@ -253,6 +254,7 @@
           sso_client_id: {{ ssoClientId }}
           sso_client_secret: {{ ssoClientSecret }}
           sso_urls: '{{ ssoUrls | to_json }}'
+          external_service_subnet: {{ externalServiceSubnet }}
           registryUrl: {{ registryUrl }}
           registryUser: {{ registryUser }}
           registryPassword: {{ registryPassword }}
@@ -293,4 +295,4 @@
         owner: cloud-user
         group: cloud-user
         recurse: yes
-      when: stack_create
+      when: stack_create 

@@ -148,6 +148,7 @@
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                external_service_subnet: { get_param: [ network_config, service_subnet ] }
                 server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
                 cluster_security_groups:
                   - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
@@ -156,6 +157,8 @@
                   - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
                   - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
+                  - { get_attr: [ security_groups, outputs, external_service_security_group ] }
+                  - { get_attr: [ security_groups, outputs, vrrp_nodes_security_group ] }
 
           net2_nodes_medium_deployment:
             type: OS::Heat::Stack
@@ -171,6 +174,7 @@
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                external_service_subnet: { get_param: [ network_config, service_subnet ] }
                 server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
                 cluster_security_groups:
                   - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
@@ -179,6 +183,8 @@
                   - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
                   - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
+                  - { get_attr: [ security_groups, outputs, external_service_security_group ] }
+                  - { get_attr: [ security_groups, outputs, vrrp_nodes_security_group ] }
 
           net2_nodes_large_deployment:
             type: OS::Heat::Stack
@@ -194,6 +200,7 @@
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+                external_service_subnet: { get_param: [ network_config, service_subnet ] }
                 server_group: { get_attr: [server_groups, outputs, nodes-servergroup] }
                 cluster_security_groups:
                   - { get_attr: [ security_groups, outputs, net2_nodes_egress_security_group ] }
@@ -202,6 +209,8 @@
                   - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
                   - { get_attr: [ security_groups, outputs, all_nodes_security_group ] }
                   - { get_attr: [ security_groups, outputs, net2_nodes_security_group ] }
+                  - { get_attr: [ security_groups, outputs, external_service_security_group ] }
+                  - { get_attr: [ security_groups, outputs, vrrp_nodes_security_group ] }
 
           data_plane_net2_lb:
             type: OS::Heat::Stack

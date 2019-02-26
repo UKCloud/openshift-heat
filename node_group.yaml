@@ -56,6 +56,9 @@ parameters:
   cluster_security_groups:
     type: comma_delimited_list
     description: Security groups for cluster
+  external_service_subnet:
+    type: string
+    description: subnet to be used when deploying external services
   server_group:
     type: string
     description: server group to associate nodes with
@@ -92,6 +95,7 @@ resources:
           port_network: { get_param: internal_network }
           sec_groups: { get_param: cluster_security_groups }
           storage_setup: { get_param: storage_setup }
+          external_service_subnet: { get_param: external_service_subnet }
           server_group: { get_param: server_group }
 
 outputs:

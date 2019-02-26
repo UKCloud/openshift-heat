@@ -47,6 +47,9 @@ parameters:
   server_group:
     type: string
     label: group server belongs to
+  external_service_subnet:
+    type: string
+    description: Subnet to be used for external services
 
 resources:
   resize_lv:
@@ -114,6 +117,7 @@ resources:
             servername: { get_param: server_name }
       network: { get_param: port_network }
       security_groups: { get_param: sec_groups }
+      allowed_address_pairs: [ ip_address: { get_param: external_service_subnet } ]
 
 outputs:
   server_ip:

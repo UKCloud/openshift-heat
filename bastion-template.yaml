@@ -156,6 +156,9 @@ parameters:
     type: json
     description: Configuration needed for SSO integration
     hidden: true
+  external_service_subnet:
+   type: string
+   description: Internal subnet reserved for external service IPs
   registry_details:
     type: json
     description: Configuration needed for authenticated container registry
@@ -276,7 +279,8 @@ resources:
             __bastion_ip__ : { get_param: bastion_fixed_ip }
             __sso_client_id__ : { get_param: [ sso_config, client_id ] }
             __sso_client_secret__: { get_param: [ sso_config, client_secret ] }
-            __sso_urls__ : { get_param: [ sso_config, urls ] }
+            __sso_urls__: { get_param: [ sso_config, urls ] }
+            __external_service_subnet__: { get_param: external_service_subnet }
             __registry_url__ : { get_param: [ registry_details, registry_url ] }
             __registry_user__: { get_param: [ registry_details, registry_user ] }
             __registry_password__ : { get_param: [ registry_details, registry_password ] }

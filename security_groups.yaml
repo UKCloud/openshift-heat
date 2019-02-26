@@ -33,6 +33,11 @@ parameters:
     default: [ "0.0.0.0/0" ]
 
 resources:
+  external_service_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: external_service_sg
+
   bastion_egress_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -354,6 +359,16 @@ resources:
           port_range_min: 443
           port_range_max: 443
 
+  vrrp_nodes_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: vrrp_nodes_sg
+      rules:
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          protocol: vrrp
+
   dns_internet_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -468,6 +483,9 @@ resources:
           remote_group_id: { get_resource: all_net2_egress_secgroup }
 
 outputs:
+  external_service_security_group:
+    description: Externally exposed service security group
+    value: { get_resource: external_service_secgroup }
   bastion_egress_security_group:
     description: Bastion egress security group
     value: { get_resource: bastion_egress_secgroup }
@@ -501,6 +519,9 @@ outputs:
   all_internet_egress_security_group:
     description: All internet facing servers egress security group
     value: { get_resource: all_internet_egress_secgroup }
+  vrrp_nodes_security_group:
+    description: VRRP access between tenant and net2 nodes
+    value: { get_resource: vrrp_nodes_secgroup }
 
   bastion_external_security_group:
     description: Bastion external security group
