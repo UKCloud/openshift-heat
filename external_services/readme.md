@@ -12,7 +12,7 @@ This readme intends to give you the information required to run stack updates th
     service_subnet: "10.3.1.240/29" # This is the new addition. It's the subnet to be used for service_ip on services. Must be within internal network range and not conflict with allocation pool.
 ```
 
-The parameter used to deploy the actual external_services infrastructure is external_services_config, this can be hashed out if not required and it will not try to create the external services resource at the top level. If you do want to use an external service then the following block is an example:
+The parameter used to deploy the actual external_services infrastructure is ```external_services_config``` this can be hashed out if not required and it will not try to create the external services resource at the top level. If you do want to use an external service then the following block is an example:
 
 ```
  external_services_config:
@@ -56,7 +56,7 @@ What if a customer wants to expose multiple services on a single IP? Well let's 
       allowed_sources: 0.0.0.0/0
 ```
 
-In the above port_ip_deploy: false specifies to not create a floating IP or internal IP so the second block is only creating a security rule allowing access to the nodes on port 53 from all sources. You could then expose two services on 10.3.1.240 from inside the cluster and each would be reachable on the same floating IP.
+In the above ```port_ip_deploy: false``` specifies to not create a floating IP or internal IP so the second block is only creating a security rule allowing access to the nodes on port 53 from all sources. You could then expose two services on 10.3.1.240 from inside the cluster and each would be reachable on the same floating IP.
 
 To remove a resource you would simply change the block it exists in to the following:
 
@@ -70,9 +70,9 @@ To remove a resource you would simply change the block it exists in to the follo
       allowed_sources: 0.0.0.0/0
 ```
 
-In the above the first block used to create an internal IP of 10.3.1.240, map a floating IP from the internet to it and create a security rule allowing access on 3306. port_ip_deploy: false and sec_rule_deploy: false will ensure that when you update the stack this resource block will be evaluated and all resources previously related to it will be destroyed.
+In the above the first block used to create an internal IP of 10.3.1.240, map a floating IP from the internet to it and create a security rule allowing access on 3306. ```port_ip_deploy: false``` and ```sec_rule_deploy: false``` will ensure that when you update the stack this resource block will be evaluated and all resources previously related to it will be destroyed.
 
-If you wanted to change a floating IP to a different network you cannot simply overwrite the floating_network parameter and update. You first need to destroy the resources from the block in an update and then specify a new network and update. The stages would be:
+If you wanted to change a floating IP to a different network you cannot simply overwrite the ```floating_network``` parameter and update. You first need to destroy the resources from the block in an update and then specify a new network and update. The stages would be:
 
 ```
  external_services_config:
