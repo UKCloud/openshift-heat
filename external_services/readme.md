@@ -22,6 +22,9 @@ The parameter used to deploy the actual external_services infrastructure is ```e
       port: 3306 # Used in the security rule thats created to allow access. Should match the service port.
       allowed_sources: sources allowed to hit service e.g. 0.0.0.0/0 # Used in the security rule thats created to allow access
 ```
+> [!WARNING]
+> Always do a stack show before attempting to update the external_services to ensure you pass in all of the existing json > blocks.
+
 
 It's important to note that the blocks are a list of json objects. The order of them matters, if you are updating a cluster to add extra services you MUST keep them in the correct order otherwise the already exposed services will be destroyed. An example of deploying two external services would be:
 
