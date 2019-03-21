@@ -149,7 +149,10 @@ parameters:
       registry_url: "<registry_url>"
       registry_user: "<registry_user>"
       registry_password: "<registry_password>"
-
+  zabbix_server_ip:
+    type: string
+    description: IP address for the Zabbix server
+    default: 51.179.219.68
 
 resources:
   internal_network:
@@ -425,6 +428,7 @@ resources:
         sso_config: { get_param: sso_config }
         external_service_subnet: { get_param: [ network_config, service_subnet ] }
         registry_details: { get_param: registry_details }
+        zabbix_server_ip: { get_param: zabbix_server_ip }
 
 
 conditions:

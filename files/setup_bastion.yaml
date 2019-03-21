@@ -54,6 +54,7 @@
     registryUrl: __registry_url__
     registryUser: __registry_user__
     registryPassword: __registry_password__
+    zabbixServerip: __zabbixserverip__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -258,6 +259,7 @@
           registryUrl: {{ registryUrl }}
           registryUser: {{ registryUser }}
           registryPassword: {{ registryPassword }}
+          zabbix_server_ip: {{ zabbixServerip }}
 
     - name: create ansible variables directory
       file:

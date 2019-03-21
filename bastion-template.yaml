@@ -65,7 +65,7 @@ parameters:
     description: s3 access key for registry backend
   s3_secret_key:
     type: string
-    description: s3 secret key for registry backend 
+    description: s3 secret key for registry backend
   s3_region_endpoint:
     type: string
     description: s3 region end point for registry backend
@@ -163,6 +163,9 @@ parameters:
     type: json
     description: Configuration needed for authenticated container registry
     hidden: true
+  zabbix_server_ip:
+    type: string
+    description: IP address for the Zabbix Server
 
 resources:
   bastion_port:
@@ -284,6 +287,7 @@ resources:
             __registry_url__ : { get_param: [ registry_details, registry_url ] }
             __registry_user__: { get_param: [ registry_details, registry_user ] }
             __registry_password__ : { get_param: [ registry_details, registry_password ] }
+            __zabbixserverip__: { get_param: zabbix_server_ip }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result

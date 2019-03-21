@@ -76,3 +76,5 @@ parameter_defaults:
   #  registry_url: "<registry_url>"
   #  registry_user: "<registry_user>"
   #  registry_password: "<registry_password>"
+  # Zabbix Server IP
+  zabbix_server_ip: "<zabbix_server_ip>"
