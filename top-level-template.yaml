@@ -157,6 +157,10 @@ parameters:
       registry_url: "<registry_url>"
       registry_user: "<registry_user>"
       registry_password: "<registry_password>"
+  deploy_extra_volumes:
+    type: boolean
+    description: adds volumes to infra nodes to facilitate portworx deployment
+    default: false
 
 
 resources:
@@ -243,6 +247,7 @@ resources:
         key_name: { get_param: key_name }
         node_scale: 3
         purpose_ident:
+        extra_volumes: { get_param: deploy_extra_volumes }
         storage_setup: |
           GROWPART=true
           ROOT_SIZE=50G
@@ -271,6 +276,7 @@ resources:
         key_name: { get_param: key_name }
         node_scale: { get_param: infra_scale }
         purpose_ident: infra
+        extra_volumes: { get_param: deploy_extra_volumes }
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -297,6 +303,7 @@ resources:
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_small_scale }
         purpose_ident: tenant-s
+        extra_volumes: { get_param: deploy_extra_volumes }
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -323,6 +330,7 @@ resources:
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_medium_scale }
         purpose_ident: tenant-m
+        extra_volumes: { get_param: deploy_extra_volumes }
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -349,6 +357,7 @@ resources:
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_large_scale }
         purpose_ident: tenant-l
+        extra_volumes: { get_param: deploy_extra_volumes }
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }

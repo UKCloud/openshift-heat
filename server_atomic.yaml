@@ -1,4 +1,4 @@
-heat_template_version: 2016-04-08
+heat_template_version: 2016-10-14
 
 parameters:
   flavor:
@@ -19,6 +19,9 @@ parameters:
   server_name:
     type: string
     description: Name of the server
+  purpose_ident:
+    type: string
+    description: Server purpose
   port_network:
     type: string
   sec_groups:
@@ -50,6 +53,10 @@ parameters:
   external_service_subnet:
     type: string
     description: Subnet to be used for external services
+  extra_volumes:
+    type: boolean
+    description: Deploy extra volumes to non-infra nodes
+    default: false
 
 resources:
   resize_lv:
@@ -118,6 +125,65 @@ resources:
       network: { get_param: port_network }
       security_groups: { get_param: sec_groups }
       allowed_address_pairs: [ ip_address: { get_param: external_service_subnet } ]
+
+  portworx_vol1:
+    type: OS::Cinder::Volume
+    condition: deploy_extra_volumes
+    properties:
+      description: Volume for journals
+      name:
+        str_replace:
+          template: vol_jrn_servername_1
+          params:
+            servername: { get_param: server_name }
+      size: 40
+      volume_type: TIER1
+
+  vol_attachment_vol1:
+    type: OS::Cinder::VolumeAttachment
+    depends_on: [ server, portworx_vol1 ]
+    condition: deploy_extra_volumes
+    properties:
+      instance_uuid: { get_resource: server }
+      mountpoint: /dev/vdb
+      volume_id: { get_resource: portworx_vol1 }
+
+  portworx_vol2:
+    type: OS::Cinder::Volume
+    condition: deploy_extra_volumes
+    properties:
+      description: Volume for data
+      name:
+        str_replace:
+          template: vol_data_servername_2
+          params:
+            servername: { get_param: server_name }
+      size: 100
+      volume_type: TIER2
+
+  vol_attachment_vol2:
+    type: OS::Cinder::VolumeAttachment
+    depends_on: [ server, portworx_vol2 ]
+    condition: deploy_extra_volumes
+    properties:
+      instance_uuid: { get_resource: server }
+      mountpoint: /dev/vdc
+      volume_id: { get_resource: portworx_vol2 }
+
+conditions:
+  not_infra:
+    not:
+      equals:
+      - get_param: purpose_ident
+      - infra
+  deploy_volumes:
+    equals:
+    - get_param: extra_volumes
+    - true
+  deploy_extra_volumes:
+    and:
+    - not_infra
+    - deploy_volumes
 
 outputs:
   server_ip:
