@@ -22,6 +22,8 @@ if [[ $multinetwork == true ]]; then
      tr '[:upper:]' '[:lower:]')
 fi
 
+deploy_portworx_storage=$(python -c "import yaml;d=yaml.load(open('environment.yaml'));print(d['parameter_defaults']['deploy_portworx_storage'])" |
+   tr '[:upper:]' '[:lower:]')
 
 function validateSetup() {
   if [[ -z ${OS_TENANT_ID} ]]; then
@@ -45,6 +47,10 @@ function setupHeatTemplate() {
     --extra-vars "purpose_ident=${purpose_ident}"
 }
 
+function addPortworxStorage() {
+  ansible-playbook ./add-portworx.yaml \
+    --extra-vars "deploy_portworx_storage=${deploy_portworx_storage}"
+}
 function deployHeatStack() {
   openstack stack create -f yaml -t openshift.yaml openshift-${OS_TENANT_NAME} \
     -e rhel_reg_creds.yaml \
@@ -65,5 +71,6 @@ function showBastionIp() {
 validateSetup
 getPassword
 setupHeatTemplate
+addPortworxStorage
 deployHeatStack
 showBastionIp

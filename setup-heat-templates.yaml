@@ -145,7 +145,6 @@
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_small_scale }
                 purpose_ident: {{ purpose_ident }}-s
-                extra_volumes: { get_param: deploy_extra_volumes }
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -172,7 +171,6 @@
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_medium_scale }
                 purpose_ident: {{ purpose_ident }}-m
-                extra_volumes: { get_param: deploy_extra_volumes }
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -199,7 +197,6 @@
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_large_scale }
                 purpose_ident: {{ purpose_ident }}-l
-                extra_volumes: { get_param: deploy_extra_volumes }
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }

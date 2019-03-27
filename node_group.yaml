@@ -69,10 +69,6 @@ parameters:
       GROWPART=true
       ROOT_SIZE=20G
       DATA_SIZE=70G
-  extra_volumes:
-    type: boolean
-    description: Deploy extra volumes to non-infra nodes
-    default: false
 
 resources:
 
@@ -92,7 +88,6 @@ resources:
                 suffix: { get_param: local_domain_suffix }
                 ident: { get_param: purpose_ident }
           purpose_ident: { get_param: purpose_ident }
-          extra_volumes: { get_param: extra_volumes }
           flavor: { get_param: node_flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
