@@ -127,6 +127,8 @@
               network: { get_resource: storage_management_network }
               cidr: "10.254.253.0/24"
               ip_version: 4
+              gateway_ip: ""
+              dns_nameservers: []
         
           storage_data_network:
             type: OS::Neutron::Net
@@ -143,6 +145,8 @@
               network: { get_resource: storage_data_network }
               cidr: "10.254.254.0/24"
               ip_version: 4
+              gateway_ip: ""
+              dns_nameservers: []
       
     when: deploy_portworx_storage
 
@@ -283,7 +287,7 @@
         
           vol_attachment_vol2:
             type: OS::Cinder::VolumeAttachment
-            depends_on: [ server, portworx_vol2 ]
+            depends_on: [ server, portworx_vol2, vol_attachment_vol1 ]
             condition: deploy_extra_volumes
             properties:
               instance_uuid: { get_resource: server }
