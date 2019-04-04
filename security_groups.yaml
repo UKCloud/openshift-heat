@@ -376,6 +376,13 @@ resources:
           protocol: tcp
           port_range_min: 443
           port_range_max: 443
+        - direction: ingress
+          ethertype: IPv4
+          remote_mode: remote_group_id
+          remote_group_id: { get_resource: all_internet_egress_secgroup }
+          protocol: tcp
+          port_range_min: 9001
+          port_range_max: 9022
 
   net2_nodes_secgroup:
     type: OS::Neutron::SecurityGroup
