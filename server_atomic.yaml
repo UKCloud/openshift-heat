@@ -73,7 +73,7 @@ resources:
             __satellite_fqdn__: { get_param: satellite_fqdn }
             __satellite_deploy__: { get_param: satellite_deploy }                  
           template: |
-            #!/bin/bash -ex
+            #!/bin/bash -x
              cd /home/cloud-user
              if [[ "__satellite_deploy__" = True ]] 
              then
