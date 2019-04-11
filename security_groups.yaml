@@ -441,7 +441,7 @@ resources:
           remote_group_id: { get_resource: all_nodes_egress_secgroup }
           protocol: tcp
           port_range_min: 8443
-          port_range_max: 8443
+          port_range_max: 8444
         - direction: ingress
           ethertype: IPv4
           remote_mode: remote_group_id
