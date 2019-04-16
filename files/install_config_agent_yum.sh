@@ -51,6 +51,7 @@ retry subscription-manager repos \
         --enable=rhel-7-server-extras-rpms \
         --enable=rhel-7-fast-datapath-rpms \
         --enable=rhel-7-server-openstack-10-rpms \
+        --enable=rhel-7-server-openstack-12-tools-rpms \
         --enable=rhel-7-server-rh-common-rpms \
         --enable=rhel-7-server-ansible-2.6-rpms \
         --enable=rhel-7-server-satellite-tools-6.3-rpms
