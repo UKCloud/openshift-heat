@@ -168,7 +168,7 @@ resources:
     properties:
       template: { get_file: security_groups.yaml }
       parameters:
-        control_plane_ports: "80,443,8443"
+        control_plane_ports: "443,8443"
         data_plane_ports: "80,443"
         control_plane_sources: { get_param: control_plane_allowed_sources }
         data_plane_sources: { get_param: data_plane_allowed_sources }
