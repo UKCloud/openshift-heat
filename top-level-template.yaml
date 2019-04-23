@@ -172,7 +172,7 @@ resources:
     properties:
       template: { get_file: security_groups.yaml }
       parameters:
-        control_plane_ports: "80,443,8443"
+        control_plane_ports: "443,8443"
         data_plane_ports: "80,443"
         control_plane_sources: { get_param: control_plane_allowed_sources }
         data_plane_sources: { get_param: data_plane_allowed_sources }
@@ -224,6 +224,7 @@ resources:
           - { get_attr: [ security_groups, outputs, dns_forwarder_security_group ] }
           - { get_attr: [ security_groups, outputs, vrrp_controlplane_security_group ] }
           - { get_attr: [ security_groups, outputs, proxy_security_group ] }
+          - { get_attr: [ security_groups, outputs, controlplane_certbot_security_group ] }
 
   master_nodes_deployment:
     type: OS::Heat::Stack
