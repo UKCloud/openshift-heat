@@ -124,7 +124,7 @@ parameters:
   bastion_allowed_sources:
     type: comma_delimited_list
     description: ip addresses that can SSH to bastions
-    default: [ "37.26.88.73/32","37.26.92.73/32","37.26.88.93/32","37.26.92.93/32" ]
+    default: [ "0.0.0.0/0" ]
   network_config:
     type: json
     description: Network configuration for internal network
