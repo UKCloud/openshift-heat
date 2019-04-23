@@ -166,6 +166,17 @@ resources:
             port_range_min: <%port%>
             port_range_max: <%port%>
 
+  certbot_controlplane_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: certbot_controlplane_sg
+      rules:
+          - direction: ingress
+            protocol: tcp
+            remote_ip_prefix: 0.0.0.0/0
+            port_range_min: 80
+            port_range_max: 80
+
   proxy_controlplane_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -522,7 +533,6 @@ outputs:
   vrrp_nodes_security_group:
     description: VRRP access between tenant and net2 nodes
     value: { get_resource: vrrp_nodes_secgroup }
-
   bastion_external_security_group:
     description: Bastion external security group
     value: { get_resource: bastion_external_secgroup }
@@ -580,3 +590,6 @@ outputs:
   proxy_security_group:
     description: Net2 LB VRRP security group
     value: { get_resource: proxy_controlplane_secgroup }
+  certbot_security_group:
+    description: Security group allowing http-01 challenge
+    value: { get_resource: certbot_controlplane_secgroup }

@@ -219,6 +219,7 @@ resources:
           - { get_attr: [ security_groups, outputs, dns_forwarder_security_group ] }
           - { get_attr: [ security_groups, outputs, vrrp_controlplane_security_group ] }
           - { get_attr: [ security_groups, outputs, proxy_security_group ] }
+          - { get_attr: [ security_groups, outputs, certbot_security_group ] }
 
   master_nodes_deployment:
     type: OS::Heat::Stack
