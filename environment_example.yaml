@@ -32,6 +32,7 @@ parameter_defaults:
   # Security group options
   control_plane_allowed_sources: <allowed cidr for inbound traffic to control plane default: 0.0.0.0/0 (any)>
   data_plane_allowed_sources: <allowed cidr for inbound traffic to data plane default : 0.0.0.0/0 (any)>
+  #bastion_allowed_sources: <list of allowed sources for inbound SSH to bastions. Defaults to FRN/COR office and VPN addresses>
   # Extra gateway options
   #deploy_extra_gateway: <whether to deploy an extra gateway e.g. VRF default: false>
   #extra_gateway_external_network: <external network extra gateway connects to>

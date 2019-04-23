@@ -121,6 +121,10 @@ parameters:
     type: comma_delimited_list
     description: ip addresses that inbound connectivity can come from
     default: [ "0.0.0.0/0" ]
+  bastion_allowed_sources:
+    type: comma_delimited_list
+    description: ip addresses that can SSH to bastions
+    default: [ "37.26.88.73/32","37.26.92.73/32","37.26.88.93/32","37.26.92.93/32" ]
   network_config:
     type: json
     description: Network configuration for internal network
@@ -172,6 +176,7 @@ resources:
         data_plane_ports: "80,443"
         control_plane_sources: { get_param: control_plane_allowed_sources }
         data_plane_sources: { get_param: data_plane_allowed_sources }
+        bastion_sources: { get_param: bastion_allowed_sources }
 
   external_services_infra:
     type: OS::Heat::ResourceGroup
