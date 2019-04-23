@@ -166,10 +166,10 @@ resources:
             port_range_min: <%port%>
             port_range_max: <%port%>
 
-  certbot_controlplane_secgroup:
+  controlplane_certbot_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: certbot_controlplane_sg
+      name: controlplane_certbot_sg
       rules:
           - direction: ingress
             protocol: tcp
@@ -590,6 +590,6 @@ outputs:
   proxy_security_group:
     description: Net2 LB VRRP security group
     value: { get_resource: proxy_controlplane_secgroup }
-  certbot_security_group:
+  controlplane_certbot_security_group:
     description: Security group allowing http-01 challenge
-    value: { get_resource: certbot_controlplane_secgroup }
+    value: { get_resource: controlplane_certbot_secgroup }
