@@ -260,7 +260,7 @@
                   template: vol_jrn_servername_1
                   params:
                     servername: { get_param: server_name }
-              size: 40
+              size: 100
               volume_type: TIER1
         
           vol_attachment_vol1:
@@ -269,7 +269,7 @@
             condition: deploy_extra_volumes
             properties:
               instance_uuid: { get_resource: server }
-              mountpoint: /dev/vdb
+              mountpoint: /dev/vdc
               volume_id: { get_resource: portworx_vol1 }
         
           portworx_vol2:
@@ -282,7 +282,7 @@
                   template: vol_data_servername_2
                   params:
                     servername: { get_param: server_name }
-              size: 100
+              size: 200
               volume_type: TIER2
         
           vol_attachment_vol2:
@@ -291,7 +291,7 @@
             condition: deploy_extra_volumes
             properties:
               instance_uuid: { get_resource: server }
-              mountpoint: /dev/vdc
+              mountpoint: /dev/vdd
               volume_id: { get_resource: portworx_vol2 }
         
     when: deploy_portworx_storage
