@@ -254,14 +254,14 @@
             type: OS::Cinder::Volume
             condition: deploy_extra_volumes
             properties:
-              description: Volume for journals
+              description: Volume for data
               name:
                 str_replace:
-                  template: vol_jrn_servername_1
+                  template: vol_data_servername_1
                   params:
                     servername: { get_param: server_name }
               size: 100
-              volume_type: TIER1
+              volume_type: TIER2
         
           vol_attachment_vol1:
             type: OS::Cinder::VolumeAttachment
@@ -271,29 +271,6 @@
               instance_uuid: { get_resource: server }
               mountpoint: /dev/vdc
               volume_id: { get_resource: portworx_vol1 }
-        
-          portworx_vol2:
-            type: OS::Cinder::Volume
-            condition: deploy_extra_volumes
-            properties:
-              description: Volume for data
-              name:
-                str_replace:
-                  template: vol_data_servername_2
-                  params:
-                    servername: { get_param: server_name }
-              size: 200
-              volume_type: TIER2
-        
-          vol_attachment_vol2:
-            type: OS::Cinder::VolumeAttachment
-            depends_on: [ server, portworx_vol2, vol_attachment_vol1 ]
-            condition: deploy_extra_volumes
-            properties:
-              instance_uuid: { get_resource: server }
-              mountpoint: /dev/vdd
-              volume_id: { get_resource: portworx_vol2 }
-        
     when: deploy_portworx_storage
 
   - name: server_atomic storage resources

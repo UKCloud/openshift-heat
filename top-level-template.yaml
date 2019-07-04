@@ -318,7 +318,7 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: ocp.m1.large
+        node_flavor: pwx.m1.medium
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_medium_scale }
         purpose_ident: tenant-m
