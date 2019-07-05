@@ -117,6 +117,10 @@ parameters:
     type: comma_delimited_list
     description: ip addresses that inbound connectivity can come from
     default: [ "0.0.0.0/0" ]
+  monitoring_allowed_sources:
+    type: comma_delimited_list
+    description: ip addresses that inbound connectivity can come from for monitoring
+    default: [ "0.0.0.0/32" ]
   data_plane_allowed_sources:
     type: comma_delimited_list
     description: ip addresses that inbound connectivity can come from
@@ -177,6 +181,7 @@ resources:
         control_plane_sources: { get_param: control_plane_allowed_sources }
         data_plane_sources: { get_param: data_plane_allowed_sources }
         bastion_sources: { get_param: bastion_allowed_sources }
+        monitoring_sources: { get_param: monitoring_allowed_sources }
 
   external_services_infra:
     type: OS::Heat::ResourceGroup
@@ -220,6 +225,7 @@ resources:
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, control_plane_security_group ] }
+          - { get_attr: [ security_groups, outputs, monitoring_security_group ] }
           - { get_attr: [ security_groups, outputs, dns_internet_security_group ] }
           - { get_attr: [ security_groups, outputs, dns_forwarder_security_group ] }
           - { get_attr: [ security_groups, outputs, vrrp_controlplane_security_group ] }
@@ -377,6 +383,7 @@ resources:
           - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
           - { get_attr: [ security_groups, outputs, data_plane_security_group ] }
+          - { get_attr: [ security_groups, outputs, monitoring_security_group ] }            
           - { get_attr: [ security_groups, outputs, vrrp_dataplane_security_group ] }
 
   bastion_deployment:
@@ -485,6 +492,9 @@ outputs:
   control_plane_whitelist:
     description: whitelisted addresses for control plane access
     value: { get_param: control_plane_allowed_sources }
+  monitoring_whitelist:
+    description: whitelisted addresses for monitoring access
+    value: { get_param: monitoring_allowed_sources }
   data_plane_whitelist:
     description: whitelisted addresses for data plane access
     value: { get_param: data_plane_allowed_sources }
