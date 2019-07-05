@@ -20,6 +20,9 @@ parameters:
   control_plane_sources:
     type: comma_delimited_list
     description: ip addresses that inbound connectivity can come from
+  monitoring_sources:
+    type: comma_delimited_list
+    description: ip addresses that inbound connectivity for monitoring
   data_plane_sources:
     type: comma_delimited_list
     description: ip addresses that inbound connectivity can come from
@@ -165,6 +168,23 @@ resources:
         repeat:
           for_each:
             <%sourceip%>: { get_param: control_plane_sources }
+            <%port%>: { get_param: control_plane_ports }
+          template:
+            protocol: tcp
+            direction: ingress
+            remote_ip_prefix: <%sourceip%>
+            port_range_min: <%port%>
+            port_range_max: <%port%>
+
+
+  monitoring_secgroup:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: monitoring_sg
+      rules:
+        repeat:
+          for_each:
+            <%sourceip%>: { get_param: monitoring_sources }
             <%port%>: { get_param: control_plane_ports }
           template:
             protocol: tcp
@@ -549,6 +569,9 @@ outputs:
   control_plane_security_group:
     description: Security group controlling access to the control plane
     value: { get_resource: control_plane_secgroup }
+  monitoring_security_group:
+    description: Security group controlling access to the control plane for monitoring
+    value: { get_resource: monitoring_secgroup }
   data_plane_security_group:
     description: Security group controlling access to the data plane
     value: { get_resource: data_plane_secgroup }
