@@ -167,7 +167,7 @@
               template: { get_file: node_group.yaml }
               parameters:
                 node_type: worker
-                node_flavor: pwx.m1.medium
+                node_flavor: ocp.m1.large
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_medium_scale }
                 purpose_ident: {{ purpose_ident }}-m
