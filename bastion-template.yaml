@@ -137,6 +137,10 @@ parameters:
   multinetwork:
     type: boolean
     description: Deployment is multi-network?
+  deploy_portworx_storage:
+    type: boolean
+    description: Deploy Portworx?
+    default: false
   deploy_extra_gateway:
     type: boolean
     description: Deployment includes extra-gateway?
@@ -271,6 +275,7 @@ resources:
             __installLogging__: { get_param: install_logging }
             __loggingClusterSize__: { get_param: logging_cluster_size }
             __multinetwork__ : { get_param: multinetwork }
+            __deploy_portworx_storage__ : { get_param: deploy_portworx_storage }
             __deploy_extra_gateway__ : { get_param: deploy_extra_gateway }
             __external_dns__ : { get_param: external_dns }
             __set_node_routes__ : { get_param: set_node_routes }

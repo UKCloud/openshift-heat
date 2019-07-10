@@ -49,7 +49,9 @@ function setupHeatTemplate() {
 
 function addPortworxStorage() {
   ansible-playbook ./add-portworx.yaml \
-    --extra-vars "deploy_portworx_storage=${deploy_portworx_storage}"
+    --extra-vars "deploy_portworx_storage=${deploy_portworx_storage}" \
+    --extra-vars "purpose_ident=${purpose_ident}" \
+    --extra-vars "multinetwork=${multinetwork}"
 }
 function deployHeatStack() {
   openstack stack create -f yaml -t openshift.yaml openshift-${OS_TENANT_NAME} \

@@ -94,6 +94,10 @@ parameters:
   multinetwork:
     type: boolean
     description: Whether to deploy a secondary external network
+  deploy_portworx_storage:
+    type: boolean
+    description: Deploy Portworx?
+    default: false  
   deploy_extra_gateway:
     type: boolean
     description: Whether to deploy an extra gateway for a VRF for example
@@ -418,6 +422,7 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_external_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
         multinetwork: { get_param: multinetwork }
+        deploy_portworx_storage: { get_param: deploy_portworx_storage }
         deploy_extra_gateway: { get_param: deploy_extra_gateway }
         install_logging: { get_param: install_logging }
         logging_cluster_size: { get_param: logging_cluster_size }

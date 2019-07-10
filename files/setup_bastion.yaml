@@ -29,6 +29,7 @@
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
     multinetwork: __multinetwork__
+    deploy_portworx_storage: __deploy_portworx_storage__
     deployExtraGateway: __deploy_extra_gateway__
     externalDns: __external_dns__
     setNodeRoutes: __set_node_routes__
@@ -228,6 +229,7 @@
           installLogging: {{ installLogging }}
           loggingClusterSize: {{ loggingClusterSize }}
           multinetwork: {{ multinetwork }}
+          deploy_portworx_storage: {{ deploy_portworx_storage }}
           external_dns:
           {% for item in externalDns %}
             - {{ item }}
