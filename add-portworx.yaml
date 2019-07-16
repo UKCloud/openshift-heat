@@ -310,7 +310,7 @@
 
   - name: Change medium worker size for net2
     replace:
-      path:  setup-heat-templates.yaml
+      path: openshift.yaml
       regexp: 'ocp.m1.large'
       replace: 'pwx.m1.medium'
       backup: yes
