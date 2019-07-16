@@ -53,6 +53,7 @@ parameters:
   external_service_subnet:
     type: string
     description: Subnet to be used for external services
+  # add-portworx.yaml inserts atomic network and volume parameters here
 
 resources:
   resize_lv:
@@ -105,6 +106,7 @@ resources:
       key_name: { get_param: key_name }
       networks:
         - port: { get_resource: port }
+        # add-portworx.yaml inserts server_atomic network resources here    
       scheduler_hints:
         group: { get_param: server_group }
       user_data_format: SOFTWARE_CONFIG
@@ -121,6 +123,7 @@ resources:
       network: { get_param: port_network }
       security_groups: { get_param: sec_groups }
       allowed_address_pairs: [ ip_address: { get_param: external_service_subnet } ]
+      # add-portworx.yaml inserts server_atomic volumes here
 
 outputs:
   server_ip:

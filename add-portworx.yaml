@@ -46,7 +46,8 @@
     blockinfile:
       dest: openshift.yaml
       backup: yes
-      insertafter: "allocation_pools:"
+      #insertafter: "allocation_pools:"
+      insertafter: "# add-portworx.yaml inserts deploy_storage_networks parameter here"
       marker: "        # ANSIBLE MANAGED BLOCK - parameters for portworx deployment"
       block: |2
                 # deploy portworx?
@@ -74,26 +75,28 @@
     blockinfile:
       dest: openshift.yaml
       backup: yes
-      insertafter: "purpose_ident: tenant-{{ item }}"
+      #insertafter: "purpose_ident: tenant-{{ item }}"
+      insertafter: "# add-portworx.yaml inserts {{ item }} tenant worker storage networks here"
       marker: "        # ANSIBLE MANAGED BLOCK - add_portworx_networks_parameters - worker-{{ item }}"
       block: |2
                 extra_volumes: { get_param: deploy_portworx_storage }
                 storage_management_network: { get_attr: [internal_network, outputs, storage_management_network] }
                 storage_data_network: { get_attr: [internal_network, outputs, storage_data_network] }
-    loop: [ s, m, l ]
+    loop: [ small, medium, large ]
     when: deploy_portworx_storage|bool
 
   - name: add storage networks parameters Net2
     blockinfile:
       dest: openshift.yaml
       backup: yes
-      insertafter: "purpose_ident: {{ purpose_ident }}-{{ item }}"
+      #insertafter: "purpose_ident: {{ purpose_ident }}-{{ item }}"
+      insertafter: "# add-portworx.yaml inserts {{ item }} net2 worker storage networks here"
       marker: "        # ANSIBLE MANAGED BLOCK - add_portworx_networks_parameters Net2 - {{ purpose_ident }}-{{ item }}"
       block: |2
                 extra_volumes: { get_param: deploy_portworx_storage }
                 storage_management_network: { get_attr: [internal_network, outputs, storage_management_network] }
                 storage_data_network: { get_attr: [internal_network, outputs, storage_data_network] }
-    loop: [ s, m, l ]
+    loop: [ small, medium, large ]
     when: deploy_portworx_storage|bool and multinetwork|bool
 
   - name: specify pwx server_atomic template
@@ -108,20 +111,21 @@
     blockinfile:
       dest: network_pwx.yaml
       backup: yes
-      insertbefore: "resources:"
+      #insertbefore: "resources:"
+      insertafter: "# add-portworx.yaml inserts deploy_storage_networks parameter here"
       marker: "  # ANSIBLE MANAGED BLOCK - add_portworx_networks_parameters"
       block: |2
           deploy_storage_networks:
             type: boolean
             default: false
-        
     when: deploy_portworx_storage|bool
 
   - name: add storage networks
     blockinfile:
       dest: network_pwx.yaml
       backup: yes
-      insertbefore: "outputs:"
+      #insertbefore: "outputs:"
+      insertafter: "# add-portworx.yaml inserts storage_networks resources here"
       marker: "  # ANSIBLE MANAGED BLOCK - add_portworx_networks_resources"
       block: |2
           storage_management_network:
@@ -159,27 +163,30 @@
               ip_version: 4
               gateway_ip: ""
               dns_nameservers: []
-      
-    when: deploy_portworx_storage|bool
-
-  - name: add storage networks
-    blockinfile:
-      dest: network_pwx.yaml
-      backup: yes
-      insertbefore: "outputs:"
-      marker: "# ANSIBLE MANAGED BLOCK - add_portworx_networks_conditions"
-      block: |2
         conditions:
           deploy_storage_networks:
             get_param: deploy_storage_networks
-      
     when: deploy_portworx_storage|bool
+
+    #  - name: add storage networks
+    #    blockinfile:
+    #      dest: network_pwx.yaml
+    #      backup: yes
+    #      insertbefore: "outputs:"
+    #      marker: "# ANSIBLE MANAGED BLOCK - add_portworx_networks_conditions"
+    #      block: |2
+    #        conditions:
+    #          deploy_storage_networks:
+    #            get_param: deploy_storage_networks
+    #      
+    #    when: deploy_portworx_storage|bool
 
   - name: add storage networks outputs
     blockinfile:
       dest: network_pwx.yaml
       backup: yes
-      insertafter: "outputs:"
+      #insertafter: "outputs:"
+      insertafter: "# add-portworx.yaml inserts storage_networks outputs here"
       marker: "  # ANSIBLE MANAGED BLOCK - add_portwox_networks_outputs"
       block: |2
           storage_data_network: 
@@ -194,7 +201,8 @@
     blockinfile:
       dest: node_group_pwx.yaml
       backup: yes
-      insertbefore: "resources:"
+      #insertbefore: "resources:"
+      insertafter: "# add-portworx.yaml inserts network and volume parameters here"
       marker: "  # ANSIBLE MANAGED BLOCK - add parameters to node_group_pwx.yaml"
       block: |2
           extra_volumes:
@@ -207,14 +215,14 @@
           storage_data_network:
             type: string
             description: Network for storage data traffic
-        
     when: deploy_portworx_storage|bool
 
   - name: node_group_resources
     blockinfile:
       dest: node_group_pwx.yaml
       backup: yes
-      insertafter: "server_group: { get_param: server_group }"
+      #insertafter: "server_group: { get_param: server_group }"
+      insertafter: "# add-portworx.yaml inserts server group parameters here"
       marker: "          # ANSIBLE MANAGED BLOCK - add properties to node_group server resources"
       block: |2
                   extra_volumes: { get_param: extra_volumes }
@@ -227,7 +235,8 @@
     blockinfile:
       dest: server_atomic_pwx.yaml
       backup: yes
-      insertbefore: "resources:"
+      #insertbefore: "resources:"
+      insertafter: "# add-portworx.yaml inserts atomic network and volume parameters here"
       marker: "  # ANSIBLE MANAGED BLOCK - add parameters to server_atomic_pwx.yaml"
       block: |2
           extra_volumes:
@@ -240,14 +249,14 @@
           storage_data_network:
             type: string
             description: Network for storage data traffic
-        
     when: deploy_portworx_storage|bool
 
   - name: server_atomic resources
     blockinfile:
       dest: server_atomic_pwx.yaml
       backup: yes
-      insertafter: "- port: { get_resource: port }"
+      #insertafter: "- port: { get_resource: port }"
+      insertafter: "# add-portworx.yaml inserts server_atomic network resources here"
       marker: "        # ANSIBLE MANAGED BLOCK - add properties to server_atomic resources"
       block: |2
                 - network: { get_param: storage_management_network }
@@ -258,10 +267,10 @@
     blockinfile:
       dest: server_atomic_pwx.yaml
       backup: yes
-      insertbefore: "outputs:"
+      #insertbefore: "outputs:"
+      insertafter: "# add-portworx.yaml inserts server_atomic volumes here"
       marker: "  # ANSIBLE MANAGED BLOCK - add properties to server_atomic resources"
       block: |2
-
           portworx_vol1:
             type: OS::Cinder::Volume
             condition: deploy_extra_volumes
@@ -283,15 +292,6 @@
               instance_uuid: { get_resource: server }
               mountpoint: /dev/vdc
               volume_id: { get_resource: portworx_vol1 }
-    when: deploy_portworx_storage|bool
-
-  - name: server_atomic storage resources
-    blockinfile:
-      dest: server_atomic_pwx.yaml
-      backup: yes
-      insertbefore: "outputs:"
-      marker: "# ANSIBLE MANAGED BLOCK - add properties to server_atomic conditions"
-      block: |2
         conditions:
           not_infra:
             not:
@@ -308,10 +308,49 @@
             - deploy_volumes
     when: deploy_portworx_storage|bool
 
-  - name: Change medium worker size for net2
+    #  - name: server_atomic storage resources
+    #    blockinfile:
+    #      dest: server_atomic_pwx.yaml
+    #      backup: yes
+    #      insertbefore: "outputs:"
+    #      marker: "# ANSIBLE MANAGED BLOCK - add properties to server_atomic conditions"
+    #      block: |2
+    #        conditions:
+    #          not_infra:
+    #            not:
+    #              equals:
+    #              - get_param: purpose_ident
+    #              - infra
+    #          deploy_volumes:
+    #            equals:
+    #            - get_param: extra_volumes
+    #            - true
+    #          deploy_extra_volumes:
+    #            and:
+    #            - not_infra
+    #            - deploy_volumes
+    #    when: deploy_portworx_storage|bool
+
+  - name: Change small worker size
     replace:
       path: openshift.yaml
-      regexp: 'ocp.m1.large'
+      regexp: 'ocp.t1.xxlarge # add-portworx.yaml replaces this with pwx.t1.xxlarge'
+      replace: 'pwx.t1.xxlarge'
+      backup: yes
+    when: deploy_portworx_storage|bool
+
+  - name: Change medium worker size
+    replace:
+      path: openshift.yaml
+      regexp: 'ocp.m1.large # add-portworx.yaml replaces this with pwx.m1.medium'
       replace: 'pwx.m1.medium'
+      backup: yes
+    when: deploy_portworx_storage|bool
+
+  - name: Change large worker size
+    replace:
+      path: openshift.yaml
+      regexp: 'ocp.r1.large # add-portworx.yaml replaces this with pwx.r1.large'
+      replace: 'pwx.r1.large'
       backup: yes
     when: deploy_portworx_storage|bool

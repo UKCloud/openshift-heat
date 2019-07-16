@@ -141,10 +141,11 @@
               template: { get_file: node_group.yaml }
               parameters:
                 node_type: worker
-                node_flavor: ocp.t1.xxlarge
+                node_flavor: ocp.t1.xxlarge # add-portworx.yaml replaces this with pwx.t1.xxlarge
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_small_scale }
                 purpose_ident: {{ purpose_ident }}-s
+                # add-portworx.yaml inserts small net2 worker storage networks here
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -167,10 +168,11 @@
               template: { get_file: node_group.yaml }
               parameters:
                 node_type: worker
-                node_flavor: ocp.m1.large
+                node_flavor: ocp.m1.large # add-portworx.yaml replaces this with pwx.m1.medium
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_medium_scale }
                 purpose_ident: {{ purpose_ident }}-m
+                # add-portworx.yaml inserts medium net2 worker storage networks here
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -193,10 +195,11 @@
               template: { get_file: node_group.yaml }
               parameters:
                 node_type: worker
-                node_flavor: ocp.r1.large
+                node_flavor: ocp.r1.large # add-portworx.yaml replaces this with pwx.r1.large
                 key_name: { get_param: key_name }
                 node_scale: { get_param: net2_worker_large_scale }
                 purpose_ident: {{ purpose_ident }}-l
+                # add-portworx.yaml inserts large net2 worker storage networks here
                 local_domain_suffix: { get_param: local_domain_suffix }
                 internal_network: { get_attr: [internal_network, outputs, network] }
                 internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
