@@ -1,8 +1,14 @@
 - hosts: localhost
   vars:
-    deploy_portworx_storage: "false"
+    deploy_portworx_storage: false
   tasks:
-
+# This inserts the parameters and resources necessary for portworx
+# It searchs for comments in the base files which reference
+# add-portworx.yaml
+#
+# We make a copy of each yaml file that is modified - 
+# ... the *_pwx.yaml files are in gitignore.
+#
 #+create extra networks and outputs in network.yaml
 #pass output from extra networks to all node stacks
 #pass need for extra storage to all nodes stacks
@@ -11,6 +17,7 @@
 #  add networks to node
 #  add storage to node
 
+# Create copies of files to be changed
   - name: create portworx network file
     copy:
       src: ./network.yaml
@@ -42,18 +49,7 @@
     #            default: false
     #when: deploy_portworx_storage|bool
 
-  - name: add parameters to network stack
-    blockinfile:
-      dest: openshift.yaml
-      backup: yes
-      #insertafter: "allocation_pools:"
-      insertafter: "# add-portworx.yaml inserts deploy_storage_networks parameter here"
-      marker: "        # ANSIBLE MANAGED BLOCK - parameters for portworx deployment"
-      block: |2
-                # deploy portworx?
-                deploy_storage_networks: { get_param: deploy_portworx_storage }
-    when: deploy_portworx_storage|bool
-
+# Replace references to point to copied files
   - name: specify pwx network template
     replace:
       path: openshift.yaml
@@ -69,6 +65,27 @@
       replace: 'node_group_pwx'
       after: '  worker_small_nodes_deployment'
       backup: yes
+    when: deploy_portworx_storage|bool
+
+  - name: specify pwx server_atomic template
+    replace:
+      path: node_group_pwx.yaml
+      regexp: 'server_atomic.yaml'
+      replace: 'server_atomic_pwx.yaml'
+      backup: yes
+    when: deploy_portworx_storage|bool
+
+# Make edits in openshift.yaml
+  - name: add parameters to network stack
+    blockinfile:
+      dest: openshift.yaml
+      backup: yes
+      #insertafter: "allocation_pools:"
+      insertafter: "# add-portworx.yaml inserts deploy_storage_networks parameter here"
+      marker: "        # ANSIBLE MANAGED BLOCK - parameters for portworx deployment"
+      block: |2
+                # deploy portworx?
+                deploy_storage_networks: { get_param: deploy_portworx_storage }
     when: deploy_portworx_storage|bool
 
   - name: add storage networks parameters
@@ -99,14 +116,31 @@
     loop: [ small, medium, large ]
     when: deploy_portworx_storage|bool and multinetwork|bool
 
-  - name: specify pwx server_atomic template
+    #  - name: Change small worker size
+    #    replace:
+    #      path: openshift.yaml
+    #      regexp: 'ocp.t1.xxlarge # add-portworx.yaml replaces this with pwx.t1.xxlarge'
+    #      replace: 'pwx.t1.xxlarge'
+    #      backup: yes
+    #    when: deploy_portworx_storage|bool
+
+  - name: Change medium worker size
     replace:
-      path: node_group_pwx.yaml
-      regexp: 'server_atomic.yaml'
-      replace: 'server_atomic_pwx.yaml'
+      path: openshift.yaml
+      regexp: 'ocp.m1.large # add-portworx.yaml replaces this with pwx.m1.medium'
+      replace: 'pwx.m1.medium'
       backup: yes
     when: deploy_portworx_storage|bool
 
+    #  - name: Change large worker size
+    #    replace:
+    #      path: openshift.yaml
+    #      regexp: 'ocp.r1.large # add-portworx.yaml replaces this with pwx.r1.large'
+    #      replace: 'pwx.r1.large'
+    #      backup: yes
+    #    when: deploy_portworx_storage|bool
+
+# Make edits in network_pwx.yaml
   - name: add storage networks parameters
     blockinfile:
       dest: network_pwx.yaml
@@ -197,6 +231,7 @@
             condition: deploy_storage_networks
     when: deploy_portworx_storage|bool
 
+# Make edits in node_group_pwx.yaml
   - name: node_group_parameters
     blockinfile:
       dest: node_group_pwx.yaml
@@ -231,6 +266,7 @@
 
     when: deploy_portworx_storage|bool
 
+# Make changes in server_atomic_pwx.yaml
   - name: server_atomic parameters
     blockinfile:
       dest: server_atomic_pwx.yaml
@@ -308,6 +344,18 @@
             - deploy_volumes
     when: deploy_portworx_storage|bool
 
+  - name: server_atomic - add code to wipe ephemeral disk
+    blockinfile:
+      dest: server_atomic_pwx.yaml
+      backup: yes
+      insertafter: "# add-portworx.yaml inserts extra code to wipe ephemeral disk here"
+      marker: "             # ANSIBLE MANAGED BLOCK - add code to wipe ephemeral disk"
+      block: |2
+                     EPHDEV="/dev/"`lsblk | grep /var/mnt | awk '{print $1}'`
+                     sudo umount $EPHDEV; sudo wipefs -af $EPHDEV
+                     grep -v "${EPHDEV}" /etc/fstab > /tmp/fstab; sudo mv /tmp/fstab /etc/fstab
+    when: deploy_portworx_storage|bool
+
     #  - name: server_atomic storage resources
     #    blockinfile:
     #      dest: server_atomic_pwx.yaml
@@ -331,26 +379,3 @@
     #            - deploy_volumes
     #    when: deploy_portworx_storage|bool
 
-  - name: Change small worker size
-    replace:
-      path: openshift.yaml
-      regexp: 'ocp.t1.xxlarge # add-portworx.yaml replaces this with pwx.t1.xxlarge'
-      replace: 'pwx.t1.xxlarge'
-      backup: yes
-    when: deploy_portworx_storage|bool
-
-  - name: Change medium worker size
-    replace:
-      path: openshift.yaml
-      regexp: 'ocp.m1.large # add-portworx.yaml replaces this with pwx.m1.medium'
-      replace: 'pwx.m1.medium'
-      backup: yes
-    when: deploy_portworx_storage|bool
-
-  - name: Change large worker size
-    replace:
-      path: openshift.yaml
-      regexp: 'ocp.r1.large # add-portworx.yaml replaces this with pwx.r1.large'
-      replace: 'pwx.r1.large'
-      backup: yes
-    when: deploy_portworx_storage|bool
