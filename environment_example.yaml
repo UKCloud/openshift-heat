@@ -77,4 +77,4 @@ parameter_defaults:
   #  registry_url: "<registry_url>"
   #  registry_user: "<registry_user>"
   #  registry_password: "<registry_password>"
-  #deploy_extra_volumes: <whether to deploy extra volumes to non-infra nodes for portworx>
+  #deploy_portworx_storage: <whether to deploy extra volumes, network and prereqs for portworx>
