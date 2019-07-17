@@ -311,10 +311,10 @@
             type: OS::Cinder::Volume
             condition: deploy_extra_volumes
             properties:
-              description: Volume for data
+              description: Volume for kvdb
               name:
                 str_replace:
-                  template: vol_data_servername_1
+                  template: vol_kvdb_servername_1
                   params:
                     servername: { get_param: server_name }
               size: 100
@@ -328,6 +328,29 @@
               instance_uuid: { get_resource: server }
               mountpoint: /dev/vdc
               volume_id: { get_resource: portworx_vol1 }
+
+          portworx_vol2:
+            type: OS::Cinder::Volume
+            condition: deploy_extra_volumes
+            properties:
+              description: Volume for data
+              name:
+                str_replace:
+                  template: vol_data_servername_1
+                  params:
+                    servername: { get_param: server_name }
+              size: 100
+              volume_type: TIER2
+
+          vol_attachment_vol2:
+            type: OS::Cinder::VolumeAttachment
+            depends_on: [ server, portworx_vol2, vol_attachment_vol1 ]
+            condition: deploy_extra_volumes
+            properties:
+              instance_uuid: { get_resource: server }
+              mountpoint: /dev/vdd
+              volume_id: { get_resource: portworx_vol2 }
+
         conditions:
           not_infra:
             not:
