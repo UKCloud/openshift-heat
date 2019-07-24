@@ -163,6 +163,9 @@ parameters:
     type: json
     description: Configuration needed for authenticated container registry
     hidden: true
+  ansible_branch:
+    type: string
+    description: Ansible branch that is pulled on bastion deployment.
 
 resources:
   bastion_port:
@@ -284,6 +287,7 @@ resources:
             __registry_url__ : { get_param: [ registry_details, registry_url ] }
             __registry_user__: { get_param: [ registry_details, registry_user ] }
             __registry_password__ : { get_param: [ registry_details, registry_password ] }
+            __ansible_branch__ : { get_param: ansible_branch }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
