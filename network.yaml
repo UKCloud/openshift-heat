@@ -20,6 +20,7 @@ parameters:
     type: string
     description: gateway of the network
     default: "10.2.1.254"
+# add-portworx.yaml inserts deploy_storage_networks parameter here
 
 resources:
   InternetGW:
@@ -50,7 +51,9 @@ resources:
       gateway_ip: { get_param: gateway }
       ip_version: 4
 
+# add-portworx.yaml inserts storage_networks resources here
 outputs:
+# add-portworx.yaml inserts storage_networks outputs here    
   network: 
     value: { get_resource: network }
   subnet:

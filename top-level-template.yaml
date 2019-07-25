@@ -169,6 +169,7 @@ resources:
       template: { get_file: network.yaml }
       parameters:
         allocation_pools: { get_param: [ network_config, allocation_pool ] }
+        # add-portworx.yaml inserts deploy_storage_networks parameter here
         cidr: { get_param: [ network_config, cidr ] }
         dns: { get_param: [ network_config, dns ] }
         external_network: { get_param: external_network_cp }
@@ -296,10 +297,11 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: ocp.t1.xxlarge
+        node_flavor: ocp.t1.xxlarge # add-portworx.yaml replaces this with pwx.t1.xxlarge
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_small_scale }
         purpose_ident: tenant-s
+        # add-portworx.yaml inserts small tenant worker storage networks here
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -322,10 +324,11 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: pwx.m1.medium
+        node_flavor: ocp.m1.large # add-portworx.yaml replaces this with pwx.m1.medium
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_medium_scale }
         purpose_ident: tenant-m
+        # add-portworx.yaml inserts medium tenant worker storage networks here
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -348,10 +351,11 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: ocp.r1.large
+        node_flavor: ocp.r1.large # add-portworx.yaml replaces this with pwx.r1.large
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_large_scale }
         purpose_ident: tenant-l
+        # add-portworx.yaml inserts large tenant worker storage networks here
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
