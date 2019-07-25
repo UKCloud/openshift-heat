@@ -77,3 +77,4 @@ parameter_defaults:
   #  registry_url: "<registry_url>"
   #  registry_user: "<registry_user>"
   #  registry_password: "<registry_password>"
+  ansible_branch: "v3.11"

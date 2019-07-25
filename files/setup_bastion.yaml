@@ -54,6 +54,7 @@
     registryUrl: __registry_url__
     registryUser: __registry_user__
     registryPassword: __registry_password__
+    ansibleBranch: __ansible_branch__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -277,7 +278,7 @@
       git:
         repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
         dest: /usr/share/ansible/openshift-deployment-ansible
-        version: master
+        version: "{{ ansibleBranch }}"
       when: stack_create
 
     - name: Create variables symlink
