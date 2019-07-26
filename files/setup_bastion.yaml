@@ -219,6 +219,7 @@
           osTenantId: {{ osTenantId }}
           osTenantName: {{ osTenantName }}
           osRegion: {{ osRegion }}
+          osDomainID: {{ osDomainID }}
           s3accesskey: {{ s3accesskey }}
           s3secretkey: {{ s3secretkey  }} 
           s3regionendpoint: {{ s3regionendpoint }}
