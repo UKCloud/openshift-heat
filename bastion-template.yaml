@@ -231,7 +231,7 @@ resources:
           params:
             suffix: { get_param: local_domain_suffix }
       flavor: { get_param: bastion_flavor }
-      image: "rhel-7-LTS" 
+      image: "rhel-7-Latest" 
       key_name: { get_param: key_name }
       networks:
         - port: { get_resource: bastion_port }
