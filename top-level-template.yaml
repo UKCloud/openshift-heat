@@ -26,6 +26,9 @@ parameters:
   os_region:
     type: string
     description: OpenStack Region
+  os_domain_id:
+    type: string
+    description: Openstack domain ID
   time:
     type: string
     description: epoch time used to cause ansible to run on every update
@@ -407,6 +410,7 @@ resources:
         os_tenant_id: { get_param: os_tenant_id }
         os_tenant_name: { get_param: os_tenant_name }
         os_region: { get_param: os_region }
+        os_domain_id: { get_param: os_domain_id }
         s3_bucket_name: { get_param: s3_bucket_name }
         openshift_version: { get_param: openshift_version }
         get_certificates: { get_param: get_certificates } 

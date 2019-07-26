@@ -19,6 +19,7 @@
     osTenantId: __openstack_tenant_id__
     osTenantName: __openstack_tenant_name__
     osRegion: __openstack_region__
+    osDomainID: __openstack_domain_id__
     s3accesskey: __s3accesskey__
     s3secretkey: __s3secretkey__
     s3regionendpoint: __s3regionendpoint__

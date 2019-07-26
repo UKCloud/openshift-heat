@@ -60,6 +60,9 @@ parameters:
   os_region:
     type: string
     description: OpenStack Region
+  os_domain_id:
+    type: string
+    description: OpenStack domain ID
   s3_access_key:
     type: string
     description: s3 access key for registry backend
@@ -263,6 +266,7 @@ resources:
             __openstack_tenant_id__: { get_param: os_tenant_id }
             __openstack_tenant_name__: { get_param: os_tenant_name }
             __openstack_region__: { get_param: os_region }
+            __openstack_domain_id__: { get_param: os_domain_id }
             __s3accesskey__: { get_param: s3_access_key }
             __s3secretkey__: { get_param: s3_secret_key }
             __s3regionendpoint__: { get_param: s3_region_endpoint  }
