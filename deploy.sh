@@ -52,7 +52,7 @@ function deployHeatStack() {
     --parameter time="$(date)" \
     --parameter os_auth_url="${OS_AUTH_URL}" \
     --parameter os_tenant_id="${OS_PROJECT_ID}" \
-    --parameter os_tenant_name="${OS_PROJECT_NAME" \
+    --parameter os_tenant_name="${OS_PROJECT_NAME}" \
     --parameter os_region="${OS_REGION_NAME}" \
     --parameter openshift_openstack_password="${openshift_openstack_password}" \
     --wait
