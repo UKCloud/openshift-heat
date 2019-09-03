@@ -22,7 +22,6 @@ if [[ $multinetwork == true ]]; then
      tr '[:upper:]' '[:lower:]')
 fi
 
-
 function validateSetup() {
   if [[ -z ${OS_PROJECT_ID} ]]; then
     echo -e "\nYou must source your OpenStack RC file so we can access the OpenStack API\n"
@@ -38,6 +37,15 @@ function getPassword() {
   fi
 }
 
+function getDataFromOpenstackProject() {
+  controlplane_ip=$(python -c "import yaml;d=yaml.load(open('environment.yaml'));print(d['parameter_defaults']['controlplane_floating_ip'])" | xargs -I % openstack floating ip show % -c floating_ip_address -f value)
+  dataplane_ip=$(python -c "import yaml;d=yaml.load(open('environment.yaml'));print(d['parameter_defaults']['dataplane_floating_ip'])" | xargs -I % openstack floating ip show % -c floating_ip_address -f value)
+  if [[ -z ${controlplane_ip} || -z ${dataplane_ip} ]]; then
+    echo -e "\nControlplane or Dataplane IP could not be retrieved, are the IDs in your environment file correct and are you authenticating correctly?\n"
+    exit 1
+  fi
+}
+
 function setupHeatTemplate() {
   ansible-playbook ./setup-heat-templates.yaml \
     --extra-vars "multinetwork=${multinetwork}" \
@@ -49,6 +57,8 @@ function deployHeatStack() {
   openstack stack create -f yaml -t openshift.yaml openshift-${OS_PROJECT_NAME} \
     -e rhel_reg_creds.yaml \
     -e environment.yaml \
+    --parameter controlplane_ip="${controlplane_ip}" \
+    --parameter dataplane_ip="${dataplane_ip}" \
     --parameter time="$(date)" \
     --parameter os_auth_url="${OS_AUTH_URL}" \
     --parameter os_tenant_id="${OS_PROJECT_ID}" \
@@ -65,6 +75,7 @@ function showBastionIp() {
 
 validateSetup
 getPassword
+getDataFromOpenstackProject
 setupHeatTemplate
 deployHeatStack
 showBastionIp

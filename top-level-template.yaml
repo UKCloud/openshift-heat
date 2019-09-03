@@ -172,6 +172,12 @@ parameters:
     type: string
     description: Ansible branch that will be pulled on bastion deployment.
     default: master
+  controlplane_ip:
+    type: string
+    description: Floating IP address associated with controlplane port
+  dataplane_ip:
+    type: string
+    description: Floating IP address associated with dataplane port
 
 
 resources:
@@ -477,8 +483,9 @@ resources:
         sso_config: { get_param: sso_config }
         external_service_subnet: { get_param: [ network_config, service_subnet ] }
         registry_details: { get_param: registry_details }
-        ansible_branch: {get_param: ansible_branch }
-
+        ansible_branch: { get_param: ansible_branch }
+        controlplane_ip: { get_param: controlplane_ip }
+        dataplane_ip: { get_param: dataplane_ip }
 
 conditions:
   multinetwork:
