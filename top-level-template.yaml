@@ -178,6 +178,12 @@ parameters:
   dataplane_ip:
     type: string
     description: Floating IP address associated with dataplane port
+  neustar_ultradns_username:
+    type: string
+    description: Neustar UltraDNS username to allow authentication to UltraDNS API
+  neustar_ultradns_password:
+    type: string
+    description: Neustar UltraDNS password to allow authentication to UltraDNS API
 
 
 resources:
@@ -486,6 +492,8 @@ resources:
         ansible_branch: { get_param: ansible_branch }
         controlplane_ip: { get_param: controlplane_ip }
         dataplane_ip: { get_param: dataplane_ip }
+        neustar_ultradns_username: { get_param: neustar_ultradns_username }
+        neustar_ultradns_password: { get_param: neustar_ultradns_password }
 
 conditions:
   multinetwork:

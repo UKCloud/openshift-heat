@@ -61,6 +61,8 @@
     ansibleBranch: __ansible_branch__
     controlplaneIp: __controlplane_ip__
     dataplaneIp: __dataplane_ip__
+    neustarUltraDNSUsername: __neustar_ultradns_username__
+    neustarUltraDNSPassword: __neustar_ultradns_password__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -271,6 +273,8 @@
           registryUrl: {{ registryUrl }}
           registryUser: {{ registryUser }}
           registryPassword: {{ registryPassword }}
+          neustarUltraDNSUsername: {{ neustarUltraDNSUsername }}
+          neustarUltraDNSPassword: {{ neustarUltraDNSPassword }}
 
     - name: create ansible variables directory
       file:
