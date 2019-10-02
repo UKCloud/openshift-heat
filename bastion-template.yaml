@@ -110,6 +110,14 @@ parameters:
     type: number
     description: Size of the ES cluster to deploy if logging deployed with install_logging
     default: 1
+  ocp_branding:
+    type: boolean
+    description: Whether to add custom branding to ocp console
+    default: false
+  ocp_branding_url:
+    type: string
+    description: External URL for the CSS specifying the branding
+    default: ""
   haproxy_vip:
     type: string
     description: internal fixed IP of the haproxy vip serving cluster api
@@ -277,6 +285,8 @@ resources:
             __doUpgrades__: { get_param: do_upgrades }
             __installLogging__: { get_param: install_logging }
             __loggingClusterSize__: { get_param: logging_cluster_size }
+            __ocp_branding__ : { get_param: ocp_branding }
+            __ocp_branding_url__ : { get_param: ocp_branding_url }
             __multinetwork__ : { get_param: multinetwork }
             __deploy_extra_gateway__ : { get_param: deploy_extra_gateway }
             __external_dns__ : { get_param: external_dns }

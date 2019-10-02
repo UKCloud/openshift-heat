@@ -78,6 +78,14 @@ parameters:
     type: number
     description: Size of the ES cluster to deploy if logging deployed with install_logging
     default: 1
+  ocp_branding:
+    type: boolean
+    description: Whether to add custom branding to ocp console
+    default: false
+  ocp_branding_url:
+    type: string
+    description: External URL for the CSS specifying the branding
+    default: ""
   worker_small_scale:
     type: number
     description: Number of worker nodes to deploy

@@ -29,6 +29,8 @@
     doUpgrades: __doUpgrades__
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
+    ocpBranding: __ocp_branding__
+    ocpBrandingUrl: "__ocp_branding_url__"
     multinetwork: __multinetwork__
     deployExtraGateway: __deploy_extra_gateway__
     externalDns: __external_dns__
@@ -230,6 +232,8 @@
           doUpgrades: {{ doUpgrades }}
           installLogging: {{ installLogging }}
           loggingClusterSize: {{ loggingClusterSize }}
+          ocpBranding: {{ ocpBranding }}
+          ocpBrandingUrl: {{ ocpBrandingUrl }}
           multinetwork: {{ multinetwork }}
           external_dns:
           {% for item in externalDns %}
