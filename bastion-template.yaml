@@ -121,6 +121,9 @@ parameters:
   haproxy_vip:
     type: string
     description: internal fixed IP of the haproxy vip serving cluster api
+  squid_vip:
+    type: string
+    description: internal fixed IP of the haproxy vip serving cluster api
   control_plane_lb:
     type: comma_delimited_list
     description: Details of the control plane haproxy nodes
@@ -242,7 +245,7 @@ resources:
           params:
             suffix: { get_param: local_domain_suffix }
       flavor: { get_param: bastion_flavor }
-      image: "rhel-7-LTS" 
+      image: "rhel-7-Latest" 
       key_name: { get_param: key_name }
       networks:
         - port: { get_resource: bastion_port }
@@ -258,6 +261,7 @@ resources:
         str_replace:
           params:
             __haproxy_vip__: { get_param: [ haproxy_vip ] }
+            __squid_vip__: { get_param: [ squid_vip ] }
             __control_plane_lb__: { get_param: [ control_plane_lb ] }
             __master_details__: { get_param: [ master_details ] }
             __internet_dp_vip__: { get_param: [ internet_dp_vip ] }

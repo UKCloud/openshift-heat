@@ -247,6 +247,27 @@ resources:
           - { get_attr: [ security_groups, outputs, proxy_security_group ] }
           - { get_attr: [ security_groups, outputs, controlplane_certbot_security_group ] }
 
+  squid_vip:
+    type: OS::Heat::Stack
+    depends_on: [ internal_network, security_groups, server_groups ]
+    properties:
+      template: { get_file: squidvip.yaml }
+      parameters:
+        internal_network: { get_attr: [internal_network, outputs, network] }
+        internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
+        security_groups:
+          - { get_attr: [ security_groups, outputs, control_plane_lb_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, all_internet_egress_security_group ] }
+          - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
+          - { get_attr: [ security_groups, outputs, control_plane_security_group ] }
+          - { get_attr: [ security_groups, outputs, monitoring_security_group ] }
+          - { get_attr: [ security_groups, outputs, dns_internet_security_group ] }
+          - { get_attr: [ security_groups, outputs, dns_forwarder_security_group ] }
+          - { get_attr: [ security_groups, outputs, vrrp_controlplane_security_group ] }
+          - { get_attr: [ security_groups, outputs, proxy_security_group ] }
+          - { get_attr: [ security_groups, outputs, controlplane_certbot_security_group ] }
+      
+      
   master_nodes_deployment:
     type: OS::Heat::Stack
     depends_on: [ internal_network, security_groups, server_groups ]
@@ -403,7 +424,7 @@ resources:
 
   bastion_deployment:
     type: OS::Heat::Stack
-    depends_on: [ master_nodes_deployment, worker_small_nodes_deployment, worker_medium_nodes_deployment, worker_large_nodes_deployment ]
+    depends_on: [ squid_vip, master_nodes_deployment, worker_small_nodes_deployment, worker_medium_nodes_deployment, worker_large_nodes_deployment ]
     properties:
       template: { get_file: bastion.yaml }
       parameters:
@@ -440,6 +461,7 @@ resources:
         logging_cluster_size: { get_param: logging_cluster_size }
         # details of the master stack:
         haproxy_vip: { get_attr: [ control_plane_lb, outputs, haproxy_internal_vip ] }
+        squid_vip: { get_attr: [ squid_vip, outputs, squid_internal_vip ] }
         control_plane_lb: { get_attr: [ control_plane_lb, outputs, haproxy_list ] }
         master_details: { get_attr: [ master_nodes_deployment, outputs, node_list ] }
         # details of the internet facing node stack:

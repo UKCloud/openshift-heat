@@ -3,6 +3,7 @@
   vars:
     time: __time__
     haproxy_vip: __haproxy_vip__
+    squid_vip: __squid_vip__
     controlPlaneLb: __control_plane_lb__
     masterNodes: __master_details__
     internetDpVip: __internet_dp_vip__
@@ -213,6 +214,7 @@
           {% endfor %}
           {% endif %}
           haproxy_vip: {{ haproxy_vip }}
+          squid_vip: {{ squid_vip }}
           internet_vip: {{ internetDpVip }}
           domainSuffix: {{ domainSuffix }}
           openstackOpenshiftPassword: {{ openstackOpenshiftPassword }}
