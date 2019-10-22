@@ -33,7 +33,7 @@ retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_ac
 # install katello agent from specific repo and then disable
 if [[ "__satellite_deploy__" = True ]]
 then
-        subscription-manager repos --enable=rhel-7-server-satellite-tools-6.5-rpms
+        subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
         yum install -y katello-agent
 fi
 
@@ -54,7 +54,7 @@ retry subscription-manager repos \
         --enable=rhel-7-server-openstack-12-tools-rpms \
         --enable=rhel-7-server-rh-common-rpms \
         --enable=rhel-7-server-ansible-2.6-rpms \
-        --enable=rhel-7-server-satellite-tools-6.5-rpms
+        --enable=rhel-7-server-satellite-tools-6.3-rpms
 
 retry yum install -y \
         os-collect-config \
