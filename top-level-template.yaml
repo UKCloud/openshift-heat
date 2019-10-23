@@ -223,11 +223,12 @@ resources:
 
   control_plane_lb:
     type: OS::Heat::Stack
-    depends_on: [ internal_network, security_groups, server_groups ]
+    depends_on: [ squid_vip, internal_network, security_groups, server_groups ]
     properties:
       template: { get_file: loadbalancers.yaml }
       parameters:
         haproxy_floating_ip: { get_param: controlplane_floating_ip }
+        squid_vip: { get_attr: [ squid_vip, outputs, squid_internal_vip ] }
         key_name: { get_param: key_name }
         scale: 2
         purpose_ident: cp
@@ -407,6 +408,7 @@ resources:
       template: { get_file: loadbalancers.yaml }
       parameters:
         haproxy_floating_ip: { get_param: dataplane_floating_ip }
+        squid_vip: ""
         key_name: { get_param: key_name }
         scale: 2
         purpose_ident: www
