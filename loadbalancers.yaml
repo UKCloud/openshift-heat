@@ -12,7 +12,7 @@ parameters:
   image:
     type: string
     description: Image ID or image name to use for the server
-    default: "rhel-7-Latest"
+    default: "rhel-7-LTS"
     constraints:
       - custom_constraint: glance.image
   key_name:
