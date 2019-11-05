@@ -27,7 +27,7 @@ for probe in datadict['rss']['channel']['item']:
             first = False
         else:
             print(", ", end="")
-            print('\"' +probe['pingdom:ip'] + '/32\"', end="")
+            print('\"' + probe['pingdom:ip'] + '/32\"', end="")
 print(" ]")
 
 
