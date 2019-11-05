@@ -19,6 +19,9 @@ parameter_defaults:
   # Aggregated logging options
   install_logging: <deploy EFK stack for aggregated logging>
   logging_cluster_size: <ES scale in agg logging stack>
+  # Options to brand OCP portal (eg custom logo)
+  ocp_branding: false
+  ocp_branding_url: "URL for branding CSS"
   # Route options
   #set_node_routes: <boolean - whether to deploy static routes>
   #node_routes:

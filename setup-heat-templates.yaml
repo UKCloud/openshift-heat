@@ -219,6 +219,7 @@
               template: { get_file: loadbalancers.yaml }
               parameters:
                 haproxy_floating_ip: { get_resource: net2_floating_ip }
+                squid_vip: ""
                 key_name: { get_param: key_name }
                 scale: 2
                 purpose_ident: {{ purpose_ident }}
