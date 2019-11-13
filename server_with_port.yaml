@@ -74,7 +74,7 @@ resources:
              subscription-manager repos --enable=rhel-7-server-rpms 
              if [[ "__satellite_deploy__" = True ]] 
              then
-             	subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
+             	subscription-manager repos --enable=rhel-7-server-satellite-tools-6.5-rpms
              	yum install -y katello-agent
              fi
              systemctl enable rhsmcertd --now
