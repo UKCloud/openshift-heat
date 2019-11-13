@@ -3,6 +3,7 @@
   vars:
     time: __time__
     haproxy_vip: __haproxy_vip__
+    squid_vip: __squid_vip__
     controlPlaneLb: __control_plane_lb__
     masterNodes: __master_details__
     internetDpVip: __internet_dp_vip__
@@ -19,6 +20,7 @@
     osTenantId: __openstack_tenant_id__
     osTenantName: __openstack_tenant_name__
     osRegion: __openstack_region__
+    osDomainID: __openstack_domain_id__
     s3accesskey: __s3accesskey__
     s3secretkey: __s3secretkey__
     s3regionendpoint: __s3regionendpoint__
@@ -28,6 +30,8 @@
     doUpgrades: __doUpgrades__
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
+    ocpBranding: __ocp_branding__
+    ocpBrandingUrl: "__ocp_branding_url__"
     multinetwork: __multinetwork__
     deploy_portworx_storage: __deploy_portworx_storage__
     deployExtraGateway: __deploy_extra_gateway__
@@ -55,6 +59,7 @@
     registryUrl: __registry_url__
     registryUser: __registry_user__
     registryPassword: __registry_password__
+    ansibleBranch: __ansible_branch__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -210,6 +215,7 @@
           {% endfor %}
           {% endif %}
           haproxy_vip: {{ haproxy_vip }}
+          squid_vip: {{ squid_vip }}
           internet_vip: {{ internetDpVip }}
           domainSuffix: {{ domainSuffix }}
           openstackOpenshiftPassword: {{ openstackOpenshiftPassword }}
@@ -218,6 +224,7 @@
           osTenantId: {{ osTenantId }}
           osTenantName: {{ osTenantName }}
           osRegion: {{ osRegion }}
+          osDomainID: {{ osDomainID }}
           s3accesskey: {{ s3accesskey }}
           s3secretkey: {{ s3secretkey  }} 
           s3regionendpoint: {{ s3regionendpoint }}
@@ -228,6 +235,8 @@
           doUpgrades: {{ doUpgrades }}
           installLogging: {{ installLogging }}
           loggingClusterSize: {{ loggingClusterSize }}
+          ocpBranding: {{ ocpBranding }}
+          ocpBrandingUrl: {{ ocpBrandingUrl }}
           multinetwork: {{ multinetwork }}
           deploy_portworx_storage: {{ deploy_portworx_storage }}
           external_dns:
@@ -279,7 +288,7 @@
       git:
         repo: 'https://github.com/UKCloud/openshift-deployment-ansible.git'
         dest: /usr/share/ansible/openshift-deployment-ansible
-        version: master
+        version: "{{ ansibleBranch }}"
       when: stack_create
 
     - name: Create variables symlink

@@ -27,7 +27,7 @@ deploy_portworx_storage=$(python -c "import yaml;d=yaml.load(open('environment.y
    
 
 function validateSetup() {
-  if [[ -z ${OS_TENANT_ID} ]]; then
+  if [[ -z ${OS_PROJECT_ID} ]]; then
     echo -e "\nYou must source your OpenStack RC file so we can access the OpenStack API\n"
     exit 1
   fi
@@ -55,20 +55,21 @@ function addPortworxStorage() {
     --extra-vars "multinetwork=${multinetwork}"
 }
 function deployHeatStack() {
-  openstack stack create -f yaml -t openshift.yaml openshift-${OS_TENANT_NAME} \
+  openstack stack create -f yaml -t openshift.yaml openshift-${OS_PROJECT_NAME} \
     -e rhel_reg_creds.yaml \
     -e environment.yaml \
     --parameter time="$(date)" \
     --parameter os_auth_url="${OS_AUTH_URL}" \
-    --parameter os_tenant_id="${OS_TENANT_ID}" \
-    --parameter os_tenant_name="${OS_TENANT_NAME}" \
+    --parameter os_tenant_id="${OS_PROJECT_ID}" \
+    --parameter os_tenant_name="${OS_PROJECT_NAME}" \
     --parameter os_region="${OS_REGION_NAME}" \
+    --parameter os_domain_id="Default" \
     --parameter openshift_openstack_password="${openshift_openstack_password}" \
     --wait
 }
 
 function showBastionIp() {
-  openstack stack output show openshift-${OS_TENANT_NAME} --all
+  openstack stack output show openshift-${OS_PROJECT_NAME} --all
 }
 
 validateSetup

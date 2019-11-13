@@ -60,6 +60,9 @@ parameters:
   os_region:
     type: string
     description: OpenStack Region
+  os_domain_id:
+    type: string
+    description: OpenStack domain ID
   s3_access_key:
     type: string
     description: s3 access key for registry backend
@@ -107,7 +110,18 @@ parameters:
     type: number
     description: Size of the ES cluster to deploy if logging deployed with install_logging
     default: 1
+  ocp_branding:
+    type: boolean
+    description: Whether to add custom branding to ocp console
+    default: false
+  ocp_branding_url:
+    type: string
+    description: External URL for the CSS specifying the branding
+    default: ""
   haproxy_vip:
+    type: string
+    description: internal fixed IP of the haproxy vip serving cluster api
+  squid_vip:
     type: string
     description: internal fixed IP of the haproxy vip serving cluster api
   control_plane_lb:
@@ -167,6 +181,9 @@ parameters:
     type: json
     description: Configuration needed for authenticated container registry
     hidden: true
+  ansible_branch:
+    type: string
+    description: Ansible branch that is pulled on bastion deployment.
 
 resources:
   bastion_port:
@@ -248,6 +265,7 @@ resources:
         str_replace:
           params:
             __haproxy_vip__: { get_param: [ haproxy_vip ] }
+            __squid_vip__: { get_param: [ squid_vip ] }
             __control_plane_lb__: { get_param: [ control_plane_lb ] }
             __master_details__: { get_param: [ master_details ] }
             __internet_dp_vip__: { get_param: [ internet_dp_vip ] }
@@ -264,6 +282,7 @@ resources:
             __openstack_tenant_id__: { get_param: os_tenant_id }
             __openstack_tenant_name__: { get_param: os_tenant_name }
             __openstack_region__: { get_param: os_region }
+            __openstack_domain_id__: { get_param: os_domain_id }
             __s3accesskey__: { get_param: s3_access_key }
             __s3secretkey__: { get_param: s3_secret_key }
             __s3regionendpoint__: { get_param: s3_region_endpoint  }
@@ -274,6 +293,8 @@ resources:
             __doUpgrades__: { get_param: do_upgrades }
             __installLogging__: { get_param: install_logging }
             __loggingClusterSize__: { get_param: logging_cluster_size }
+            __ocp_branding__ : { get_param: ocp_branding }
+            __ocp_branding_url__ : { get_param: ocp_branding_url }
             __multinetwork__ : { get_param: multinetwork }
             __deploy_portworx_storage__ : { get_param: deploy_portworx_storage }
             __deploy_extra_gateway__ : { get_param: deploy_extra_gateway }
@@ -289,6 +310,7 @@ resources:
             __registry_url__ : { get_param: [ registry_details, registry_url ] }
             __registry_user__: { get_param: [ registry_details, registry_user ] }
             __registry_password__ : { get_param: [ registry_details, registry_password ] }
+            __ansible_branch__ : { get_param: ansible_branch }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result

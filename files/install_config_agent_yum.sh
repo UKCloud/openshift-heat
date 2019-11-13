@@ -33,13 +33,13 @@ retry subscription-manager register --org __rhn_orgid__ --activationkey __rhn_ac
 # install katello agent from specific repo and then disable
 if [[ "__satellite_deploy__" = True ]]
 then
-        subscription-manager repos --enable=rhel-7-server-satellite-tools-6.3-rpms
+        subscription-manager repos --enable=rhel-7-server-satellite-tools-6.5-rpms
         yum install -y katello-agent
 fi
 
 # determine pool ID's for red hat subscriptions
-openstackPoolId=$(retry subscription-manager list --available | grep 'Red Hat OpenStack Platform for Service Providers' -A100 | grep -m 1 'Pool ID' | awk '{print $NF}')
-openshiftPoolId=$(retry subscription-manager list --available | grep 'Red Hat OpenShift Container Platform for Certified Cloud and Service Providers' -A100 | grep -m 1 'Pool ID' | awk '{print $NF}')
+openstackPoolId=$(subscription-manager list --available --matches='Red Hat OpenStack Platform for Service Providers' | awk '/System Type:\s*Physical/' RS='\n\n' | awk '/Pool ID/ {print $NF}')
+openshiftPoolId=$(subscription-manager list --available --matches='Red Hat OpenShift Container Platform for Certified Cloud and Service Providers' | awk '/System Type:\s*Physical/' RS='\n\n' | awk '/Pool ID/ {print $NF}')
 
 # setup repos & install software packages
 retry subscription-manager attach --pool=$openstackPoolId
@@ -54,7 +54,7 @@ retry subscription-manager repos \
         --enable=rhel-7-server-openstack-12-tools-rpms \
         --enable=rhel-7-server-rh-common-rpms \
         --enable=rhel-7-server-ansible-2.6-rpms \
-        --enable=rhel-7-server-satellite-tools-6.3-rpms
+        --enable=rhel-7-server-satellite-tools-6.5-rpms
 
 retry yum install -y \
         os-collect-config \

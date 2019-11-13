@@ -54,6 +54,8 @@ parameters:
   server_group:
     type: string
     description: Server group for loadbalancers
+  squid_vip:  
+    type: string
   floating_ip_internal_vips:
     type: comma_delimited_list
     description: Security groups for loadbalancer
@@ -92,10 +94,11 @@ resources:
           port_network: { get_param: internal_network }
           internal_vip: 
             yaql:
-              expression: $.data.vips.append($.data.internal_vip)
+              expression: switch($.data.squid_vip != "" => $.data.vips.append($.data.internal_vip,$.data.squid_vip), $.data.squid_vip = "" => $.data.vips.append($.data.internal_vip))
               data:
                 vips: { get_param: floating_ip_internal_vips }
                 internal_vip: { get_attr: [ floating_ip, outputs, floatingip_internal_vip ] }
+                squid_vip: { get_param: squid_vip }
           sec_groups: { get_param: security_groups }
           server_group: { get_param: server_group }
 

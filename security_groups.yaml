@@ -228,7 +228,7 @@ resources:
   vrrp_dataplane_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: vrrp_controlplane_sg
+      name: vrrp_dataplane_sg
       rules:
         - protocol: 112
           direction: ingress
@@ -237,7 +237,7 @@ resources:
   vrrp_net2_secgroup:
     type: OS::Neutron::SecurityGroup
     properties:
-      name: vrrp_controlplane_sg
+      name: vrrp_net2_sg
       rules:
         - protocol: 112
           direction: ingress
