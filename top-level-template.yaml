@@ -184,7 +184,9 @@ parameters:
   neustar_ultradns_password:
     type: string
     description: Neustar UltraDNS password to allow authentication to UltraDNS API
-
+  slack_webhook_url_acme_sh:
+    type: string
+    description: Slack Webhook URL for acme.sh notifications
 
 resources:
   internal_network:
@@ -494,6 +496,7 @@ resources:
         dataplane_ip: { get_param: dataplane_ip }
         neustar_ultradns_username: { get_param: neustar_ultradns_username }
         neustar_ultradns_password: { get_param: neustar_ultradns_password }
+        slack_webhook_url_acme_sh: { get_param: slack_webhook_url_acme_sh }
 
 conditions:
   multinetwork:
