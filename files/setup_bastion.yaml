@@ -59,6 +59,11 @@
     registryUser: __registry_user__
     registryPassword: __registry_password__
     ansibleBranch: __ansible_branch__
+    controlplaneIp: __controlplane_ip__
+    dataplaneIp: __dataplane_ip__
+    neustarUltraDnsUsername: __neustar_ultradns_username__
+    neustarUltraDnsPassword: __neustar_ultradns_password__
+    slackWebhookUrlAcmeSh: __slack_webhook_url_acme_sh__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -245,6 +250,8 @@
           node_routes: {{ nodeRoutes | to_json }}
           internalNetworkCidr: {{ internalNetworkCidr }}
           bastion_ip: {{ bastionIp }}
+          controlplane_ip: {{ controlplaneIp }}
+          dataplane_ip: {{ dataplaneIp }}
           {% if multinetwork %}
           net2_routes: {{ net2Routes | to_json }}
           net2_ntp_servers: {{ net2NTPServers | to_json }}
@@ -267,6 +274,9 @@
           registryUrl: {{ registryUrl }}
           registryUser: {{ registryUser }}
           registryPassword: {{ registryPassword }}
+          neustarUltraDnsUsername: {{ neustarUltraDnsUsername }}
+          neustarUltraDnsPassword: {{ neustarUltraDnsPassword }}
+          slackWebhookUrlAcmeSh: {{ slackWebhookUrlAcmeSh }}
 
     - name: create ansible variables directory
       file:

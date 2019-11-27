@@ -81,3 +81,6 @@ parameter_defaults:
   #  registry_user: "<registry_user>"
   #  registry_password: "<registry_password>"
   ansible_branch: "v3.11"
+  neustar_ultradns_username: "<neustar_ultradns_username>"
+  neustar_ultradns_password: "<neustar_ultradns_password>"
+  slack_webhook_url_acme_sh: "<Slack Webhook URL for acme.sh notifications>"

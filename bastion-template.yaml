@@ -180,6 +180,21 @@ parameters:
   ansible_branch:
     type: string
     description: Ansible branch that is pulled on bastion deployment.
+  controlplane_ip:
+    type: string
+    description: Floating IP address associated with controlplane port
+  dataplane_ip:
+    type: string
+    description: Floating IP address associated with dataplane port
+  neustar_ultradns_username:
+    type: string
+    description: Neustar UltraDNS username to allow authentication to UltraDNS API
+  neustar_ultradns_password:
+    type: string
+    description: Neustar UltraDNS password to allow authentication to UltraDNS API
+  slack_webhook_url_acme_sh:
+    type: string
+    description: Slack Webhook URL for acme.sh notifications
 
 resources:
   bastion_port:
@@ -306,6 +321,11 @@ resources:
             __registry_user__: { get_param: [ registry_details, registry_user ] }
             __registry_password__ : { get_param: [ registry_details, registry_password ] }
             __ansible_branch__ : { get_param: ansible_branch }
+            __controlplane_ip__ : { get_param: controlplane_ip }
+            __dataplane_ip__ : { get_param: dataplane_ip }
+            __neustar_ultradns_username__ : { get_param: neustar_ultradns_username }
+            __neustar_ultradns_password__ : { get_param: neustar_ultradns_password }
+            __slack_webhook_url_acme_sh__ : { get_param: slack_webhook_url_acme_sh }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
