@@ -187,6 +187,9 @@ parameters:
   slack_webhook_url_acme_sh:
     type: string
     description: Slack Webhook URL for acme.sh notifications
+  ansible_vault_password:
+    type: string
+    description: Ansible Vault password for decrypting secrets
 
 resources:
   internal_network:
@@ -497,6 +500,7 @@ resources:
         neustar_ultradns_username: { get_param: neustar_ultradns_username }
         neustar_ultradns_password: { get_param: neustar_ultradns_password }
         slack_webhook_url_acme_sh: { get_param: slack_webhook_url_acme_sh }
+        ansible_vault_password: { get_param: ansible_vault_password }
 
 conditions:
   multinetwork:

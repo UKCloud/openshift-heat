@@ -64,6 +64,7 @@
     neustarUltraDnsUsername: __neustar_ultradns_username__
     neustarUltraDnsPassword: __neustar_ultradns_password__
     slackWebhookUrlAcmeSh: __slack_webhook_url_acme_sh__
+    ansibleVaultPassword: __ansible_vault_password__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -277,6 +278,11 @@
           neustarUltraDnsUsername: {{ neustarUltraDnsUsername }}
           neustarUltraDnsPassword: {{ neustarUltraDnsPassword }}
           slackWebhookUrlAcmeSh: {{ slackWebhookUrlAcmeSh }}
+    
+    - name: Create Ansible vault password file
+      copy:
+        content: "{{ ansibleVaultPassword }}"
+        dest: /home/cloud-user/ansible-vault-password
 
     - name: create ansible variables directory
       file:
