@@ -84,3 +84,4 @@ parameter_defaults:
   neustar_ultradns_username: "<neustar_ultradns_username>"
   neustar_ultradns_password: "<neustar_ultradns_password>"
   slack_webhook_url_acme_sh: "<Slack Webhook URL for acme.sh notifications>"
+  ansible_vault_password: '<Ansible Vault password>'
