@@ -176,6 +176,24 @@ parameters:
     type: string
     description: Ansible branch that will be pulled on bastion deployment.
     default: master
+  controlplane_ip:
+    type: string
+    description: Floating IP address associated with controlplane port
+  dataplane_ip:
+    type: string
+    description: Floating IP address associated with dataplane port
+  neustar_ultradns_username:
+    type: string
+    description: Neustar UltraDNS username to allow authentication to UltraDNS API
+  neustar_ultradns_password:
+    type: string
+    description: Neustar UltraDNS password to allow authentication to UltraDNS API
+  slack_webhook_url_acme_sh:
+    type: string
+    description: Slack Webhook URL for acme.sh notifications
+  ansible_vault_password:
+    type: string
+    description: Ansible Vault password for decrypting secrets
 
 resources:
   internal_network:
@@ -485,8 +503,13 @@ resources:
         sso_config: { get_param: sso_config }
         external_service_subnet: { get_param: [ network_config, service_subnet ] }
         registry_details: { get_param: registry_details }
-        ansible_branch: {get_param: ansible_branch }
-
+        ansible_branch: { get_param: ansible_branch }
+        controlplane_ip: { get_param: controlplane_ip }
+        dataplane_ip: { get_param: dataplane_ip }
+        neustar_ultradns_username: { get_param: neustar_ultradns_username }
+        neustar_ultradns_password: { get_param: neustar_ultradns_password }
+        slack_webhook_url_acme_sh: { get_param: slack_webhook_url_acme_sh }
+        ansible_vault_password: { get_param: ansible_vault_password }
 
 conditions:
   multinetwork:
