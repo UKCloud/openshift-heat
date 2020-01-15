@@ -66,6 +66,7 @@
     neustarUltraDnsPassword: __neustar_ultradns_password__
     slackWebhookUrlAcmeSh: __slack_webhook_url_acme_sh__
     ansibleVaultPassword: __ansible_vault_password__
+    internetGatewayIp: __internet_gateway_ip__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -76,7 +77,12 @@
                 --os-password "{{ openstackOpenshiftPassword }}") = *UPDATE* ]] ; then echo False ; else echo True ; fi
       register: stack_status
 
-    - set_fact: stack_create="{{ stack_status.stdout }}"
+    - set_fact: 
+        stack_create: "{{ stack_status.stdout }}"
+
+    - set_fact:
+        net2NodeRoutes: "{{ net2NodeRoutes + [ { 'gateway': internetGatewayIp, 'route': controlplaneIp } ] }}"
+      when: multinetwork
 
     - name: temporarily add host entries before we setup proper DNS
       blockinfile:

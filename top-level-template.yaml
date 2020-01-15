@@ -510,6 +510,7 @@ resources:
         neustar_ultradns_password: { get_param: neustar_ultradns_password }
         slack_webhook_url_acme_sh: { get_param: slack_webhook_url_acme_sh }
         ansible_vault_password: { get_param: ansible_vault_password }
+        internet_gateway_ip: { get_param: [ network_config, gateway ] }
 
 conditions:
   multinetwork:

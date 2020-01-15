@@ -202,6 +202,9 @@ parameters:
   ansible_vault_password:
     type: string
     description: Ansible Vault password for decrypting secrets
+  internet_gateway_ip:
+    type: string
+    description: Internet gateway for internal network
 
 resources:
   bastion_port:
@@ -335,6 +338,7 @@ resources:
             __neustar_ultradns_password__ : { get_param: neustar_ultradns_password }
             __slack_webhook_url_acme_sh__ : { get_param: slack_webhook_url_acme_sh }
             __ansible_vault_password__: { get_param: ansible_vault_password }
+            __internet_gateway_ip__: { get_param: internet_gateway_ip }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
