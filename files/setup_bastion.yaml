@@ -81,7 +81,7 @@
         stack_create: "{{ stack_status.stdout }}"
 
     - set_fact:
-        net2NodeRoutes: "{{ net2NodeRoutes + [ { 'gateway': internetGatewayIp, 'route': controlplaneIp } ] }}"
+        net2NodeRoutes: "{{ net2NodeRoutes + [ { 'gateway': internetGatewayIp, 'route': controlplaneIp + '/32' } ] }}"
       when: multinetwork
 
     - name: temporarily add host entries before we setup proper DNS
