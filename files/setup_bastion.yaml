@@ -27,6 +27,7 @@
     s3bucketname: __s3bucketname__
     openshiftVersion: "__openshiftVersion__"
     getCertificates: __getCertificates__
+    stagingCerts: __stagingCerts__
     doUpgrades: __doUpgrades__
     installLogging: __installLogging__
     loggingClusterSize: __loggingClusterSize__
@@ -237,6 +238,7 @@
           localDomainSuffix: {{ localDomainSuffix }}
           openshiftVersion: "{{ openshiftVersion }}"
           getCertificates: {{ getCertificates }}
+          stagingCerts: {{ stagingCerts }}
           doUpgrades: {{ doUpgrades }}
           installLogging: {{ installLogging }}
           loggingClusterSize: {{ loggingClusterSize }}
