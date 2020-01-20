@@ -69,6 +69,7 @@ parameters:
       GROWPART=true
       ROOT_SIZE=20G
       DATA_SIZE=70G
+# add-portworx.yaml inserts network and volume parameters here
 
 resources:
 
@@ -87,6 +88,7 @@ resources:
                 nodetype: { get_param: node_type }
                 suffix: { get_param: local_domain_suffix }
                 ident: { get_param: purpose_ident }
+          purpose_ident: { get_param: purpose_ident }
           flavor: { get_param: node_flavor }
           image: { get_param: image }
           key_name: { get_param: key_name }
@@ -97,7 +99,7 @@ resources:
           storage_setup: { get_param: storage_setup }
           external_service_subnet: { get_param: external_service_subnet }
           server_group: { get_param: server_group }
-
+          # add-portworx.yaml inserts server group parameters here
 outputs:
   node_list:
     description: host file contents

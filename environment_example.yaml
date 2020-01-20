@@ -80,6 +80,7 @@ parameter_defaults:
   #  registry_url: "<registry_url>"
   #  registry_user: "<registry_user>"
   #  registry_password: "<registry_password>"
+  #deploy_portworx_storage: <whether to deploy extra volumes, network and prereqs for portworx>
   ansible_branch: "v3.11"
   neustar_ultradns_username: "<neustar_ultradns_username>"
   neustar_ultradns_password: "<neustar_ultradns_password>"

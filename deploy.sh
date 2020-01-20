@@ -22,6 +22,9 @@ if [[ $multinetwork == true ]]; then
      tr '[:upper:]' '[:lower:]')
 fi
 
+deploy_portworx_storage=$(python -c "import yaml;d=yaml.load(open('environment.yaml')); print(d['parameter_defaults']['deploy_portworx_storage'] if d['parameter_defaults'].has_key('deploy_portworx_storage') else 'False')" |
+     tr '[:upper:]' '[:lower:]')
+
 function validateSetup() {
   if [[ -z ${OS_PROJECT_ID} ]]; then
     echo -e "\nYou must source your OpenStack RC file so we can access the OpenStack API\n"
@@ -53,6 +56,12 @@ function setupHeatTemplate() {
     --extra-vars "purpose_ident=${purpose_ident}"
 }
 
+function addPortworxStorage() {
+  ansible-playbook ./add-portworx.yaml \
+    --extra-vars "deploy_portworx_storage=${deploy_portworx_storage}" \
+    --extra-vars "purpose_ident=${purpose_ident}" \
+    --extra-vars "multinetwork=${multinetwork}"
+}
 function deployHeatStack() {
   openstack stack create -f yaml -t openshift.yaml openshift-${OS_PROJECT_NAME} \
     -e rhel_reg_creds.yaml \
@@ -77,5 +86,6 @@ validateSetup
 getPassword
 getDataFromOpenstackProject
 setupHeatTemplate
+addPortworxStorage
 deployHeatStack
 showBastionIp

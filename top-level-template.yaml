@@ -105,6 +105,10 @@ parameters:
   multinetwork:
     type: boolean
     description: Whether to deploy a secondary external network
+  deploy_portworx_storage:
+    type: boolean
+    description: Deploy Portworx?
+    default: false  
   deploy_extra_gateway:
     type: boolean
     description: Whether to deploy an extra gateway for a VRF for example
@@ -198,6 +202,7 @@ resources:
       template: { get_file: network.yaml }
       parameters:
         allocation_pools: { get_param: [ network_config, allocation_pool ] }
+        # add-portworx.yaml inserts deploy_storage_networks parameter here
         cidr: { get_param: [ network_config, cidr ] }
         dns: { get_param: [ network_config, dns ] }
         external_network: { get_param: external_network_cp }
@@ -346,10 +351,11 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: ocp.t1.xxlarge
+        node_flavor: ocp.t1.xxlarge # add-portworx.yaml replaces this with pwx.t1.xxlarge
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_small_scale }
         purpose_ident: tenant-s
+        # add-portworx.yaml inserts small tenant worker storage networks here
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -372,10 +378,11 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: ocp.m1.large
+        node_flavor: ocp.m1.large # add-portworx.yaml replaces this with pwx.m1.medium
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_medium_scale }
         purpose_ident: tenant-m
+        # add-portworx.yaml inserts medium tenant worker storage networks here
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -398,10 +405,11 @@ resources:
       template: { get_file: node_group.yaml }
       parameters:
         node_type: worker
-        node_flavor: ocp.r1.large
+        node_flavor: ocp.r1.large # add-portworx.yaml replaces this with pwx.r1.large
         key_name: { get_param: key_name }
         node_scale: { get_param: worker_large_scale }
         purpose_ident: tenant-l
+        # add-portworx.yaml inserts large tenant worker storage networks here
         local_domain_suffix: { get_param: local_domain_suffix }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }
@@ -474,6 +482,7 @@ resources:
           - { get_attr: [ security_groups, outputs, bastion_external_security_group ] }
           - { get_attr: [ security_groups, outputs, bastion_internal_ssh_security_group ] }
         multinetwork: { get_param: multinetwork }
+        deploy_portworx_storage: { get_param: deploy_portworx_storage }
         deploy_extra_gateway: { get_param: deploy_extra_gateway }
         install_logging: { get_param: install_logging }
         logging_cluster_size: { get_param: logging_cluster_size }
@@ -501,6 +510,7 @@ resources:
         neustar_ultradns_password: { get_param: neustar_ultradns_password }
         slack_webhook_url_acme_sh: { get_param: slack_webhook_url_acme_sh }
         ansible_vault_password: { get_param: ansible_vault_password }
+        internet_gateway_ip: { get_param: [ network_config, gateway ] }
 
 conditions:
   multinetwork:

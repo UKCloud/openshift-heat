@@ -151,6 +151,10 @@ parameters:
   multinetwork:
     type: boolean
     description: Deployment is multi-network?
+  deploy_portworx_storage:
+    type: boolean
+    description: Deploy Portworx?
+    default: false
   deploy_extra_gateway:
     type: boolean
     description: Deployment includes extra-gateway?
@@ -198,6 +202,9 @@ parameters:
   ansible_vault_password:
     type: string
     description: Ansible Vault password for decrypting secrets
+  internet_gateway_ip:
+    type: string
+    description: Internet gateway for internal network
 
 resources:
   bastion_port:
@@ -310,6 +317,7 @@ resources:
             __ocp_branding__ : { get_param: ocp_branding }
             __ocp_branding_url__ : { get_param: ocp_branding_url }
             __multinetwork__ : { get_param: multinetwork }
+            __deploy_portworx_storage__ : { get_param: deploy_portworx_storage }
             __deploy_extra_gateway__ : { get_param: deploy_extra_gateway }
             __external_dns__ : { get_param: external_dns }
             __set_node_routes__ : { get_param: set_node_routes }
@@ -330,6 +338,7 @@ resources:
             __neustar_ultradns_password__ : { get_param: neustar_ultradns_password }
             __slack_webhook_url_acme_sh__ : { get_param: slack_webhook_url_acme_sh }
             __ansible_vault_password__: { get_param: ansible_vault_password }
+            __internet_gateway_ip__: { get_param: internet_gateway_ip }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
