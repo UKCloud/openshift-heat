@@ -14,6 +14,7 @@ parameter_defaults:
   s3_bucket_name: <existing s3 bucket to use - note this must exist already!>
   # Process specifics to run in the ansible deployment after heat has finished
   get_certificates: <whether to get certificates from letsencrypt - requires external DNS setup>
+  staging_certs: <if certificates should be production LE or staging>
   do_upgrades: <whether to perform node patching prior to deployment>
   openshift_version: <major version number default is 3.9, 3.9 is the minimum now>
   # Aggregated logging options

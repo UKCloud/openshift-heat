@@ -64,7 +64,11 @@ parameters:
     default: 3.7
   get_certificates:
     type: boolean
-    description: download certificates with certbot during install
+    description: download certificates with acme script during install
+    default: false
+  staging_certs:
+    type: boolean
+    description: use production or staging certificates
     default: false
   do_upgrades:
     type: boolean
@@ -468,7 +472,8 @@ resources:
         os_domain_id: { get_param: os_domain_id }
         s3_bucket_name: { get_param: s3_bucket_name }
         openshift_version: { get_param: openshift_version }
-        get_certificates: { get_param: get_certificates } 
+        get_certificates: { get_param: get_certificates }
+        staging_certs: { get_param: staging_certs }
         do_upgrades: { get_param: do_upgrades }
         internal_network: { get_attr: [internal_network, outputs, network] }
         internal_network_subnet: { get_attr: [internal_network, outputs, subnet] }

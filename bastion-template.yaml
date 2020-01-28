@@ -81,7 +81,11 @@ parameters:
     default: 3.7
   get_certificates:
     type: boolean
-    description: download certificates with certbot during install
+    description: download certificates with acme script during install
+    default: false
+  staging_certs:
+    type: boolean
+    description: use production or staging certificates
     default: false
   do_upgrades:
     type: boolean
@@ -311,6 +315,7 @@ resources:
             __local_domain_suffix__: { get_param: local_domain_suffix }
             __openshiftVersion__: { get_param: openshift_version }
             __getCertificates__: { get_param: get_certificates }
+            __stagingCerts__: { get_param: staging_certs }
             __doUpgrades__: { get_param: do_upgrades }
             __installLogging__: { get_param: install_logging }
             __loggingClusterSize__: { get_param: logging_cluster_size }
