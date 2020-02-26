@@ -198,6 +198,9 @@ parameters:
   ansible_vault_password:
     type: string
     description: Ansible Vault password for decrypting secrets
+  zabbix_agents:
+    type: string
+    description: Sets up zabbix agents on loadbalancers if defined
 
 resources:
   internal_network:
@@ -516,6 +519,7 @@ resources:
         slack_webhook_url_acme_sh: { get_param: slack_webhook_url_acme_sh }
         ansible_vault_password: { get_param: ansible_vault_password }
         internet_gateway_ip: { get_param: [ network_config, gateway ] }
+        zabbix_agents: { get_param: zabbix_agents }
 
 conditions:
   multinetwork:

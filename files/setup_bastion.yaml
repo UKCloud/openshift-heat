@@ -68,6 +68,7 @@
     slackWebhookUrlAcmeSh: __slack_webhook_url_acme_sh__
     ansibleVaultPassword: __ansible_vault_password__
     internetGatewayIp: __internet_gateway_ip__
+    zabbixAgents: __zabbix_agents__
 
   tasks:
     - name: Check if stack update or create and register variable
@@ -288,6 +289,7 @@
           neustarUltraDnsUsername: {{ neustarUltraDnsUsername }}
           neustarUltraDnsPassword: {{ neustarUltraDnsPassword }}
           slackWebhookUrlAcmeSh: {{ slackWebhookUrlAcmeSh }}
+          zabbixAgents: {{ zabbixAgents }}
     
     - name: Create Ansible vault password file
       copy:
