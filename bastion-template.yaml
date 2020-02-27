@@ -212,6 +212,7 @@ parameters:
   zabbix_agents:
     type: string
     description: Sets up zabbix agents on loadbalancers if defined
+    default: ""
 
 resources:
   bastion_port:
