@@ -209,6 +209,10 @@ parameters:
   internet_gateway_ip:
     type: string
     description: Internet gateway for internal network
+  zabbix_agents:
+    type: string
+    description: Sets up zabbix agents on loadbalancers if defined
+    default: "false"
 
 resources:
   bastion_port:
@@ -344,6 +348,7 @@ resources:
             __slack_webhook_url_acme_sh__ : { get_param: slack_webhook_url_acme_sh }
             __ansible_vault_password__: { get_param: ansible_vault_password }
             __internet_gateway_ip__: { get_param: internet_gateway_ip }
+            __zabbix_agents__: { get_param: zabbix_agents }
           template: { get_file: 'files/setup_bastion.yaml' }
       outputs:
       - name: result
