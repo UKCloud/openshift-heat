@@ -38,8 +38,8 @@ then
 fi
 
 # determine pool ID's for red hat subscriptions
-openstackPoolId=$(subscription-manager list --available --matches='Red Hat OpenStack Platform for Service Providers' | awk '/System Type:\s*Physical/' RS='\n\n' | awk '/Pool ID/ {print $NF}')
-openshiftPoolId=$(subscription-manager list --available --matches='Red Hat OpenShift Container Platform for Certified Cloud and Service Providers' | awk '/System Type:\s*Physical/' RS='\n\n' | awk '/Pool ID/ {print $NF}')
+openstackPoolId=$(subscription-manager list --available --matches='Red Hat OpenStack Platform for Service Providers' | awk '/Pool ID/ {print $NF}')
+openshiftPoolId=$(subscription-manager list --available --matches='Red Hat OpenShift Container Platform for Certified Cloud and Service Providers' | awk '/Pool ID/ {print $NF}')
 
 # setup repos & install software packages
 retry subscription-manager attach --pool=$openstackPoolId
