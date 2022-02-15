@@ -22,7 +22,7 @@ if [[ $multinetwork == true ]]; then
      tr '[:upper:]' '[:lower:]')
 fi
 
-deploy_portworx_storage=$(python -c "import yaml;d=yaml.load(open('environment.yaml')); print(d['parameter_defaults']['deploy_portworx_storage'] if d['parameter_defaults'].has_key('deploy_portworx_storage') else 'False')" |
+deploy_portworx_storage=$(python -c "import yaml;d=yaml.load(open('environment.yaml')); print(d['parameter_defaults']['deploy_portworx_storage'] if 'deploy_portworx_storage' in d['parameter_defaults'] else 'False')" |
      tr '[:upper:]' '[:lower:]')
 
 function validateSetup() {
